@@ -65,4 +65,8 @@ If the forward run fails, the result is reported as a failure. The forward segme
 then counts as used, and no further tuning on it will be presented as OOS.
 
 ## Amendments
-(none yet)
+1. (Before the forward run) Iteration log: see `research/ITERATIONS.md`. The final version is
+   frozen in `research/candidates.py::FINAL` in the commit "Freeze final strategy version
+   before forward test". The forward segment was not evaluated before that commit.
+2. The struct filter uses a fixed 100-tick reference (`struct_ref_ticks=100`), so stop-size
+   robustness tests vary only the stop and not the trade selection.
