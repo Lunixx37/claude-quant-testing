@@ -1,0 +1,64 @@
+FINAL params: {'trigger': 'reclaim', 'struct_filter': True, 'struct_ref_ticks': 100, 'trail_lag': 1.25, 'allow_b': False, 'use_hp': False, 'er_max': 1.0}
+
+##### AUDIT (final params, train) #####
+PASS max 2 trades per NY date
+PASS all signals inside NY window
+PASS entry = bar after signal (market, next open)
+PASS entry price = next open + slippage
+PASS no overnight: exit same NY date as entry
+PASS exit not after flat time
+PASS no overlapping positions
+PASS initial stops are 100 / 50 ticks only
+PASS worst trade -1.02R (gap risk bounded)
+PASS truncation (no-lookahead) test on 40 random cut points
+
+=== TRAIN 2023-02..2024-06 ===
+{"label": "TRAIN 2023-02..2024-06", "n": 131, "net_usd": 15596.0, "pf": 1.472, "win": 0.359, "avg_win": 1035.0, "avg_loss": -393.4, "expR": 0.238, "maxdd_R": 6.94, "sumR": 31.2}
+trades/trade-day 1.12  max/day 2  avg bars held 42.0  stop-outs 98.47%  init-stop losses (R<-0.9) 44.27%  avg MFE R 1.76
+  by side: long: n=69 $14310 pf=1.944 wr=0.377 E=0.415R | short: n=62 $1286 pf=1.072 wr=0.339 E=0.041R
+  by tier: A: n=131 $15596 pf=1.472 wr=0.359 E=0.238R
+  by stopsz: 100: n=131 $15596 pf=1.472 wr=0.359 E=0.238R
+  by tod: 9:30-10: n=34 $9902 pf=2.64 wr=0.5 E=0.582R | 10-10:30: n=51 $1890 pf=1.132 wr=0.333 E=0.074R | 10:30-11: n=46 $3803 pf=1.3 wr=0.283 E=0.165R
+  by level: +1sd: n=18 $1454 pf=1.253 wr=0.333 E=0.162R | +2sd: n=22 $6906 pf=2.348 wr=0.409 E=0.628R | -1sd: n=23 $-1094 pf=0.788 wr=0.304 E=-0.095R | -2sd: n=20 $910 pf=1.151 wr=0.3 E=0.091R | VWAP: n=22 $3916 pf=1.869 wr=0.364 E=0.356R | rVWAP: n=9 $790 pf=1.363 wr=0.444 E=0.175R | x+0.5%: n=8 $2924 pf=2.435 wr=0.5 E=0.731R | x-0.5%: n=9 $-210 pf=0.909 wr=0.333 E=-0.047R
+  by year: 2023: n=88 $14629 pf=1.709 wr=0.398 E=0.332R | 2024: n=43 $966 pf=1.078 wr=0.279 E=0.045R
+  by why: eod: n=2 $5696 pf=inf wr=1.0 E=5.696R | stop: n=129 $9900 pf=1.3 wr=0.349 E=0.153R
+
+=== VALIDATION 2024-07..2024-12 ===
+{"label": "VALIDATION 2024-07..2024-12", "n": 27, "net_usd": 1734.0, "pf": 1.238, "win": 0.333, "avg_win": 1003.3, "avg_loss": -405.3, "expR": 0.128, "maxdd_R": 6.17, "sumR": 3.5}
+trades/trade-day 1.08  max/day 2  avg bars held 32.4  stop-outs 100.00%  init-stop losses (R<-0.9) 48.15%  avg MFE R 1.69
+  by side: long: n=15 $482 pf=1.115 wr=0.4 E=0.064R | short: n=12 $1251 pf=1.405 wr=0.25 E=0.209R
+  by tier: A: n=27 $1734 pf=1.238 wr=0.333 E=0.128R
+  by stopsz: 100: n=27 $1734 pf=1.238 wr=0.333 E=0.128R
+  by tod: 9:30-10: n=2 $-644 pf=0.0 wr=0.0 E=-0.644R | 10-10:30: n=12 $1501 pf=1.406 wr=0.333 E=0.25R | 10:30-11: n=13 $876 pf=1.297 wr=0.385 E=0.135R
+  by level: +1sd: n=3 $-1154 pf=0.0 wr=0.0 E=-0.769R | +2sd: n=3 $-654 pf=0.359 wr=0.333 E=-0.436R | -1sd: n=5 $-1422 pf=0.0 wr=0.0 E=-0.569R | -2sd: n=5 $5568 pf=inf wr=1.0 E=2.227R | VWAP: n=4 $1712 pf=2.68 wr=0.5 E=0.856R | rVWAP: n=4 $-788 pf=0.317 wr=0.25 E=-0.394R | x+0.5%: n=3 $-1528 pf=0.0 wr=0.0 E=-1.019R
+  by year: 2024: n=27 $1734 pf=1.238 wr=0.333 E=0.128R
+  by why: stop: n=27 $1734 pf=1.238 wr=0.333 E=0.128R
+
+=== IN-SAMPLE train+valid ===
+{"label": "IN-SAMPLE train+valid", "n": 158, "net_usd": 17329.0, "pf": 1.43, "win": 0.354, "avg_win": 1029.9, "avg_loss": -395.5, "expR": 0.219, "maxdd_R": 6.94, "sumR": 34.7}
+trades/trade-day 1.11  max/day 2  avg bars held 40.4  stop-outs 98.73%  init-stop losses (R<-0.9) 44.94%  avg MFE R 1.75
+  by side: long: n=84 $14792 pf=1.764 wr=0.381 E=0.352R | short: n=74 $2537 pf=1.121 wr=0.324 E=0.069R
+  by tier: A: n=158 $17329 pf=1.43 wr=0.354 E=0.219R
+  by stopsz: 100: n=158 $17329 pf=1.43 wr=0.354 E=0.219R
+  by tod: 9:30-10: n=36 $9258 pf=2.386 wr=0.472 E=0.514R | 10-10:30: n=63 $3392 pf=1.188 wr=0.333 E=0.108R | 10:30-11: n=59 $4680 pf=1.299 wr=0.305 E=0.159R
+  by level: +1sd: n=21 $300 pf=1.044 wr=0.286 E=0.029R | +2sd: n=25 $6252 pf=2.018 wr=0.4 E=0.5R | -1sd: n=28 $-2516 pf=0.617 wr=0.25 E=-0.18R | -2sd: n=25 $6478 pf=2.078 wr=0.44 E=0.518R | VWAP: n=26 $5628 pf=2.018 wr=0.385 E=0.433R | rVWAP: n=13 $2 pf=1.0 wr=0.385 E=0.0R | x+0.5%: n=11 $1396 pf=1.391 wr=0.364 E=0.254R | x-0.5%: n=9 $-210 pf=0.909 wr=0.333 E=-0.047R
+  by year: 2023: n=88 $14629 pf=1.709 wr=0.398 E=0.332R | 2024: n=70 $2700 pf=1.137 wr=0.3 E=0.077R
+  by why: eod: n=2 $5696 pf=inf wr=1.0 E=5.696R | stop: n=156 $11633 pf=1.288 wr=0.346 E=0.149R
+
+=== FORWARD 2025-01..2025-12-11 (one-time OOS, frozen) ===
+{"label": "FORWARD 2025-01..2025-12-11 (one-time OOS, frozen)", "n": 35, "net_usd": 6292.0, "pf": 1.702, "win": 0.371, "avg_win": 1173.2, "avg_loss": -407.2, "expR": 0.36, "maxdd_R": 6.07, "sumR": 12.6}
+trades/trade-day 1.06  max/day 2  avg bars held 35.2  stop-outs 100.00%  init-stop losses (R<-0.9) 45.71%  avg MFE R 1.94
+  by side: long: n=16 $-152 pf=0.966 wr=0.312 E=-0.019R | short: n=19 $6444 pf=2.439 wr=0.421 E=0.678R
+  by tier: A: n=35 $6292 pf=1.702 wr=0.371 E=0.36R
+  by stopsz: 100: n=35 $6292 pf=1.702 wr=0.371 E=0.36R
+  by tod: 9:30-10: n=5 $-2172 pf=0.0 wr=0.0 E=-0.869R | 10-10:30: n=10 $5155 pf=3.235 wr=0.4 E=1.031R | 10:30-11: n=20 $3310 pf=1.739 wr=0.45 E=0.331R
+  by level: +1sd: n=3 $1346 pf=2.321 wr=0.333 E=0.898R | +2sd: n=3 $-654 pf=0.359 wr=0.333 E=-0.436R | -1sd: n=6 $818 pf=1.896 wr=0.333 E=0.273R | -2sd: n=10 $-1595 pf=0.52 wr=0.2 E=-0.319R | VWAP: n=5 $2578 pf=3.529 wr=0.6 E=1.031R | rVWAP: n=4 $1712 pf=2.484 wr=0.25 E=0.856R | x+0.5%: n=1 $-510 pf=0.0 wr=0.0 E=-1.019R | x-0.5%: n=3 $2596 pf=inf wr=1.0 E=1.731R
+  by year: 2025: n=35 $6292 pf=1.702 wr=0.371 E=0.36R
+  by why: stop: n=35 $6292 pf=1.702 wr=0.371 E=0.36R
+
+Informational A+B run (is): {'A': (104, np.float64(0.209), np.float64(1.42)), 'B': (242, np.float64(0.014), np.float64(1.02))}
+Informational HP-50t run (is): {50: (13, np.float64(-0.23)), 100: (146, np.float64(0.207))} total 0.171
+
+ALL periods: {'label': '', 'n': 193, 'net_usd': np.float64(23622.0), 'pf': np.float64(1.479), 'win': 0.358, 'avg_win': np.float64(1056.9), 'avg_loss': np.float64(-397.6), 'expR': np.float64(0.245), 'maxdd_R': np.float64(6.94), 'sumR': np.float64(47.2)}
+IS t-stat of mean R = 1.55  avg R winners 2.06 losers -0.79
+FWD t-stat of mean R = 1.10  avg R winners 2.35 losers -0.81

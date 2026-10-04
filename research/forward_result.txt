@@ -1,0 +1,14 @@
+
+=== FORWARD 2025-01-01..2025-12-11 (frozen FINAL, base costs) ===
+{"label": "FORWARD 2025-01-01..2025-12-11 (frozen FINAL, base costs)", "n": 35, "net_usd": 6292.0, "pf": 1.702, "win": 0.371, "avg_win": 1173.2, "avg_loss": -407.2, "expR": 0.36, "maxdd_R": 6.07, "sumR": 12.6}
+trades/trade-day 1.06  max/day 2  avg bars held 35.2  stop-outs 100.00%  init-stop losses (R<-0.9) 45.71%  avg MFE R 1.94
+  by side: long: n=16 $-152 pf=0.966 wr=0.312 E=-0.019R | short: n=19 $6444 pf=2.439 wr=0.421 E=0.678R
+  by tier: A: n=35 $6292 pf=1.702 wr=0.371 E=0.36R
+  by stopsz: 100: n=35 $6292 pf=1.702 wr=0.371 E=0.36R
+  by tod: 9:30-10: n=5 $-2172 pf=0.0 wr=0.0 E=-0.869R | 10-10:30: n=10 $5155 pf=3.235 wr=0.4 E=1.031R | 10:30-11: n=20 $3310 pf=1.739 wr=0.45 E=0.331R
+  by level: +1sd: n=3 $1346 pf=2.321 wr=0.333 E=0.898R | +2sd: n=3 $-654 pf=0.359 wr=0.333 E=-0.436R | -1sd: n=6 $818 pf=1.896 wr=0.333 E=0.273R | -2sd: n=10 $-1595 pf=0.52 wr=0.2 E=-0.319R | VWAP: n=5 $2578 pf=3.529 wr=0.6 E=1.031R | rVWAP: n=4 $1712 pf=2.484 wr=0.25 E=0.856R | x+0.5%: n=1 $-510 pf=0.0 wr=0.0 E=-1.019R | x-0.5%: n=3 $2596 pf=inf wr=1.0 E=1.731R
+  by year: 2025: n=35 $6292 pf=1.702 wr=0.371 E=0.36R
+  by why: stop: n=35 $6292 pf=1.702 wr=0.371 E=0.36R
+stress slippage 2 ticks: n=35 pf=1.501 E=0.264 dd=6.52 net=$4618.0
+stress slippage 3 ticks: n=35 pf=1.205 E=0.111 dd=6.7 net=$1942.0
+by quarter: {1: (7, np.float64(0.838)), 2: (6, np.float64(-0.311)), 3: (17, np.float64(0.716)), 4: (5, np.float64(-0.719))}

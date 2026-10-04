@@ -13,3 +13,4 @@
 | 3c | Regime analysis: counter-trend trades positive in all 4 half-years | Train+Valid | post-hoc, halves the trade count | NOT adopted (mining risk), noted |
 | 4 | Final candidate C1 + er_max 1.0 on validation | Valid | n=27, PF 1.24, E +0.13R | frozen as FINAL |
 | 4a | Full robustness grid (93 variants) | Train, IS | all variants PF > 1; +-1 step PF > 1.05; 2-tick slippage E +0.15R | IS criteria met |
+| 5 | **One-time forward run** (2025-01-01..2025-12-11) with the frozen FINAL | Forward | n=35, PF 1.70, E +0.36R, DD 6.1R; 2/3-tick slippage PF 1.50/1.21 | profitable, but n < 60 (pre-registered) -> not statistically confirmed. No changes made after the forward run |
