@@ -1,0 +1,28 @@
+
+=== FINAL: E/trade IS +0.219 (n=158) | 2025 +0.360 (n=35)
+  best policy (chosen on IS): Policy(ev_frac=0.5, fu_frac=0, ev_max=10, fu_max=4, r_usd=50.0, guard=1.05, stop_after_win=False, ev_coast=False, fu_payout_mode=False, ev_min=1, fu_min=4)
+  IS bootstrap  : P(payout 12m) 29.9%  pass 58.0%  median eval days 34  1st payout day 149
+  2025 bootstrap: P(payout 12m) 21.3%  pass 51.7%  median eval days 62  1st payout day 146
+  historical rolling starts IS : payout 12.6% pass 54.0% (87 starts, median remaining days 280)
+  historical rolling starts 2025: payout 0.0% pass 45.9% (37 starts, median remaining days 154, truncated at 2025-12-11)
+
+=== FINAL+scale1R: E/trade IS +0.154 (n=158) | 2025 +0.216 (n=35)
+  best policy (chosen on IS): Policy(ev_frac=0.75, fu_frac=0, ev_max=10, fu_max=6, r_usd=50.0, guard=1.05, stop_after_win=True, ev_coast=False, fu_payout_mode=False, ev_min=1, fu_min=6)
+  IS bootstrap  : P(payout 12m) 27.9%  pass 60.1%  median eval days 55  1st payout day 144
+  2025 bootstrap: P(payout 12m) 12.9%  pass 40.7%  median eval days 64  1st payout day 123
+  historical rolling starts IS : payout 0.0% pass 47.1% (87 starts, median remaining days 280)
+  historical rolling starts 2025: payout 0.0% pass 43.2% (37 starts, median remaining days 154, truncated at 2025-12-11)
+
+=== cl0.7: E/trade IS +0.276 (n=152) | 2025 +0.360 (n=35)
+  best policy (chosen on IS): Policy(ev_frac=0.33, fu_frac=0, ev_max=10, fu_max=4, r_usd=50.0, guard=1.05, stop_after_win=True, ev_coast=False, fu_payout_mode=False, ev_min=1, fu_min=4)
+  IS bootstrap  : P(payout 12m) 39.8%  pass 69.1%  median eval days 42  1st payout day 150
+  2025 bootstrap: P(payout 12m) 21.3%  pass 54.3%  median eval days 67  1st payout day 148
+  historical rolling starts IS : payout 17.2% pass 64.4% (87 starts, median remaining days 280)
+  historical rolling starts 2025: payout 0.0% pass 51.4% (37 starts, median remaining days 154, truncated at 2025-12-11)
+
+=== cl0.7+scale1R: E/trade IS +0.197 (n=152) | 2025 +0.216 (n=35)
+  best policy (chosen on IS): Policy(ev_frac=0.5, fu_frac=0, ev_max=10, fu_max=6, r_usd=50.0, guard=1.05, stop_after_win=True, ev_coast=False, fu_payout_mode=False, ev_min=1, fu_min=6)
+  IS bootstrap  : P(payout 12m) 38.5%  pass 70.3%  median eval days 57  1st payout day 142
+  2025 bootstrap: P(payout 12m) 12.8%  pass 41.5%  median eval days 67  1st payout day 124
+  historical rolling starts IS : payout 17.2% pass 58.6% (87 starts, median remaining days 280)
+  historical rolling starts 2025: payout 0.0% pass 43.2% (37 starts, median remaining days 154, truncated at 2025-12-11)

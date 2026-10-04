@@ -57,6 +57,8 @@ class Params:
     use_hp: bool = True
     hp_buffer_ticks: int = 4          # HP needs structural extreme inside the 50t stop minus buffer
     trail_lag: float = 1.0            # at +kR MFE: stop = entry + (k - lag) R
+    partial_r: float = 0.0            # prop variant: scale out partial_frac at +partial_r R (limit, needs 1-tick trade-through)
+    partial_frac: float = 0.5
     # costs
     slip_ticks: int = 1
     comm_rt: float = 4.50
@@ -142,8 +144,15 @@ def run(f, p: Params, start=None, end=None):
                 exit_px, why = base - pos * slip, 'stop'
             elif mod[i] >= p.flat_time or last[i]:
                 exit_px, why = c[i] - pos * slip, 'eod'
+            if exit_px is None and p.partial_r > 0 and 'part_i' not in tr:
+                lvl = tr['entry'] + pos * p.partial_r * tr['risk']
+                if (pos > 0 and h[i] >= lvl + tk) or (pos < 0 and l[i] <= lvl - tk):
+                    tr['part_i'], tr['part_pts'] = i, p.partial_r * tr['risk']
             if exit_px is not None:
                 pts = (exit_px - tr['entry']) * pos
+                tr['runner_pts'] = pts
+                if 'part_i' in tr:
+                    pts = p.partial_frac * tr['part_pts'] + (1 - p.partial_frac) * pts
                 usd = pts * PT_VALUE - p.comm_rt
                 tr.update(exit_i=i, exit=exit_px, why=why, pts=pts, usd=usd,
                           R=usd / (tr['risk'] * PT_VALUE))

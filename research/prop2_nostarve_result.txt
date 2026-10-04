@@ -1,0 +1,10 @@
+
+=== FINAL + no-starve | best on IS: Policy(ev_frac=0.5, fu_frac=0, ev_max=10, fu_max=4, r_usd=50.0, guard=1.05, stop_after_win=True, ev_coast=False, fu_payout_mode=False, no_starve=True, ev_min=3, fu_min=4)
+  IS bootstrap  : payout 30.7% pass 59.3% evBlow 40.0% fuBlow 14.1%
+  2025 bootstrap: payout 21.3% pass 52.0% evBlow 39.3% fuBlow 4.9%
+  rolling hist IS: payout/pass (np.float64(0.12643678160919541), np.float64(0.5862068965517241))  2025: (np.float64(0.0), np.float64(0.5135135135135135))
+
+=== cl0.7 + no-starve | best on IS: Policy(ev_frac=0.33, fu_frac=0, ev_max=10, fu_max=4, r_usd=50.0, guard=1.05, stop_after_win=True, ev_coast=False, fu_payout_mode=False, no_starve=True, ev_min=3, fu_min=4)
+  IS bootstrap  : payout 41.0% pass 70.5% evBlow 24.8% fuBlow 11.1%
+  2025 bootstrap: payout 21.8% pass 55.3% evBlow 30.7% fuBlow 4.8%
+  rolling hist IS: payout/pass (np.float64(0.1724137931034483), np.float64(0.6436781609195402))  2025: (np.float64(0.0), np.float64(0.6216216216216216))

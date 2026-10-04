@@ -1,0 +1,69 @@
+grid done in 78s
+
+######## A: 50K EOD-Trailing (DD 2000, Ziel 3000, DLL 1000)  (IN-SAMPLE bootstrap, 2000 paths, horizon 252 days/phase)
+EVAL phase:
+  fix 4 MNQ +StopNachGewinn              pass=58.7% blown=27.4% median days=120 fees=$445
+  fix 4 MNQ                              pass=58.2% blown=28.4% median days=121 fees=$442
+  fix 5 MNQ +StopNachGewinn              pass=55.9% blown=39.2% median days=94 fees=$366
+  fix 5 MNQ                              pass=55.4% blown=39.6% median days=94 fees=$365
+  fix 6 MNQ +StopNachGewinn              pass=50.5% blown=47.0% median days=85 fees=$319
+  fix 6 MNQ                              pass=50.2% blown=47.3% median days=86 fees=$318
+  fix 3 MNQ +StopNachGewinn              pass=48.1% blown=13.8% median days=154 fees=$539
+  fix 3 MNQ                              pass=47.6% blown=14.1% median days=154 fees=$539
+  15% Puffer (max 10) +StopNachGewinn    pass=43.4% blown=3.2% median days=102 fees=$528
+  15% Puffer (max 20) +StopNachGewinn    pass=43.4% blown=3.2% median days=102 fees=$528
+  15% Puffer (max 10)                    pass=42.4% blown=3.4% median days=102 fees=$529
+  15% Puffer (max 20)                    pass=42.4% blown=3.4% median days=102 fees=$529
+FUNDED phase (252 days, payouts after split):
+  50% Puffer (max 10) +StopNachGewinn    E[payout]=$2619 median=$572 P(>=1 payout)=60.0% blown=82.2%
+  50% Puffer (max 10)                    E[payout]=$2580 median=$570 P(>=1 payout)=59.4% blown=83.0%
+  fix 10 MNQ +StopNachGewinn             E[payout]=$2553 median=$277 P(>=1 payout)=52.1% blown=92.0%
+  33% Puffer (max 10) +StopNachGewinn    E[payout]=$2552 median=$868 P(>=1 payout)=70.2% blown=54.7%
+  33% Puffer (max 10)                    E[payout]=$2521 median=$853 P(>=1 payout)=70.2% blown=55.8%
+  fix 10 MNQ                             E[payout]=$2516 median=$202 P(>=1 payout)=51.4% blown=91.9%
+  fix 8 MNQ +StopNachGewinn              E[payout]=$2407 median=$734 P(>=1 payout)=62.1% blown=90.4%
+  fix 8 MNQ                              E[payout]=$2373 median=$727 P(>=1 payout)=61.8% blown=90.0%
+  fix 6 MNQ +StopNachGewinn              E[payout]=$2275 median=$1026 P(>=1 payout)=75.2% blown=85.9%
+  fix 6 MNQ                              E[payout]=$2265 median=$1022 P(>=1 payout)=75.0% blown=85.6%
+  25% Puffer (max 10) +StopNachGewinn    E[payout]=$2232 median=$961 P(>=1 payout)=76.4% blown=29.4%
+  25% Puffer (max 10)                    E[payout]=$2216 median=$942 P(>=1 payout)=76.5% blown=30.4%
+Best combinations by EV per attempt (P(pass)*E[payout] - fees):
+  EV=$   1097  eval: fix 5 MNQ +StopNachGewinn            funded: 50% Puffer (max 10) +StopNachGewinn
+  EV=$   1092  eval: fix 4 MNQ +StopNachGewinn            funded: 50% Puffer (max 10) +StopNachGewinn
+  EV=$   1085  eval: fix 5 MNQ                            funded: 50% Puffer (max 10) +StopNachGewinn
+  EV=$   1082  eval: fix 4 MNQ                            funded: 50% Puffer (max 10) +StopNachGewinn
+  EV=$   1075  eval: fix 5 MNQ +StopNachGewinn            funded: 50% Puffer (max 10)
+
+######## B: 50K Intraday-Trailing (DD 2500, Ziel 3000)  (IN-SAMPLE bootstrap, 2000 paths, horizon 252 days/phase)
+EVAL phase:
+  fix 4 MNQ +StopNachGewinn              pass=60.5% blown=22.9% median days=123 fees=$599
+  fix 5 MNQ +StopNachGewinn              pass=59.9% blown=36.1% median days=90 fees=$448
+  fix 4 MNQ                              pass=59.8% blown=24.1% median days=123 fees=$596
+  fix 5 MNQ                              pass=59.5% blown=37.0% median days=90 fees=$443
+  fix 6 MNQ +StopNachGewinn              pass=54.9% blown=44.6% median days=67 fees=$337
+  fix 6 MNQ                              pass=54.7% blown=44.8% median days=67 fees=$333
+  20% Puffer (max 10) +StopNachGewinn    pass=49.1% blown=10.0% median days=71 fees=$644
+  20% Puffer (max 20) +StopNachGewinn    pass=49.0% blown=10.1% median days=71 fees=$645
+  25% Puffer (max 10) +StopNachGewinn    pass=48.8% blown=20.2% median days=54 fees=$591
+  fix 3 MNQ +StopNachGewinn              pass=48.6% blown=9.6% median days=155 fees=$764
+  20% Puffer (max 10)                    pass=48.4% blown=10.5% median days=70 fees=$647
+  20% Puffer (max 20)                    pass=48.2% blown=10.5% median days=70 fees=$648
+FUNDED phase (252 days, payouts after split):
+  fix 4 MNQ +StopNachGewinn              E[payout]=$768 median=$0 P(>=1 payout)=40.8% blown=24.3%
+  fix 5 MNQ +StopNachGewinn              E[payout]=$759 median=$0 P(>=1 payout)=38.0% blown=39.2%
+  fix 4 MNQ                              E[payout]=$748 median=$0 P(>=1 payout)=39.9% blown=25.6%
+  fix 5 MNQ                              E[payout]=$741 median=$0 P(>=1 payout)=37.2% blown=40.1%
+  fix 6 MNQ +StopNachGewinn              E[payout]=$695 median=$0 P(>=1 payout)=34.4% blown=49.6%
+  fix 6 MNQ                              E[payout]=$681 median=$0 P(>=1 payout)=33.9% blown=50.2%
+  fix 8 MNQ +StopNachGewinn              E[payout]=$546 median=$0 P(>=1 payout)=26.6% blown=62.8%
+  fix 8 MNQ                              E[payout]=$541 median=$0 P(>=1 payout)=26.5% blown=63.0%
+  50% Puffer (max 10) +StopNachGewinn    E[payout]=$485 median=$0 P(>=1 payout)=23.4% blown=62.5%
+  50% Puffer (max 10)                    E[payout]=$481 median=$0 P(>=1 payout)=23.2% blown=62.9%
+  33% Puffer (max 10) +StopNachGewinn    E[payout]=$468 median=$0 P(>=1 payout)=22.9% blown=42.2%
+  33% Puffer (max 10)                    E[payout]=$465 median=$0 P(>=1 payout)=22.9% blown=43.5%
+Best combinations by EV per attempt (P(pass)*E[payout] - fees):
+  EV=$    153  eval: fix 10 MNQ +StopNachGewinn           funded: fix 4 MNQ +StopNachGewinn
+  EV=$    151  eval: fix 10 MNQ                           funded: fix 4 MNQ +StopNachGewinn
+  EV=$    149  eval: fix 10 MNQ +StopNachGewinn           funded: fix 5 MNQ +StopNachGewinn
+  EV=$    147  eval: fix 10 MNQ                           funded: fix 5 MNQ +StopNachGewinn
+  EV=$    145  eval: fix 10 MNQ +StopNachGewinn           funded: fix 4 MNQ

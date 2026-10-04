@@ -1,0 +1,10 @@
+Deine Regeln (Basis)                          payout 41.0%  pass 70.5%
+Winning day ab $150 statt $250                payout 41.0%  pass 70.5%
+Winning days 3 statt 5                        payout 41.3%  pass 70.5%
+Keine Consistency im Funded                   payout 41.9%  pass 70.5%
+Payout ab 52,000 statt 52,600                 payout 42.6%  pass 70.5%
+Funded Trailing-DD 2,500 statt 2,000          payout 42.4%  pass 70.5%
+Funded DD statisch (48,000, kein Trailing)    -> siehe Korrektur unten (Bug im Phasenwechsel behoben)
+Eval-Ziel 52,500 statt 53,000                 payout 42.9%  pass 72.0%
+DLL weich statt hart                          payout 41.0%  pass 70.5%
+Korrektur (nach Bugfix Phasenwechsel bei Trailing=0): Funded DD statisch 48,000 -> payout 42.5%  pass 70.5%
