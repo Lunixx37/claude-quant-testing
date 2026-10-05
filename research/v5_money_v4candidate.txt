@@ -1,0 +1,12 @@
+V5_FINAL = FVG swing, stop 60 pts, TP 2R, hold <= 2 sessions, no filters
+  train    (dev)            n= 651 (3.6/wk) win=43.9% E_cfd=+0.063R E_futures=+0.084R PF=1.13 maxDD=30.2R avg overnight=0.85
+  valid    (dev)            n= 492 (6.3/wk) win=36.2% E_cfd=+0.032R E_futures=+0.049R PF=1.05 maxDD=18.8R avg overnight=0.32
+  test22   (ONE-TIME TEST)  n= 412 (7.9/wk) win=34.7% E_cfd=+0.016R E_futures=+0.025R PF=1.02 maxDD=22.9R avg overnight=0.06
+  test_nq  (ONE-TIME TEST)  n=1046 (6.8/wk) win=33.6% E_cfd=-0.027R E_futures=-0.013R PF=0.96 maxDD=45.3R avg overnight=0.14
+  test_cfd (ONE-TIME TEST)  n= 991 (6.9/wk) win=34.4% E_cfd=-0.010R E_futures=+0.004R PF=0.99 maxDD=44.8R avg overnight=0.15
+per year (CFD costs; 2023-25 = NQ prices):
+y         2017     2018     2019     2020     2021     2022     2023     2024     2025
+count  137.000  192.000  188.000  296.000  330.000  412.000  308.000  363.000  375.000
+mean    -0.029    0.283   -0.014   -0.047    0.069    0.016   -0.039    0.024   -0.066
+
+Kelly fraction (risk per trade at stop): dev 2017-21 = 3.0%, recent 2023-25 = 0.1%

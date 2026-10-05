@@ -1,0 +1,16 @@
+FVG candidate (intraday, stop 40, TP 3R):
+  train    n=1022 (5.6/wk) win=42.7% E_cfd=+0.018R maxDD=31.5R
+  valid    n=600 (7.7/wk) win=32.2% E_cfd=+0.014R maxDD=41.0R
+  test22   n=438 (8.4/wk) win=31.5% E_cfd=+0.175R maxDD=20.3R
+  test_nq  n=1190 (7.7/wk) win=29.8% E_cfd=+0.060R maxDD=34.1R
+Kelly: dev 2017-21 0.9% | all years 2.3% | recent 2023-25 2.1%
+
+$100 start, user cycle, 36 months, 2000 paths (month-block bootstrap):
+  [all years 2017-2025   ] Kelly/2  (1.1%): net/month median $  16.8 (10%..90%: $  -6.0..$  54.0) | withdrawals/month $  0.0 | P(net loss 3y) 18% | final equity $2504
+  [all years 2017-2025   ] Kelly    (2.3%): net/month median $  26.6 (10%..90%: $ -14.5..$ 118.9) | withdrawals/month $  4.6 | P(net loss 3y) 23% | final equity $2410
+  [all years 2017-2025   ] 5 %      (5.0%): net/month median $  17.5 (10%..90%: $ -30.1..$ 261.4) | withdrawals/month $ 20.2 | P(net loss 3y) 38% | final equity $1607
+  [all years 2017-2025   ] 10 %     (10.0%): net/month median $ -17.8 (10%..90%: $ -40.9..$ 146.5) | withdrawals/month $ 18.0 | P(net loss 3y) 65% | final equity $442
+  [recent 2023-2025 (NQ) ] Kelly/2  (1.1%): net/month median $  20.8 (10%..90%: $  -8.4..$  76.3) | withdrawals/month $  0.0 | P(net loss 3y) 20% | final equity $2650
+  [recent 2023-2025 (NQ) ] Kelly    (2.3%): net/month median $  30.7 (10%..90%: $ -15.5..$ 156.7) | withdrawals/month $ 24.0 | P(net loss 3y) 23% | final equity $2045
+  [recent 2023-2025 (NQ) ] 5 %      (5.0%): net/month median $  23.2 (10%..90%: $ -29.4..$ 416.6) | withdrawals/month $ 32.5 | P(net loss 3y) 35% | final equity $1362
+  [recent 2023-2025 (NQ) ] 10 %     (10.0%): net/month median $ -10.6 (10%..90%: $ -39.7..$ 292.2) | withdrawals/month $ 23.6 | P(net loss 3y) 57% | final equity $370

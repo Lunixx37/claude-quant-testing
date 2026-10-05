@@ -1,0 +1,22 @@
+V5_FINAL = FVG swing, stop 60 pts, TP 2R, hold <= 2 sessions, no filters
+  train    (dev)            n= 651 (3.6/wk) win=43.9% E_cfd=+0.063R E_futures=+0.084R PF=1.13 maxDD=30.2R avg overnight=0.85
+  valid    (dev)            n= 492 (6.3/wk) win=36.2% E_cfd=+0.032R E_futures=+0.049R PF=1.05 maxDD=18.8R avg overnight=0.32
+  test22   (ONE-TIME TEST)  n= 412 (7.9/wk) win=34.7% E_cfd=+0.016R E_futures=+0.025R PF=1.02 maxDD=22.9R avg overnight=0.06
+  test_nq  (ONE-TIME TEST)  n=1046 (6.8/wk) win=33.6% E_cfd=-0.027R E_futures=-0.013R PF=0.96 maxDD=45.3R avg overnight=0.14
+  test_cfd (ONE-TIME TEST)  n= 991 (6.9/wk) win=34.4% E_cfd=-0.010R E_futures=+0.004R PF=0.99 maxDD=44.8R avg overnight=0.15
+per year (CFD costs; 2023-25 = NQ prices):
+y         2017     2018     2019     2020     2021     2022     2023     2024     2025
+count  137.000  192.000  188.000  296.000  330.000  412.000  308.000  363.000  375.000
+mean    -0.029    0.283   -0.014   -0.047    0.069    0.016   -0.039    0.024   -0.066
+
+Kelly fraction (risk per trade at stop): dev 2017-21 = 3.0%, recent 2023-25 = 0.1%
+
+Money management: $100 start, user cycle (withdraw 0.5x base at >=1.5x after month 1; +$100 after month 2), 36 months, 3000 paths
+  [all years 2017-2025   ] risk Kelly/2 (dev)  (1.5%): net profit/month median $    1.0 (10%..90%: $ -15.3 .. $   27.4) | withdrawals/month $   0.0 | deposits total $1900 | P(net loss after 3y) 47% | P(>=1 wipe-out) 0% (avg 0.0) | final equity $1934
+  [all years 2017-2025   ] risk Kelly (dev)    (3.0%): net profit/month median $   -4.8 (10%..90%: $ -27.8 .. $   51.8) | withdrawals/month $   0.0 | deposits total $1900 | P(net loss after 3y) 56% | P(>=1 wipe-out) 0% (avg 0.0) | final equity $1672
+  [all years 2017-2025   ] risk 5 %            (5.0%): net profit/month median $  -13.4 (10%..90%: $ -36.3 .. $   60.1) | withdrawals/month $   6.0 | deposits total $1900 | P(net loss after 3y) 65% | P(>=1 wipe-out) 0% (avg 0.0) | final equity $1075
+  [all years 2017-2025   ] risk 10 %           (10.0%): net profit/month median $  -24.8 (10%..90%: $ -41.0 .. $   30.0) | withdrawals/month $  14.8 | deposits total $1900 | P(net loss after 3y) 79% | P(>=1 wipe-out) 0% (avg 0.0) | final equity $374
+  [recent 2023-2025 (NQ) ] risk Kelly/2 (dev)  (1.5%): net profit/month median $  -12.7 (10%..90%: $ -26.1 .. $   12.2) | withdrawals/month $   0.0 | deposits total $1900 | P(net loss after 3y) 78% | P(>=1 wipe-out) 0% (avg 0.0) | final equity $1444
+  [recent 2023-2025 (NQ) ] risk Kelly (dev)    (3.0%): net profit/month median $  -22.7 (10%..90%: $ -37.3 .. $   15.6) | withdrawals/month $   0.0 | deposits total $1900 | P(net loss after 3y) 82% | P(>=1 wipe-out) 0% (avg 0.0) | final equity $926
+  [recent 2023-2025 (NQ) ] risk 5 %            (5.0%): net profit/month median $  -26.8 (10%..90%: $ -41.0 .. $   11.9) | withdrawals/month $  10.2 | deposits total $1900 | P(net loss after 3y) 85% | P(>=1 wipe-out) 0% (avg 0.0) | final equity $497
+  [recent 2023-2025 (NQ) ] risk 10 %           (10.0%): net profit/month median $  -31.4 (10%..90%: $ -42.6 .. $    1.5) | withdrawals/month $  13.3 | deposits total $1900 | P(net loss after 3y) 89% | P(>=1 wipe-out) 0% (avg 0.0) | final equity $211
