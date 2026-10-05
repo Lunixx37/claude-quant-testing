@@ -53,7 +53,25 @@ CACHE_CFD = os.path.join(ROOT, 'research', 'cache', 'features_cfd.pkl')
 
 
 def build_cfd():
-    return compute(_load_cfd(), CACHE_CFD, check_rth_csv=False)
+    out = compute(_load_cfd(), CACHE_CFD, check_rth_csv=False)
+    return calibrate_cfd_relvol(out)
+
+
+def calibrate_cfd_relvol(cfd):
+    """CFD tick volume is capped during RTH (~500 ticks/min), so its relative volume is compressed.
+    Monotone quantile mapping of CFD relvol onto the NQ real-volume relvol distribution, fitted on the
+    overlap 2023-02..2025-09, 09:30-11:00 only. Uses the volume distributions only (no prices/returns).
+    The raw value is kept as relvol_raw."""
+    nq = load('nq')
+    sel = lambda d: d[(d['mod'] >= 570) & (d['mod'] < 660) & (d.t >= '2023-02-01') & (d.t < '2025-10-01')].relvol.dropna()
+    qs = np.linspace(0, 1, 401)
+    xq, yq = np.quantile(sel(cfd), qs), np.quantile(sel(nq), qs)
+    xq, idx = np.unique(xq, return_index=True)
+    cfd['relvol_raw'] = cfd.relvol
+    cfd['relvol'] = np.interp(cfd.relvol, xq, yq[idx])
+    cfd.loc[cfd.relvol_raw.isna(), 'relvol'] = np.nan
+    cfd.to_pickle(CACHE_CFD)
+    return cfd
 
 
 def compute(d, cache, check_rth_csv=False):

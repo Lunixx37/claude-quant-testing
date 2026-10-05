@@ -1,0 +1,5 @@
+Overlap check after relvol quantile mapping (CFD vs NQ, 2023-02..2025-09):
+  V1: NQ n=188 PF=1.53 E=+0.270 | CFD n=177 PF=1.10 E=+0.056 | NQ trades matched on CFD (+-3min, same dir): 5%
+  V2: NQ n=226 PF=1.49 E=+0.239 | CFD n=205 PF=1.14 E=+0.078 | NQ trades matched on CFD (+-3min, same dir): 8%
+price-to-VWAP18 distance NQ vs CFD: corr 0.977, median abs diff 13.3 pts
+price-only (no volume filters): NQ n=985 CFD n=988 matched 31%

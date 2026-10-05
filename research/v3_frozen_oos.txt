@@ -1,0 +1,18 @@
+=== V1_FINAL on CFD (relvol quantile-mapped; CFD approximation, see v3_overlap.txt)
+  2017..2017: n= 172 (3.3/week) PF=1.10 win=0.44 E=+0.044 DD=8.8R sumR=+7.5
+  2018..2018: n= 230 (4.4/week) PF=1.04 win=0.33 E=+0.024 DD=29.6R sumR=+5.5
+  2019..2019: n= 190 (3.7/week) PF=0.90 win=0.30 E=-0.058 DD=27.3R sumR=-11.0
+  2020..2020: n= 128 (2.5/week) PF=1.38 win=0.34 E=+0.206 DD=10.0R sumR=+26.3
+  2021..2021: n= 149 (2.9/week) PF=1.12 win=0.28 E=+0.069 DD=20.2R sumR=+10.3
+  2022..2022: n=  70 (1.3/week) PF=0.61 win=0.19 E=-0.276 DD=20.7R sumR=-19.3
+  2017..2022: n= 939 (3.0/week) PF=1.04 win=0.33 E=+0.020 DD=29.6R sumR=+19.2
+  2023..2025: n= 186 (1.3/week) PF=1.19 win=0.31 E=+0.106 DD=22.5R sumR=+19.7
+=== V2_FINAL on CFD (relvol quantile-mapped; CFD approximation, see v3_overlap.txt)
+  2017..2017: n= 176 (3.4/week) PF=0.97 win=0.43 E=-0.014 DD=12.7R sumR=-2.5
+  2018..2018: n= 246 (4.7/week) PF=1.02 win=0.32 E=+0.014 DD=20.0R sumR=+3.3
+  2019..2019: n= 199 (3.8/week) PF=0.94 win=0.31 E=-0.034 DD=16.2R sumR=-6.7
+  2020..2020: n= 144 (2.8/week) PF=1.20 win=0.35 E=+0.111 DD=15.9R sumR=+16.1
+  2021..2021: n= 159 (3.1/week) PF=0.94 win=0.28 E=-0.033 DD=27.2R sumR=-5.3
+  2022..2022: n=  89 (1.7/week) PF=0.59 win=0.20 E=-0.275 DD=26.8R sumR=-24.5
+  2017..2022: n=1013 (3.2/week) PF=0.96 win=0.33 E=-0.019 DD=45.7R sumR=-19.7
+  2023..2025: n= 216 (1.5/week) PF=1.17 win=0.32 E=+0.092 DD=21.2R sumR=+19.8

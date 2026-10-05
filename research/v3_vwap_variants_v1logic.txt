@@ -1,0 +1,5 @@
+V1 logic (sweep -> absorption -> reclaim), CFD, net R
+  VWAP18 only            train n= 250 PF=0.93 win=0.33 E=-0.036 | valid n=  52 PF=1.64 win=0.29 E=+0.343
+  VWAP18 + 1/2 sd bands  train n= 609 PF=1.02 win=0.36 E=+0.011 | valid n= 191 PF=1.03 win=0.28 E=+0.016
+  RTH VWAP only          train n= 429 PF=0.88 win=0.34 E=-0.065 | valid n=  90 PF=1.81 win=0.36 E=+0.395
+  V1 level set           train n= 656 PF=1.06 win=0.35 E=+0.031 | valid n= 213 PF=1.15 win=0.29 E=+0.084

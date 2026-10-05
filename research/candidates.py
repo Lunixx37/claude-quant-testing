@@ -13,3 +13,7 @@ FINAL = dict(BASE, er_max=1.0)
 
 # V2 (mental levels instead of GEX), frozen before the single 2025 run - see PROTOCOL_V2.md
 V2_FINAL = dict(FINAL, mental_on=True, mental_min=100, tp_r=2.0)
+
+# V3 (high-frequency ICT/level search), frozen before Test A: best min(E_train, E_valid) of the 8 configs
+# positive in both (see v3_grid_train.csv / v3_grid_valid.csv)
+V3_FINAL = dict(setup='S10 Absorption', stop_mode='fixed', tp_r=3.0, trail=False)
