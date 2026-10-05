@@ -14,6 +14,10 @@ RVOL_MIN_OBS = 10      # minute must have >= 10 prior observations before relvol
 
 
 def build():
+    return compute(_load_nq(), CACHE, check_rth_csv=True)
+
+
+def _load_nq():
     d = pd.read_csv(CSV)
     d.columns = ['ts', 'o', 'h', 'l', 'c', 'v', 'vwap_rth_csv', 'vwap_eth_csv']
     # CSV labels are bar CLOSE times -> convert to bar OPEN times (TradingView convention)
@@ -21,6 +25,38 @@ def build():
     assert d.t.is_monotonic_increasing and not d.t.duplicated().any()
     assert (d.h >= d[['o', 'c']].max(axis=1)).all() and (d.l <= d[['o', 'c']].min(axis=1)).all()
     assert (d.v > 0).all() and not d.isna().any().any()
+    return d
+
+
+def _load_cfd():
+    """NASDAQ-100 CFD (MetaTrader export, user upload). Server time = Europe/Helsinki (EET/EEST),
+    verified: 0.99 return correlation with NQ and the daily 17:00-18:00 ET pause lines up.
+    Timestamps are bar OPEN times. Volume column is empty -> TickVolume is used as volume."""
+    import zipfile
+    parts = []
+    for f in ('1m_data_part1.zip', '1m_data_part2.zip'):
+        zf = zipfile.ZipFile(os.path.join(ROOT, f))
+        parts.append(pd.read_csv(zf.open(f.replace('.zip', '.csv')), sep='\t'))
+    d = pd.concat(parts)
+    ts = pd.to_datetime(d.DateTime, format='%Y.%m.%d %H:%M:%S')
+    d['t'] = ts.dt.tz_localize('Europe/Helsinki', ambiguous='NaT', nonexistent='NaT') \
+               .dt.tz_convert('America/New_York').dt.tz_localize(None)
+    d = d.dropna(subset=['t']).sort_values('t').drop_duplicates('t')
+    d = d.rename(columns={'Open': 'o', 'High': 'h', 'Low': 'l', 'Close': 'c', 'TickVolume': 'v'})
+    d['v'] = d.v.clip(lower=1)
+    m = d.t.dt.hour * 60 + d.t.dt.minute
+    d = d[(m < 17 * 60) | (m >= 18 * 60)]          # drop the few stray bars inside the daily pause
+    return d[['t', 'o', 'h', 'l', 'c', 'v']].reset_index(drop=True)
+
+
+CACHE_CFD = os.path.join(ROOT, 'research', 'cache', 'features_cfd.pkl')
+
+
+def build_cfd():
+    return compute(_load_cfd(), CACHE_CFD, check_rth_csv=False)
+
+
+def compute(d, cache, check_rth_csv=False):
 
     # NY trading date: bars opening at/after 18:00 ET belong to the next calendar date
     d['sdate'] = (d.t + pd.Timedelta(hours=6)).dt.normalize()
@@ -42,9 +78,10 @@ def build():
     cv, cpv, cpv2 = v_r.groupby(key).cumsum(), pv_r.groupby(key).cumsum(), pv2_r.groupby(key).cumsum()
     d['vwapR'] = cpv / cv
     d['sdR'] = np.sqrt(np.maximum(cpv2 / cv - d.vwapR ** 2, 0))
-    chk = d[rth & (d['mod'] < 17 * 60) & (d.vwap_rth_csv > 0)]
-    err = (chk.vwapR - chk.vwap_rth_csv).abs().max()
-    print(f'RTH VWAP recomputation vs CSV column: max abs diff = {err:.6f} pts')
+    if check_rth_csv:
+        chk = d[rth & (d['mod'] < 17 * 60) & (d.vwap_rth_csv > 0)]
+        err = (chk.vwapR - chk.vwap_rth_csv).abs().max()
+        print(f'RTH VWAP recomputation vs CSV column: max abs diff = {err:.6f} pts')
 
     # relative volume vs EMA of same minute-of-day volume over previous days (causal)
     avg = np.full(1440, np.nan)
@@ -85,12 +122,14 @@ def build():
     cols = ['t', 'sdate', 'mod', 'o', 'h', 'l', 'c', 'v', 'vwapE', 'sdE', 'vwapR', 'sdR',
             'relvol', 'relrange', 'onh', 'onl', 'pdh', 'pdl', 'last_in_session']
     out = d[cols].reset_index(drop=True)
-    os.makedirs(os.path.dirname(CACHE), exist_ok=True)
-    out.to_pickle(CACHE)
+    os.makedirs(os.path.dirname(cache), exist_ok=True)
+    out.to_pickle(cache)
     return out
 
 
-def load():
+def load(name='nq'):
+    if name == 'cfd':
+        return pd.read_pickle(CACHE_CFD) if os.path.exists(CACHE_CFD) else build_cfd()
     if os.path.exists(CACHE):
         return pd.read_pickle(CACHE)
     return build()
