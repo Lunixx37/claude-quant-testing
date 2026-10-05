@@ -1,0 +1,25 @@
+
+C1 V only, trail
+  train n=131 PF=1.47 E=+0.238 DD=6.94 | valid n=27 PF=1.24 E=+0.128 DD=6.17
+  prop $250/trade            : payout<=21d 0.0% <=42d 0.0% <=63d 0.3% <=252d 26.2% | pass 68.3% evBlow 18.2% medEvalDays 100
+  prop $250 + stop after win : payout<=21d 0.0% <=42d 0.0% <=63d 0.3% <=252d 26.6% | pass 68.8% evBlow 17.8% medEvalDays 99
+
+C2 V+mental>=100, trail
+  train n=152 PF=1.46 E=+0.228 DD=7.05 | valid n=29 PF=1.26 E=+0.135 DD=6.38
+  prop $250/trade            : payout<=21d 0.0% <=42d 0.0% <=63d 0.2% <=252d 27.2% | pass 71.3% evBlow 18.6% medEvalDays 95
+  prop $250 + stop after win : payout<=21d 0.0% <=42d 0.0% <=63d 0.3% <=252d 27.4% | pass 70.2% evBlow 20.2% medEvalDays 91
+
+C3 V+mental>=100, TP2+trail
+  train n=159 PF=1.43 E=+0.216 DD=7.81 | valid n=29 PF=1.34 E=+0.174 DD=6.38
+  prop $250/trade            : payout<=21d 0.0% <=42d 0.0% <=63d 0.3% <=252d 34.5% | pass 73.8% evBlow 13.5% medEvalDays 108
+  prop $250 + stop after win : payout<=21d 0.0% <=42d 0.0% <=63d 0.2% <=252d 32.8% | pass 70.2% evBlow 14.8% medEvalDays 110
+
+C4 V+mental(<500 needs VWAP), TP2+trail
+  train n=153 PF=1.42 E=+0.210 DD=8.4 | valid n=28 PF=1.21 E=+0.109 DD=7.82
+  prop $250/trade            : payout<=21d 0.0% <=42d 0.0% <=63d 0.2% <=252d 30.4% | pass 70.9% evBlow 14.0% medEvalDays 112
+  prop $250 + stop after win : payout<=21d 0.0% <=42d 0.0% <=63d 0.1% <=252d 25.1% | pass 66.1% evBlow 15.6% medEvalDays 119
+
+C5 V only, TP2+trail
+  train n=137 PF=1.37 E=+0.189 DD=5.68 | valid n=27 PF=1.23 E=+0.123 DD=7.55
+  prop $250/trade            : payout<=21d 0.0% <=42d 0.0% <=63d 0.1% <=252d 24.2% | pass 64.4% evBlow 13.8% medEvalDays 122
+  prop $250 + stop after win : payout<=21d 0.0% <=42d 0.0% <=63d 0.1% <=252d 24.9% | pass 65.3% evBlow 13.2% medEvalDays 122

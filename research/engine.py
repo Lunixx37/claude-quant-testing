@@ -31,6 +31,15 @@ class Params:
     mult_pct: tuple = (0.5,)          # multiplicative ETH-VWAP bands, percent
     use_rth_vwap: bool = True
     use_liq_levels: bool = False      # ONH/ONL, PDH/PDL (OHLCV liquidity pools, NOT GEX)
+    # V2: mental (round-number) levels
+    use_vwap_levels: bool = True      # VWAP-family levels as standalone setup levels (kind 'V')
+    mental_on: bool = False
+    mental_min: int = 50              # smallest mental step used (50 / 100 / 500 / 1000)
+    mental_need_vwap: int = 0         # mental levels with strength < this need VWAP confluence (0 = never)
+    mv_conf_ticks: int = 40           # mental level counts as 'MV' if a VWAP-family level is within this
+    kinds: tuple = ('MV', 'M', 'V')   # allowed level kinds for setups
+    tp_r: float = 0.0                 # fixed RR target (limit, 1-tick trade-through), 0 = off
+    trail_on: bool = True             # R-step trailing on/off
     conf_tol_ticks: int = 8           # levels within this distance count as confluence
     # manipulation
     pen_min_ticks: int = 4            # sweep = trade at least this far beyond the level
@@ -67,8 +76,36 @@ class Params:
     allow_short: bool = True
 
 
+MENTAL_STEPS = (1000, 500, 100, 50)
+
+
+def _strength(x):
+    for st in MENTAL_STEPS:
+        if x % st == 0:
+            return st
+    return 0
+
+
 def _levels(f, i, p):
-    """Level values known at the close of bar i (used by bar i+1)."""
+    """Candidate levels known at the close of bar i (used by bar i+1): (name, price, kind, strength)."""
+    vl = _vwap_levels(f, i, p)
+    out = [(n, x, 'V', 0) for n, x in vl] if p.use_vwap_levels else []
+    if p.mental_on:
+        ref = f['c'][i]
+        lo = math.floor((ref - 150) / 50) * 50
+        tol = p.mv_conf_ticks * TICK
+        for m in range(int(lo), int(ref + 150) + 1, 50):
+            st = _strength(m)
+            if st < p.mental_min:
+                continue
+            vconf = any(not math.isnan(x) and abs(x - m) <= tol for _, x in vl)
+            if p.mental_need_vwap and st < p.mental_need_vwap and not vconf:
+                continue
+            out.append((f'M{st}', float(m), 'MV' if vconf else 'M', st))
+    return [x for x in out if x[2] in p.kinds]
+
+
+def _vwap_levels(f, i, p):
     ve, se = f['vwapE'][i], f['sdE'][i]
     out = [('VWAP', ve)]
     for k in p.band_k:
@@ -94,6 +131,8 @@ class Setup:
     extreme: float
     swept: bool               # penetration >= pen_min (true manipulation) vs touch only
     conf: int
+    kind: str = 'V'
+    strength: int = 0
     abs_bar: int = -1
     abs_hi: float = float('nan')
     abs_lo: float = float('nan')
@@ -142,6 +181,9 @@ def run(f, p: Params, start=None, end=None):
                 gap = (o[i] <= tr['stop']) if pos > 0 else (o[i] >= tr['stop'])
                 base = o[i] if gap else tr['stop']
                 exit_px, why = base - pos * slip, 'stop'
+            elif p.tp_r > 0 and ((pos > 0 and h[i] >= tr['entry'] + p.tp_r * tr['risk'] + tk) or
+                                 (pos < 0 and l[i] <= tr['entry'] - p.tp_r * tr['risk'] - tk)):
+                exit_px, why = tr['entry'] + pos * p.tp_r * tr['risk'], 'tp'     # limit: no slippage
             elif mod[i] >= p.flat_time or last[i]:
                 exit_px, why = c[i] - pos * slip, 'eod'
             if exit_px is None and p.partial_r > 0 and 'part_i' not in tr:
@@ -159,7 +201,7 @@ def run(f, p: Params, start=None, end=None):
                 trades.append(tr)
                 pos = 0
                 setups = {1: None, -1: None}
-            else:
+            elif p.trail_on:
                 # R-step trailing, computed at close, active from next bar
                 k = math.floor(tr['mfe'] / tr['risk'] + 1e-9)
                 if k >= 1:
@@ -192,7 +234,8 @@ def run(f, p: Params, start=None, end=None):
             # new manipulation / level test
             if s is None:
                 best = None
-                for name, L in lv:
+                best_mv = None
+                for name, L, kind, st in lv:
                     if math.isnan(L):
                         continue
                     if dirn == 1:
@@ -205,12 +248,16 @@ def run(f, p: Params, start=None, end=None):
                         continue
                     # choose the level closest to the extreme (where the move stopped)
                     if best is None or pen < best[2]:
-                        best = (name, L, pen)
+                        best = (name, L, pen, kind, st)
+                    if kind == 'MV' and (best_mv is None or pen < best_mv[2]):
+                        best_mv = (name, L, pen, kind, st)
+                if best_mv is not None:          # mental level paired with VWAP has priority
+                    best = best_mv
                 if best is not None:
-                    name, L, pen = best
-                    conf = sum(1 for _, x in lv if not math.isnan(x) and abs(x - L) <= p.conf_tol_ticks * tk)
+                    name, L, pen, kind, st = best
+                    conf = sum(1 for _, x, _, _ in lv if not math.isnan(x) and abs(x - L) <= p.conf_tol_ticks * tk)
                     s = setups[dirn] = Setup(dirn, name, L, i, l[i] if dirn == 1 else h[i],
-                                             pen >= p.pen_min_ticks * tk, conf)
+                                             pen >= p.pen_min_ticks * tk, conf, kind, st)
             if s is None:
                 continue
             rng = h[i] - l[i]
@@ -248,7 +295,7 @@ def run(f, p: Params, start=None, end=None):
                     ref = p.struct_ref_ticks if p.struct_ref_ticks > 0 else stop_t
                     if p.struct_filter and (c[i] - s.extreme) * dirn + p.struct_buffer_ticks * tk > ref * tk:
                         continue
-                    sigs.append(dict(dir=dirn, tier=tier, level=s.name, conf=s.conf, hp=hp,
+                    sigs.append(dict(dir=dirn, tier=tier, level=s.name, conf=s.conf, hp=hp, kind=s.kind, strength=s.strength,
                                      stop_ticks=stop_t, sig_i=i, sweep_i=s.bar, abs_i=s.abs_bar,
                                      swept=s.swept))
         if len(sigs) == 1:

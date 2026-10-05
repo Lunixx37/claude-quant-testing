@@ -58,6 +58,7 @@ class Policy:
     stop_after_win: bool = False
     ev_coast: bool = False         # eval: size down so one average winner does not overshoot needlessly
     fu_payout_mode: bool = False   # funded: once balance >= pay_min_bal, trade minimum size to collect win days
+    risk_usd: float = 0.0          # >0: fixed $ risk per trade in both phases (n = floor(risk_usd / R$))
     no_starve: bool = False        # if the EOD-floor guard says 0 contracts, still trade 1 (stalling = failing anyway)
     ev_min: int = 1                # minimum contracts (guards still apply)
     fu_min: int = 1
@@ -65,8 +66,12 @@ class Policy:
 
 def contracts(bal, thr, day_left, frac, cap, pol, env, risk_mult, mn=1):
     r = pol.r_usd * risk_mult
-    n = max(int(frac * (bal - thr) / r), mn)
-    n = min(n, cap, env.max_mnq)
+    if pol.risk_usd > 0:
+        n = max(int(pol.risk_usd / r), 1)
+    else:
+        n = max(int(frac * (bal - thr) / r), mn)
+        n = min(n, cap)
+    n = min(n, env.max_mnq)
     # guards: a full stop-out must not breach the DLL or the EOD threshold
     n = min(n, int((day_left - 5) / (r * pol.guard + env.comm_rt)))
     n_eod = int((bal - thr - 5) / (r * pol.guard + env.comm_rt))
@@ -167,4 +172,7 @@ def run_paths(paths, pool, env, pol, horizon=252):
                 p_fu_blow_before_pay=((out[:, 4] == 2) & ~pay).mean(),
                 med_ev_days=float(np.median(out[passed, 1])) if passed.any() else np.nan,
                 med_first_pay=float(np.median(out[pay, 2])) if pay.any() else np.nan,
+                p_pay21=((out[:, 2] > 0) & (out[:, 2] <= 21)).mean(),
+                p_pay42=((out[:, 2] > 0) & (out[:, 2] <= 42)).mean(),
+                p_pay63=((out[:, 2] > 0) & (out[:, 2] <= 63)).mean(),
                 mean_paid=out[:, 3].mean())
