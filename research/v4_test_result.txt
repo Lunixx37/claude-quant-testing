@@ -1,0 +1,9 @@
+Top V4 candidate (did NOT pass selection: neighbours not robust): FVG rejection, stop 40 pts, TP 3R
+  Train 2017-06/2020 CFD  : n=1022 (5.6/week) win=42.7% E=+0.018R (CFD spread)
+  Test 2022 CFD           : n=438 (8.4/week) win=31.5% E=+0.175R (CFD spread)
+  Test 2023-25 CFD        : n=1120 (7.8/week) win=30.4% E=+0.071R (CFD spread)
+  Test 2023-25 NQ         : n=1190 (7.7/week) win=29.8% E=+0.071R (MNQ costs)
+
+$100 CFD account, 1-year bootstrap of the 2022-2025 test trades (R after spread):
+  risk 1%/trade: median equity after 1y $133, P(loss) 15%, P(DD>=50%) 0%, median max DD 20%, P(+20% within 6m) 59%
+  risk 2%/trade: median equity after 1y $171, P(loss) 21%, P(DD>=50%) 25%, median max DD 41%, P(+20% within 6m) 81%

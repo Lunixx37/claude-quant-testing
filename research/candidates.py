@@ -17,3 +17,7 @@ V2_FINAL = dict(FINAL, mental_on=True, mental_min=100, tp_r=2.0)
 # V3 (high-frequency ICT/level search), frozen before Test A: best min(E_train, E_valid) of the 8 configs
 # positive in both (see v3_grid_train.csv / v3_grid_valid.csv)
 V3_FINAL = dict(setup='S10 Absorption', stop_mode='fixed', tp_r=3.0, trail=False)
+
+# V4 candidate (did NOT pass the pre-registered neighbour rule, but is positive on all test years):
+# FVG rejection (single confluence), fixed 40-pt stop, TP 3R, 09:30-11:00 NY, max 2/day, no VWAP / order flow
+V4_CANDIDATE = dict(combo=('fvg',), stop_pts=40.0, tp_r=3.0, trail=False)

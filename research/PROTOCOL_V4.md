@@ -56,3 +56,15 @@ Definitions are unchanged from ict.py and are causal:
 ## Stop rule
 After evaluating the grid and the single test run, the result is reported. If nothing passes, it is
 reported as "not found".
+
+## Amendment 1 (user clarification, before any V4 run)
+High RR is allowed. The high win rate was only meant to avoid ruin. The goal is a clearly defined,
+automatable strategy that is profitable after spread/commission.
+
+- **Exits:** extended to TP 0.1 / 0.2 / 0.3 / 0.5 / 1 / 1.5 / 2 / 3 R and R-step trailing (lag 1.25).
+  That is 124 combos x 3 stops x 9 exits = **3,348 configurations**.
+- **Selection:**
+  - Primary: E after **CFD** costs > 0 in Train and Validation, ranked by min(E_train, E_valid).
+  - Neighbouring stops/exits must be positive too.
+  - Risk of ruin for the $100 account (1 % and 2 % risk, 1-year bootstrap) is reported. A choice must
+    have P(-50 % drawdown) < 5 % at 1 % risk.

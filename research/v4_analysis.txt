@@ -1,0 +1,35 @@
+configs evaluated: 3186
+E (CFD costs) train vs valid correlation across configs: 0.02
+share with E_cfd>0: train 27.0%, valid 18.8%, both 6.7%
+if train and valid were independent, expected "both": 5.1%
+
+Mean E (CFD) by exit, train/valid:
+       win_cfd_tr  E_cfd_tr  win_cfd_va  E_cfd_va
+exit                                             
+TP0.1       0.880    -0.077       0.791    -0.184
+TP0.2       0.808    -0.066       0.742    -0.164
+TP0.3       0.750    -0.049       0.695    -0.152
+TP0.5       0.651    -0.038       0.614    -0.134
+TP1         0.474    -0.085       0.475    -0.108
+TP1.5       0.377    -0.150       0.374    -0.127
+TP2         0.344    -0.149       0.304    -0.174
+TP3         0.324    -0.126       0.259    -0.108
+Trail       0.315    -0.102       0.262    -0.114
+
+Mean E (CFD) by stop:
+      E_cfd_tr  E_cfd_va
+stop                    
+15.0    -0.195    -0.192
+25.0    -0.047    -0.178
+40.0    -0.039    -0.052
+
+candidates positive in both (>=2/week): 8, with all neighbours positive: 0
+            combo  stop  exit  per_week_cfd_tr  win_cfd_tr  E_cfd_tr  pf_cfd_tr  dd_cfd_tr  per_week_cfd_va  win_cfd_va  E_cfd_va  E_mnq_tr  E_mnq_va  minE  nb_ok
+ rb+ls+mss_recent  40.0   TP3            2.493       0.412     0.015      1.038     26.244            3.257       0.310     0.016     0.026     0.028 0.015  False
+              fvg  40.0   TP3            5.611       0.427     0.018      1.041     31.540            7.664       0.322     0.014     0.029     0.026 0.014  False
+mss+ls+mss_recent  40.0   TP3            4.711       0.403     0.014      1.031     29.168            6.323       0.303     0.019     0.025     0.030 0.014  False
+           mss+ls  40.0   TP3            4.711       0.403     0.014      1.031     29.168            6.323       0.303     0.019     0.025     0.030 0.014  False
+ rb+ls+mss_recent  40.0 Trail            2.504       0.404     0.012      1.032     26.268            3.321       0.327     0.011     0.023     0.023 0.011  False
+    rb+mss_recent  40.0   TP3            4.233       0.423     0.010      1.024     40.082            5.122       0.319     0.025     0.021     0.036 0.010  False
+ rb+ls+mss_recent  40.0   TP2            2.498       0.422     0.006      1.016     24.153            3.296       0.372     0.014     0.017     0.025 0.006  False
+           fvg+ls  40.0   TP2            3.904       0.421     0.008      1.019     18.124            5.442       0.357     0.004     0.019     0.015 0.004  False

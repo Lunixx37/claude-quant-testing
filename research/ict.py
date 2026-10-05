@@ -15,6 +15,7 @@ import pandas as pd
 TICK = 0.25
 SLIP = 0.25                 # 1 tick per market / stop fill
 COMM_PTS = 0.75             # $1.50 per MNQ round turn = 0.75 pt
+CFD_SPREAD = 1.2            # NAS100 CFD spread per round trip (pts), spread-only account
 WIN_START, WIN_END, FALLBACK_T, FORCED_T, FLAT_T = 570, 660, 630, 659, 955
 STATE_START = 510           # build zones / structure from 08:30
 LEVEL_TOL = 2.0             # pts: level touch tolerance
@@ -197,10 +198,10 @@ SETUPS = {
 }
 
 
-def simulate(f, cand, setup, stop_mode='struct', tp_r=2.0, trail=False, fallback=True, max_day=2, lag=1.25):
+def simulate(f, cand, setup, stop_mode='struct', tp_r=2.0, trail=False, fallback=True, max_day=2, lag=1.25, fixed_pts=25.0):
     """Trade simulation for one configuration. Returns a DataFrame of trades (R net of costs)."""
     o, h, l, c, mod, sd, last = f['o'], f['h'], f['l'], f['c'], f['mod'], f['sdate'], f['last']
-    pred = SETUPS[setup]
+    pred = setup if callable(setup) else SETUPS[setup]
     by_day = {}
     for r in cand.itertuples(index=False):
         by_day.setdefault(sd[r.i], []).append(r)
@@ -244,7 +245,7 @@ def simulate(f, cand, setup, stop_mode='struct', tp_r=2.0, trail=False, fallback
             e = i + 1
             ep = o[e] + d * SLIP
             if stop_mode == 'fixed' or np.isnan(stp):
-                R = 25.0
+                R = fixed_pts
             else:
                 R = (ep - stp) * d
                 if R > 40:
@@ -274,8 +275,8 @@ def simulate(f, cand, setup, stop_mode='struct', tp_r=2.0, trail=False, fallback
                             stop = ns
                 k += 1
             pts = (x - ep) * d
-            trades.append(dict(sdate=day, sig_i=i, entry_i=e, exit_i=k, dir=d, kind=kind, setup=setup, R_pts=R,
-                               entry=ep, exit=x, why=why, pts=pts, R=(pts - COMM_PTS) / R, Rg=pts / R, mfe_R=mfe / R, sig_min=md))
+            trades.append(dict(sdate=day, sig_i=i, entry_i=e, exit_i=k, dir=d, kind=kind, R_pts=R,
+                               entry=ep, exit=x, why=why, pts=pts, R=(pts - COMM_PTS) / R, Rc=(pts - CFD_SPREAD) / R, Rg=pts / R, mfe_R=mfe / R, sig_min=md))
             n_today += 1
             pos_exit = k
     return pd.DataFrame(trades)

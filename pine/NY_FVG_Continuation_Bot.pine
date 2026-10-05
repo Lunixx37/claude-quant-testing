@@ -1,0 +1,119 @@
+// This Pine Script® code is subject to the terms of the Mozilla Public License 2.0
+// NY FVG Continuation Bot (V4 candidate) - NAS100 CFD / NQ / MNQ, 1-minute chart
+//
+// Rules (mirror research/ict.py, setup "fvg", stop 40 pts, TP 3R; see research/V4_REPORT.md):
+//   * FVG (built from 08:30 NY): bullish if low[0] - high[2] >= minGap and the middle bar is a bullish
+//     displacement (range >= dispMult x average range of the 20 bars before it). Bearish mirrored.
+//     The zone lives for zoneLife bars or until a close beyond its far edge.
+//   * Entry (09:30-11:00 NY): a bar trades into an active same-direction FVG (born on an earlier bar)
+//     and closes beyond the zone midpoint with a body in trade direction. Market order at the next open.
+//     If long and short signals fire on the same bar: no trade.
+//   * Stop: fixed stopPts. Target: tpR x stopPts (limit). Flat at 15:55 NY. Max 2 trades per day,
+//     one position at a time.
+//   * Sizing: riskPct of current equity per trade (rounded down to qtyStep, minimum qtyMin).
+// No lookahead: everything uses closed bars, entries fill at the next open.
+// Edge in research: small (+0.02..+0.07 R/trade after costs over 2017-2025, +0.07..+0.18 R on test years).
+// Paper-trade first.
+//@version=6
+strategy("NY FVG Continuation Bot", shorttitle = "FVG-Bot", overlay = true, pyramiding = 0,
+     initial_capital = 100, default_qty_type = strategy.fixed, default_qty_value = 0.01, currency = currency.USD,
+     commission_type = strategy.commission.cash_per_contract, commission_value = 0.0, slippage = 1,
+     process_orders_on_close = false, calc_on_every_tick = false, backtest_fill_limits_assumption = 1,
+     max_labels_count = 500, max_boxes_count = 500)
+
+TZ = "America/New_York"
+grpE = "Entry / session (NY time)"
+entrySess = input.session("0930-1100", "Entry window", group = grpE)
+stateFrom = input.int(830, "Build FVGs from HHMM", group = grpE)
+flatHHMM  = input.int(1555, "Flat time HHMM", group = grpE)
+maxTrades = input.int(2, "Max trades per day", minval = 1, maxval = 2, group = grpE)
+grpF = "FVG"
+dispMult  = input.float(1.5, "Displacement: middle bar range >= x * avg range(20)", step = 0.1, group = grpF)
+minGap    = input.float(0.5, "Min gap (points)", step = 0.25, group = grpF)
+zoneLife  = input.int(60, "Zone life (bars)", group = grpF)
+grpR = "Risk"
+stopPts   = input.float(40.0, "Stop (points)", step = 5, group = grpR)
+tpR       = input.float(3.0, "Target (R)", step = 0.5, group = grpR)
+riskPct   = input.float(1.0, "Risk per trade (% of equity)", step = 0.25, group = grpR)
+qtyStep   = input.float(0.01, "Quantity step (lots/contracts)", group = grpR)
+qtyMin    = input.float(0.01, "Minimum quantity", group = grpR)
+spreadPts = input.float(1.2, "Spread/cost per round trip (points, for display of net R)", group = grpR)
+grpV = "Visuals"
+showZones = input.bool(true, "Show FVG zones", group = grpV)
+
+modNow  = hour(time, TZ) * 60 + minute(time, TZ)
+toMin(int hhmm) => int(hhmm / 100) * 60 + hhmm % 100
+inEntry = not na(time(timeframe.period, entrySess, TZ))
+inState = modNow >= toMin(stateFrom) and modNow < toMin(1100)
+newDay  = ta.change(time("D")) != 0
+
+rng   = high - low
+ar20  = ta.sma(rng, 20)[1]          // average range of the 20 bars before the current one
+
+type Fvg
+    int   dir
+    float bot
+    float top
+    int   born
+    box   bx
+
+var array<Fvg> zones = array.new<Fvg>()
+var int dayTrades = 0
+if newDay
+    for z in zones
+        if not na(z.bx)
+            box.delete(z.bx)
+    array.clear(zones)
+    dayTrades := 0
+
+// ---- signal on this bar (zones born on earlier bars only)
+bool sigL = false
+bool sigS = false
+if inEntry and rng > 0 and barstate.isconfirmed
+    for z in zones
+        if z.born < bar_index
+            mid = (z.bot + z.top) / 2
+            if z.dir == 1 and low <= z.top and high >= z.bot and close > mid and close > open
+                sigL := true
+            if z.dir == -1 and high >= z.bot and low <= z.top and close < mid and close < open
+                sigS := true
+
+// ---- new FVG formed on this bar (usable from the next bar)
+if inState and not na(ar20[1]) and rng[1] >= dispMult * ar20[1]
+    if low - high[2] >= minGap and close[1] > open[1]
+        bx = showZones ? box.new(bar_index - 2, low, bar_index + zoneLife, high[2], bgcolor = color.new(color.teal, 85), border_color = color.new(color.teal, 60)) : na
+        array.push(zones, Fvg.new(1, high[2], low, bar_index, bx))
+    if low[2] - high >= minGap and close[1] < open[1]
+        bx = showZones ? box.new(bar_index - 2, low[2], bar_index + zoneLife, high, bgcolor = color.new(color.maroon, 85), border_color = color.new(color.maroon, 60)) : na
+        array.push(zones, Fvg.new(-1, high, low[2], bar_index, bx))
+
+// ---- expire / invalidate zones
+if array.size(zones) > 0
+    for k = array.size(zones) - 1 to 0
+        z = array.get(zones, k)
+        dead = bar_index - z.born > zoneLife or (z.dir == 1 and close < z.bot) or (z.dir == -1 and close > z.top)
+        if dead
+            array.remove(zones, k)
+
+// ---- orders
+qtyFor() =>
+    q = strategy.equity * riskPct / 100 / (stopPts * syminfo.pointvalue)
+    math.max(math.floor(q / qtyStep) * qtyStep, qtyMin)
+flat = strategy.position_size == 0
+exitedNow = strategy.closedtrades > nz(strategy.closedtrades[1])   // as in the research engine: no re-entry on the exit bar
+if flat and not exitedNow and dayTrades < maxTrades and sigL != sigS
+    q = qtyFor()
+    if sigL
+        strategy.entry("L", strategy.long, qty = q)
+        strategy.exit("XL", "L", loss = stopPts / syminfo.mintick, profit = tpR * stopPts / syminfo.mintick, comment_loss = "SL", comment_profit = "TP")
+    else
+        strategy.entry("S", strategy.short, qty = q)
+        strategy.exit("XS", "S", loss = stopPts / syminfo.mintick, profit = tpR * stopPts / syminfo.mintick, comment_loss = "SL", comment_profit = "TP")
+    dayTrades += 1
+
+if strategy.position_size != 0 and (modNow >= toMin(flatHHMM) or session.islastbar)
+    strategy.close_all(comment = "EOD", immediately = true)
+
+plotshape(sigL and not sigS and inEntry, "Long signal", shape.triangleup, location.belowbar, color.lime, size = size.tiny)
+plotshape(sigS and not sigL and inEntry, "Short signal", shape.triangledown, location.abovebar, color.red, size = size.tiny)
+bgcolor(inEntry ? color.new(color.blue, 94) : na, title = "Entry window")
