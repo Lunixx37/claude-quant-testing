@@ -21,3 +21,7 @@ V3_FINAL = dict(setup='S10 Absorption', stop_mode='fixed', tp_r=3.0, trail=False
 # V4 candidate (did NOT pass the pre-registered neighbour rule, but is positive on all test years):
 # FVG rejection (single confluence), fixed 40-pt stop, TP 3R, 09:30-11:00 NY, max 2/day, no VWAP / order flow
 V4_CANDIDATE = dict(combo=('fvg',), stop_pts=40.0, tp_r=3.0, trail=False)
+
+# V5 (refined FVG candidate), frozen before its test run: no filters (none improved Train AND Validation),
+# fixed 60-pt stop, TP 2R, hold up to 2 sessions (plateau choice, all neighbours positive) - see v5_selection.txt
+V5_FINAL = dict(filters=(), stop=('fixed', 60.0), tp_r=2.0, trail=False, hold=2)
