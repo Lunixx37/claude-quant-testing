@@ -123,8 +123,11 @@ def detect(f, df, start, end):
                     return c[i - 1] < L and h[i] >= L - LEVEL_TOL and h[i] <= L + LEVEL_PEN_MAX and c[i] < L and body_ok
 
                 zl = []
+                zf = (np.nan, np.nan, np.nan, np.nan)
                 for z in fvgs:
                     if z[0] == d and z[3] < i and zone_rej(z[1], z[2]):
+                        if not flags & BIT['fvg']:
+                            zf = (z[2] - z[1], z[6], i - z[3], z[1] if d == 1 else z[2])   # gap, displacement ratio, age, far edge
                         flags |= BIT['fvg']; zl.append(z[1] if d == 1 else z[2])
                     if z[0] == d and z[3] < i and not np.isnan(z[4]) and zone_rej(z[4], z[5]):
                         flags |= BIT['ob']; zl.append(z[4] if d == 1 else z[5])
@@ -160,19 +163,19 @@ def detect(f, df, start, end):
                         if flags & BIT['ls']:
                             st = max(st, sweep[-1][1])
                         st += 2.0
-                    rows.append((i, d, flags, st))
+                    rows.append((i, d, flags, st) + zf)
         # ---- new FVGs formed at bar i (usable from bar i+1)
         if not np.isnan(ar20[i - 1]) and rng[i - 1] >= 1.5 * ar20[i - 1]:
             if l[i] - h[i - 2] >= 0.5 and c[i - 1] > o[i - 1]:
                 ob = next(((l[k], h[k]) for k in range(i - 2, i - 7, -1) if c[k] < o[k]), (np.nan, np.nan))
-                fvgs.append((1, h[i - 2], l[i], i, ob[0], ob[1]))
+                fvgs.append((1, h[i - 2], l[i], i, ob[0], ob[1], rng[i - 1] / ar20[i - 1]))
             if l[i - 2] - h[i] >= 0.5 and c[i - 1] < o[i - 1]:
                 ob = next(((l[k], h[k]) for k in range(i - 2, i - 7, -1) if c[k] > o[k]), (np.nan, np.nan))
-                fvgs.append((-1, h[i], l[i - 2], i, ob[0], ob[1]))
+                fvgs.append((-1, h[i], l[i - 2], i, ob[0], ob[1], rng[i - 1] / ar20[i - 1]))
         # expire / invalidate zones
         fvgs = [z for z in fvgs if i - z[3] <= 60 and not ((z[0] == 1 and c[i] < z[1]) or (z[0] == -1 and c[i] > z[2]))]
         rbs = [z for z in rbs if i - z[3] <= 120 and not ((z[0] == 1 and c[i] < z[1]) or (z[0] == -1 and c[i] > z[2]))]
-    return pd.DataFrame(rows, columns=['i', 'dir', 'fl', 'stop'])
+    return pd.DataFrame(rows, columns=['i', 'dir', 'fl', 'stop', 'zgap', 'zdisp', 'zage', 'zfar'])
 
 
 def has(fl, *names):
