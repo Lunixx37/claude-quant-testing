@@ -1,0 +1,551 @@
+// This Pine Script® code is subject to the terms of the Mozilla Public License 2.0
+// NY Open  Manipulation -> Absorption -> Distribution  (MAD)  strategy for NQ / MNQ, 1-minute chart
+//
+// Mirrors the Python reference engine in research/engine.py (frozen FINAL parameters as defaults).
+// Every decision is taken on the CLOSE of a confirmed bar and only uses that bar and older bars:
+//   * levels for the sweep test are taken from the PREVIOUS bar ([1])
+//   * relative volume / relative range compare with an EMA of previous days at the same minute
+//   * entries are market orders -> filled by the broker emulator at the NEXT bar open
+//   * no request.security() on the chart symbol, no lookahead, nothing repaints
+//
+// PROP VERSION (see research/PROP_REPORT.md): same signals as NY_Open_MAD_Strategy.pine, plus a prop-account
+// emulator (eval -> funded), drawdown/DLL-aware position sizing in MNQ and the payout bookkeeping
+// (winning days, min balance, consistency). Commission default = $0.75/side per MNQ contract.
+//
+// DATA LIMITATIONS (see research/REPORT.md):
+//   * V2: GEX was replaced by MENTAL LEVELS (round numbers: multiples of 50/100/500/1000).
+//     Kinds: MV = mental level with a VWAP-family level within the confluence tolerance (priority),
+//            M = mental level alone, V = VWAP-family level alone. Frozen V2 = VWAP levels + mental >= 100,
+//     fixed target 2R plus R-step trailing, $250 risk per trade (see research/V2_REPORT.md).
+//   * No order flow / bid-ask delta. "Absorption" is an OHLCV proxy:
+//     relative volume + rejection wick or close location + effort-vs-result (small range for the volume).
+//@version=6
+strategy("NY Open MAD V2 - Mental Levels (Prop, MNQ)", shorttitle = "NY-MAD-V2", overlay = true,
+     pyramiding = 0, initial_capital = 50000, default_qty_type = strategy.fixed, default_qty_value = 1,
+     commission_type = strategy.commission.cash_per_contract, commission_value = 0.75, slippage = 1,
+     process_orders_on_close = false, calc_on_every_tick = false, calc_on_order_fills = false, backtest_fill_limits_assumption = 1,
+     max_labels_count = 500, max_lines_count = 500, max_bars_back = 500)
+
+// ───────────────────────────── Inputs ─────────────────────────────
+TZ = "America/New_York"
+grpT = "Session (New York time)"
+entrySess   = input.session("0930-1100", "Entry window (signal bar open time, NY)", group = grpT)
+flatHHMM    = input.int(1555, "Flat time HHMM (NY) - close all at this bar's close", minval = 0, maxval = 2359, group = grpT)
+maxTrades   = input.int(2, "Max trades per NY trading day", minval = 1, maxval = 2, group = grpT)
+
+grpL = "Levels"
+bandK1      = input.float(1.0, "ETH-VWAP stdev band k1 (0 = off)", step = 0.25, group = grpL)
+bandK2      = input.float(2.0, "ETH-VWAP stdev band k2 (0 = off)", step = 0.25, group = grpL)
+multPct     = input.float(0.5, "Multiplicative VWAP band % (0 = off)", step = 0.05, group = grpL)
+useRthVwap  = input.bool(true, "Use RTH VWAP (anchored 09:30)", group = grpL)
+confTol     = input.int(8, "Confluence tolerance (ticks)", group = grpL)
+
+grpG = "Mental levels (round numbers)"
+mentalOn    = input.bool(true, "Use mental levels", group = grpG)
+mentalMin   = input.int(100, "Smallest mental step", options = [50, 100, 500, 1000], group = grpG)
+mentalNeedV = input.int(0, "Mental levels below this strength need VWAP confluence (0 = never)", options = [0, 100, 500, 1000], group = grpG)
+mvConfTicks = input.int(40, "Mental <-> VWAP confluence tolerance (ticks)", group = grpG)
+useVLevels  = input.bool(true, "Allow VWAP-only setups (kind V)", group = grpG)
+allowMV     = input.bool(true, "Allow kind MV (mental + VWAP)", group = grpG)
+allowM      = input.bool(true, "Allow kind M (mental alone)", group = grpG)
+
+grpM = "Manipulation"
+penMin      = input.int(4, "Sweep: min penetration beyond level (ticks)", group = grpM)
+penMax      = input.int(60, "Sweep: max penetration (deeper = real break, ticks)", group = grpM)
+touchTicks  = input.int(4, "Level test / tolerance (ticks)", group = grpM)
+setupBars   = input.int(10, "Setup expiry (bars after sweep)", group = grpM)
+
+grpA = "Absorption (OHLCV proxy)"
+rvMin       = input.float(1.5, "Min relative volume (vs same-minute EMA)", step = 0.05, group = grpA)
+wickMin     = input.float(0.40, "Min rejection wick / range", step = 0.05, group = grpA)
+clMin       = input.float(0.60, "...or min close location", step = 0.05, group = grpA)
+erMax       = input.float(1.0, "Effort vs result: max relRange/relVol (0 = off)", step = 0.05, group = grpA)
+rvLen       = input.int(20, "Same-minute EMA length (days)", group = grpA)
+rvMinObs    = input.int(10, "Min prior days per minute before valid", group = grpA)
+
+grpD = "Distribution / Tiers"
+dispBody    = input.float(0.50, "A-tier displacement: min body / range", step = 0.05, group = grpD)
+dispCl      = input.float(0.70, "A-tier displacement: min close location", step = 0.05, group = grpD)
+allowB      = input.bool(false, "Trade B-tier setups (negative in backtest)", group = grpD)
+allowLong   = input.bool(true, "Allow longs", group = grpD)
+allowShort  = input.bool(true, "Allow shorts", group = grpD)
+
+grpR = "Risk / Trailing"
+stopTicks   = input.int(100, "Standard stop (ticks)", group = grpR)
+useHp       = input.bool(false, "Use high-probability 50t stop (no robust edge in backtest)", group = grpR)
+hpStopTicks = input.int(50, "High-probability stop (ticks)", group = grpR)
+hpBuffer    = input.int(4, "HP: structure buffer (ticks)", group = grpR)
+structOn    = input.bool(true, "Structure rule: stop must lie beyond manipulation extreme", group = grpR)
+structRef   = input.int(100, "Structure rule reference distance (ticks)", group = grpR)
+structBuf   = input.int(4, "Structure rule buffer (ticks)", group = grpR)
+tpR         = input.float(2.0, "Fixed target in R (limit, 0 = off)", step = 0.25, minval = 0, group = grpR)
+trailLag    = input.float(1.25, "Trailing lag (R): at +kR MFE stop = entry + (k - lag) R", step = 0.25, minval = 0.5, maxval = 1.75, group = grpR)
+
+grpV = "Visuals / Debug"
+showVwap    = input.bool(true, "Show VWAPs and bands", group = grpV)
+showMarks   = input.bool(true, "Show sweep / absorption / signal markers", group = grpV)
+showStop    = input.bool(true, "Show stop / trailing stop", group = grpV)
+showTable   = input.bool(true, "Show debug table", group = grpV)
+
+// ───────────────────────────── Time helpers ─────────────────────────────
+tick     = syminfo.mintick
+modNow   = hour(time, TZ) * 60 + minute(time, TZ)            // bar OPEN time in NY minutes
+flatMin  = int(flatHHMM / 100) * 60 + flatHHMM % 100
+inEntry  = not na(time(timeframe.period, entrySess, TZ))
+bool newSess = ta.change(time("D")) != 0                         // CME session starts 18:00 NY
+
+// ───────────────────────────── VWAPs (hlc3, as ta.vwap) ─────────────────────────────
+src = hlc3
+var float eV = 0.0
+var float ePV = 0.0
+var float ePV2 = 0.0
+if newSess
+    eV := 0.0
+    ePV := 0.0
+    ePV2 := 0.0
+eV += volume
+ePV += src * volume
+ePV2 += src * src * volume
+vwapE = eV > 0 ? ePV / eV : na
+sdE   = eV > 0 ? math.sqrt(math.max(ePV2 / eV - vwapE * vwapE, 0)) : na
+
+var bool  rthOn = false
+var float rV = 0.0
+var float rPV = 0.0
+if newSess
+    rthOn := false
+if not rthOn and modNow >= 570 and modNow < 1080
+    rthOn := true
+    rV := 0.0
+    rPV := 0.0
+if rthOn
+    rV += volume
+    rPV += src * volume
+vwapR = rthOn and rV > 0 ? rPV / rV : na
+
+// ───────────────────────── Relative volume / range (same minute of day) ─────────────────────────
+var array<float> avgVol = array.new_float(1440, na)
+var array<float> avgRng = array.new_float(1440, na)
+var array<int>   nObs   = array.new_int(1440, 0)
+alpha = 2.0 / (rvLen + 1)
+nPrev = array.get(nObs, modNow)
+aV    = array.get(avgVol, modNow)
+aR    = array.get(avgRng, modNow)
+rng   = high - low
+relVol   = nPrev >= rvMinObs and aV > 0 ? volume / aV : na
+relRange = nPrev >= rvMinObs and aR > 0 ? rng / aR : na
+array.set(avgVol, modNow, nPrev == 0 ? volume : aV + alpha * (volume - aV))
+array.set(avgRng, modNow, nPrev == 0 ? rng : aR + alpha * (rng - aR))
+array.set(nObs, modNow, nPrev + 1)
+
+// ───────────────────────────── Level set of the PREVIOUS bar ─────────────────────────────
+type Lvl
+    string name
+    float  price
+    string kind = "V"
+    int    strength = 0
+mentalStrength(int m) =>
+    m % 1000 == 0 ? 1000 : m % 500 == 0 ? 500 : m % 100 == 0 ? 100 : 50
+buildLevels() =>
+    array<Lvl> v = array.new<Lvl>()          // VWAP family (also used for MV confluence)
+    ve = vwapE[1]
+    se = sdE[1]
+    if not na(ve)
+        v.push(Lvl.new("VWAP", ve))
+        if bandK1 > 0
+            v.push(Lvl.new("+" + str.tostring(bandK1) + "sd", ve + bandK1 * se))
+            v.push(Lvl.new("-" + str.tostring(bandK1) + "sd", ve - bandK1 * se))
+        if bandK2 > 0
+            v.push(Lvl.new("+" + str.tostring(bandK2) + "sd", ve + bandK2 * se))
+            v.push(Lvl.new("-" + str.tostring(bandK2) + "sd", ve - bandK2 * se))
+        if multPct > 0
+            v.push(Lvl.new("x+" + str.tostring(multPct) + "%", ve * (1 + multPct / 100)))
+            v.push(Lvl.new("x-" + str.tostring(multPct) + "%", ve * (1 - multPct / 100)))
+    if useRthVwap and not na(vwapR[1])
+        v.push(Lvl.new("rVWAP", vwapR[1]))
+    array<Lvl> a = array.new<Lvl>()
+    if useVLevels
+        for x in v
+            a.push(x)
+    if mentalOn
+        ref = close[1]
+        int m = int(math.floor((ref - 150) / 50) * 50)
+        while m <= ref + 150
+            st = mentalStrength(m)
+            if st >= mentalMin
+                bool vconf = false
+                for x in v
+                    if not na(x.price) and math.abs(x.price - m) <= mvConfTicks * tick
+                        vconf := true
+                if not (mentalNeedV > 0 and st < mentalNeedV and not vconf)
+                    k = vconf ? "MV" : "M"
+                    if (k == "MV" and allowMV) or (k == "M" and allowM)
+                        a.push(Lvl.new("M" + str.tostring(st), m, k, st))
+            m += 50
+    a
+
+// ───────────────────────────── Setup state machine ─────────────────────────────
+type Setup
+    int    dirn          // +1 long (sweep below level), -1 short (sweep above level)
+    string name
+    float  level
+    int    barIdx
+    float  extreme
+    bool   swept
+    int    conf
+    string kind = "V"
+    int    strength = 0
+    int    absBar = -1
+    float  absHi  = na
+    float  absLo  = na
+
+var Setup sL = na
+var Setup sS = na
+var int   dayTrades = 0
+var int   closedPrev = 0
+var float curStop = na
+var float mfe = 0.0
+var float riskPts = na
+var string lastTier = ""
+
+if newSess
+    dayTrades := 0
+    sL := na
+    sS := na
+
+// a trade closed since the last bar -> reset setups (as the reference engine does)
+if strategy.closedtrades > closedPrev
+    closedPrev := strategy.closedtrades
+    sL := na
+    sS := na
+
+// returns [updated setup, signal, tier, stopTicks, sweep-detected flag, absorption-detected flag]
+evalSetup(Setup sIn, int dirn, array<Lvl> lv) =>
+    Setup s = sIn
+    bool sig = false
+    string tier = ""
+    int st = stopTicks
+    bool swFlag = false
+    bool absFlag = false
+    if not na(s)
+        s.extreme := dirn == 1 ? math.min(s.extreme, low) : math.max(s.extreme, high)
+        depth = (s.level - s.extreme) * dirn
+        if depth > penMax * tick or bar_index - s.barIdx > setupBars
+            s := na
+        else if depth >= penMin * tick
+            s.swept := true
+    if not na(s) and s.absBar >= 0 and bar_index > s.absBar
+        if (dirn == 1 and low < s.absLo - touchTicks * tick) or (dirn == -1 and high > s.absHi + touchTicks * tick)
+            s.absBar := -1
+    if na(s)
+        string bName = ""
+        float bL = na
+        float bPen = na
+        string bKind = "V"
+        int bStr = 0
+        string mName = ""
+        float mL = na
+        float mPen = na
+        int mStr = 0
+        for x in lv
+            L = x.price
+            if not na(L)
+                cameFrom = dirn == 1 ? close[1] > L : close[1] < L
+                pen = dirn == 1 ? L - low : high - L
+                if cameFrom and pen >= -touchTicks * tick and pen <= penMax * tick
+                    if na(bPen) or pen < bPen
+                        bName := x.name
+                        bL := L
+                        bPen := pen
+                        bKind := x.kind
+                        bStr := x.strength
+                    if x.kind == "MV" and (na(mPen) or pen < mPen)
+                        mName := x.name
+                        mL := L
+                        mPen := pen
+                        mStr := x.strength
+        if not na(mL)                       // mental level paired with VWAP has priority
+            bName := mName
+            bL := mL
+            bPen := mPen
+            bKind := "MV"
+            bStr := mStr
+        if not na(bL)
+            int conf = 0
+            for x in lv
+                if not na(x.price) and math.abs(x.price - bL) <= confTol * tick
+                    conf += 1
+            s := Setup.new(dirn, bName, bL, bar_index, dirn == 1 ? low : high, bPen >= penMin * tick, conf, bKind, bStr)
+            swFlag := bPen >= penMin * tick
+    if not na(s) and rng > 0
+        bool absNow = false
+        if s.absBar < 0 and not na(relVol)
+            atLevel = dirn == 1 ? low <= s.level + touchTicks * tick : high >= s.level - touchTicks * tick
+            wick = (dirn == 1 ? math.min(open, close) - low : high - math.max(open, close)) / rng
+            cl   = (dirn == 1 ? close - low : high - close) / rng
+            erOk = erMax <= 0 or (not na(relRange) and relRange / relVol <= erMax)
+            if atLevel and relVol >= rvMin and (wick >= wickMin or cl >= clMin) and erOk
+                s.absBar := bar_index
+                s.absHi := high
+                s.absLo := low
+                absNow := true
+                absFlag := true
+        if not absNow and s.absBar >= 0 and bar_index > s.absBar
+            mid  = (s.absHi + s.absLo) / 2
+            body = (dirn == 1 ? close - open : open - close) / rng
+            cl   = (dirn == 1 ? close - low : high - close) / rng
+            trig = dirn == 1 ? (close > s.level and close > mid and body > 0) : (close < s.level and close < mid and body > 0)
+            if trig
+                disp = body >= dispBody and cl >= dispCl
+                t = s.swept and disp ? "A" : "B"
+                int stp = stopTicks
+                room = (close - s.extreme) * dirn
+                if useHp and t == "A" and room + hpBuffer * tick <= hpStopTicks * tick
+                    stp := hpStopTicks
+                structOk = not structOn or room + structBuf * tick <= structRef * tick
+                if (t == "A" or allowB) and structOk
+                    sig := true
+                    tier := t
+                    st := stp
+    [s, sig, tier, st, swFlag, absFlag]
+
+// ───────────────────────────── Prop account emulator ─────────────────────────────
+grpP = "Prop account"
+propOn      = input.bool(true, "Prop sizing + account rules", group = grpP)
+phaseMode   = input.string("Eval -> Funded (auto)", "Phase", options = ["Eval -> Funded (auto)", "Eval", "Funded"], group = grpP)
+accStartT   = input.time(timestamp("2025-01-01T00:00:00"), "Account start", group = grpP)
+startBal    = input.float(50000, "Start balance", group = grpP)
+evFloor     = input.float(48000, "Eval: min balance (EOD)", group = grpP)
+evTarget    = input.float(53000, "Eval: target balance", group = grpP)
+evDll       = input.float(1200, "Eval: daily loss limit", group = grpP)
+fuFloor     = input.float(48000, "Funded: min balance", group = grpP)
+fuTrail     = input.float(2000, "Funded: max DD from peak EOD balance", group = grpP)
+fuDll       = input.float(1000, "Funded: daily loss limit", group = grpP)
+winAmt      = input.float(250, "Funded: winning day >= $", group = grpP)
+winDaysReq  = input.int(5, "Funded: winning days for payout", group = grpP)
+payMinBal   = input.float(52600, "Funded: min balance for payout", group = grpP)
+consPct     = input.float(0.5, "Funded: consistency (best day <= x * profit)", step = 0.05, group = grpP)
+grpS = "Prop sizing (contracts of the chart symbol, MNQ recommended)"
+riskUsd     = input.float(250, "Fixed risk per trade in $ (0 = use fractions below)", group = grpS)
+evFrac      = input.float(0.33, "Eval: risk = x * (balance - floor)", step = 0.01, group = grpS)
+evMin       = input.int(3, "Eval: min contracts", group = grpS)
+evMax       = input.int(10, "Eval: max contracts", group = grpS)
+fuFrac      = input.float(0.0, "Funded: risk = x * (balance - threshold) (0 = fixed)", step = 0.01, group = grpS)
+fuMin       = input.int(4, "Funded: min contracts", group = grpS)
+fuMax       = input.int(4, "Funded: max contracts", group = grpS)
+guardMult   = input.float(1.05, "Guard: full stop x this must not breach DLL / floor", step = 0.01, group = grpS)
+commRtGuard = input.float(1.5, "Guard: round-turn cost per contract ($)", group = grpS)
+noStarve    = input.bool(true, "Trade min 1 contract even if a full stop could breach the floor", group = grpS)
+stopAfterWin = input.bool(false, "Stop for the day after a winning trade", group = grpS)
+
+var bool   accOn = false
+var float  accBase = 0.0          // strategy.netprofit at the start of the current account phase
+var string phase = "EV"
+var float  peakBal = na
+var float  thrBal = na
+var float  dayStartBal = na
+var bool   halted = false
+var int    winDays = 0
+var float  bestDay = 0.0
+var float  payBase = na
+var int    nPayouts = 0
+var float  paidTotal = 0.0
+var bool   wonToday = false
+var int    closedSeen = 0
+accBal() => startBal + strategy.netprofit - accBase
+
+if propOn and not accOn and time >= accStartT and strategy.position_size == 0
+    accOn := true
+    accBase := strategy.netprofit
+    phase := phaseMode == "Funded" ? "FU" : "EV"
+    peakBal := startBal
+    thrBal := phase == "EV" ? evFloor : (fuTrail > 0 ? math.max(fuFloor, startBal - fuTrail) : fuFloor)
+    dayStartBal := startBal
+    payBase := startBal
+
+// end-of-day processing at the start of the next CME session (no trades after 15:55 NY)
+if accOn and newSess and not halted
+    bal = accBal()
+    pnl = bal - dayStartBal
+    if bal <= thrBal
+        halted := true
+    else if phase == "EV"
+        if bal >= evTarget and phaseMode != "Eval"
+            phase := "FU"
+            accBase := strategy.netprofit
+            peakBal := startBal
+            thrBal := (fuTrail > 0 ? math.max(fuFloor, startBal - fuTrail) : fuFloor)
+            winDays := 0
+            bestDay := 0.0
+            payBase := startBal
+    else
+        peakBal := math.max(peakBal, bal)
+        thrBal := (fuTrail > 0 ? math.max(fuFloor, peakBal - fuTrail) : fuFloor)
+        if pnl != 0
+            bestDay := math.max(bestDay, pnl)
+            winDays += pnl >= winAmt ? 1 : 0
+        prof = bal - payBase
+        if winDays >= winDaysReq and bal >= payMinBal and prof > 0 and (consPct <= 0 or bestDay <= consPct * prof)
+            amt = bal - payMinBal
+            if amt > 0
+                accBase += amt                // emulate the withdrawal
+                nPayouts += 1
+                paidTotal += amt
+                peakBal := accBal()
+                payBase := accBal()
+                thrBal := (fuTrail > 0 ? math.max(fuFloor, peakBal - fuTrail) : fuFloor)
+                winDays := 0
+                bestDay := 0.0
+    dayStartBal := accBal()
+    wonToday := false
+
+if strategy.closedtrades > closedSeen
+    for i = closedSeen to strategy.closedtrades - 1
+        if strategy.closedtrades.profit(i) > 0
+            wonToday := true
+    closedSeen := strategy.closedtrades
+
+// intraday daily-loss-limit check on equity incl. open P&L (hard fail)
+dllNow = phase == "EV" ? evDll : fuDll
+if accOn and not halted and (accBal() + strategy.openprofit) - dayStartBal <= -dllNow
+    strategy.close_all(comment = "DLL", immediately = true)
+    halted := true
+
+propQty(int stTicks) =>
+    rUsd = stTicks * tick * syminfo.pointvalue
+    bal = accBal()
+    frac = phase == "EV" ? evFrac : fuFrac
+    mn = phase == "EV" ? evMin : fuMin
+    mx = phase == "EV" ? evMax : fuMax
+    n = riskUsd > 0 ? math.max(int(riskUsd / rUsd), 1) : math.min(math.max(int(frac * (bal - thrBal) / rUsd), mn), mx)
+    dayLeft = dllNow + (bal - dayStartBal)
+    n := math.min(n, int((dayLeft - 5) / (rUsd * guardMult + commRtGuard)))
+    nEod = int((bal - thrBal - 5) / (rUsd * guardMult + commRtGuard))
+    n := math.min(n, noStarve ? math.max(nEod, 1) : nEod)
+    math.max(n, 0)
+
+propOk = not propOn or (accOn and not halted and not (stopAfterWin and wonToday))
+
+// ───────────────────────────── Signal evaluation ─────────────────────────────
+flat = strategy.position_size == 0
+canTrade = inEntry and flat and dayTrades < maxTrades and barstate.isconfirmed and propOk
+bool sigL = false
+bool sigS = false
+string tierL = ""
+string tierS = ""
+int stL = stopTicks
+int stS = stopTicks
+bool swL = false
+bool swS = false
+bool abL = false
+bool abS = false
+if canTrade
+    lv = buildLevels()
+    if allowLong
+        [s1, g1, t1, k1, w1, a1] = evalSetup(sL, 1, lv)
+        sL := s1
+        sigL := g1
+        tierL := t1
+        stL := k1
+        swL := w1
+        abL := a1
+    if allowShort
+        [s2, g2, t2, k2, w2, a2] = evalSetup(sS, -1, lv)
+        sS := s2
+        sigS := g2
+        tierS := t2
+        stS := k2
+        swS := w2
+        abS := a2
+
+if sigL and sigS          // conflicting directions on one bar: stand aside
+    sL := na
+    sS := na
+else if sigL and (not propOn or propQty(stL) > 0)
+    strategy.entry("L", strategy.long, qty = propOn ? propQty(stL) : 1, comment = sL.kind + " L " + sL.name)
+    strategy.exit("XL", "L", loss = stL, profit = tpR > 0 ? tpR * stL : na, comment_loss = "SL/Trail", comment_profit = "TP")
+    riskPts := stL * tick
+    lastTier := tierL
+    dayTrades += 1
+    sL := na
+    sS := na
+else if sigS and (not propOn or propQty(stS) > 0)
+    strategy.entry("S", strategy.short, qty = propOn ? propQty(stS) : 1, comment = sS.kind + " S " + sS.name)
+    strategy.exit("XS", "S", loss = stS, profit = tpR > 0 ? tpR * stS : na, comment_loss = "SL/Trail", comment_profit = "TP")
+    riskPts := stS * tick
+    lastTier := tierS
+    dayTrades += 1
+    sL := na
+    sS := na
+
+// ───────────────────────────── Position management: R-step trailing ─────────────────────────────
+// At bar close: MFE since entry in R -> k = floor(MFE / R). If k >= 1: stop = entry + (k - lag) * R.
+// The new stop is active from the next bar (same as the reference engine). Never loosened.
+pos = strategy.position_size
+if pos != 0
+    entryPx = strategy.position_avg_price
+    if na(curStop)
+        curStop := pos > 0 ? entryPx - riskPts : entryPx + riskPts
+        mfe := 0.0
+    mfe := math.max(mfe, pos > 0 ? high - entryPx : entryPx - low)
+    k = math.floor(mfe / riskPts + 1e-9)
+    if k >= 1
+        ns = entryPx + (pos > 0 ? 1 : -1) * (k - trailLag) * riskPts
+        curStop := pos > 0 ? math.max(curStop, ns) : math.min(curStop, ns)
+    if pos > 0
+        strategy.exit("XL", "L", stop = curStop, limit = tpR > 0 ? entryPx + tpR * riskPts : na, comment_loss = "SL/Trail", comment_profit = "TP")
+    else
+        strategy.exit("XS", "S", stop = curStop, limit = tpR > 0 ? entryPx - tpR * riskPts : na, comment_loss = "SL/Trail", comment_profit = "TP")
+    // session end: flat at the close of the flat-time bar or the last bar of the session (early closes)
+    if modNow >= flatMin or session.islastbar
+        strategy.close_all(comment = "EOD", immediately = true)
+else
+    curStop := na
+    mfe := 0.0
+
+// ───────────────────────────── Visuals ─────────────────────────────
+plot(showVwap ? vwapE : na, "ETH VWAP", color.new(color.orange, 0), 2)
+plot(showVwap and bandK1 > 0 ? vwapE + bandK1 * sdE : na, "+k1 sd", color.new(color.orange, 60))
+plot(showVwap and bandK1 > 0 ? vwapE - bandK1 * sdE : na, "-k1 sd", color.new(color.orange, 60))
+plot(showVwap and bandK2 > 0 ? vwapE + bandK2 * sdE : na, "+k2 sd", color.new(color.red, 60))
+plot(showVwap and bandK2 > 0 ? vwapE - bandK2 * sdE : na, "-k2 sd", color.new(color.green, 60))
+plot(showVwap and multPct > 0 ? vwapE * (1 + multPct / 100) : na, "x+%", color.new(color.purple, 60), style = plot.style_circles)
+plot(showVwap and multPct > 0 ? vwapE * (1 - multPct / 100) : na, "x-%", color.new(color.purple, 60), style = plot.style_circles)
+plot(showVwap and useRthVwap ? vwapR : na, "RTH VWAP", color.new(color.aqua, 0), 2, plot.style_linebr)
+plot(showStop and strategy.position_size != 0 ? curStop : na, "Stop / Trail", color.new(color.fuchsia, 0), 2, plot.style_linebr)
+bgcolor(inEntry ? color.new(color.blue, 93) : na, title = "Entry window")
+plotshape(showMarks and swL, "Sweep below level", shape.triangleup, location.belowbar, color.new(color.teal, 40), size = size.tiny)
+plotshape(showMarks and swS, "Sweep above level", shape.triangledown, location.abovebar, color.new(color.maroon, 40), size = size.tiny)
+plotshape(showMarks and abL, "Absorption (long setup)", shape.diamond, location.belowbar, color.new(color.yellow, 0), size = size.tiny)
+plotshape(showMarks and abS, "Absorption (short setup)", shape.diamond, location.abovebar, color.new(color.yellow, 0), size = size.tiny)
+plotshape(showMarks and sigL and not sigS, "Long signal", shape.labelup, location.belowbar, color.new(color.lime, 0), text = "L", textcolor = color.black, size = size.small)
+plotshape(showMarks and sigS and not sigL, "Short signal", shape.labeldown, location.abovebar, color.new(color.red, 0), text = "S", textcolor = color.white, size = size.small)
+if showMarks and (sigL != sigS)
+    label.new(bar_index, sigL ? low : high, lastTier + "-Tier", style = sigL ? label.style_label_up : label.style_label_down,
+         color = lastTier == "A" ? color.new(color.green, 20) : color.new(color.gray, 20), textcolor = color.white, size = size.tiny, yloc = sigL ? yloc.belowbar : yloc.abovebar)
+
+var table dbg = table.new(position.top_right, 2, 11, bgcolor = color.new(color.black, 20), border_width = 1)
+if showTable and barstate.islast
+    table.cell(dbg, 0, 0, "Trades today", text_color = color.white)
+    table.cell(dbg, 1, 0, str.tostring(dayTrades) + "/" + str.tostring(maxTrades), text_color = color.white)
+    table.cell(dbg, 0, 1, "Long setup", text_color = color.white)
+    table.cell(dbg, 1, 1, na(sL) ? "-" : sL.name + (sL.absBar >= 0 ? " +abs" : ""), text_color = color.white)
+    table.cell(dbg, 0, 2, "Short setup", text_color = color.white)
+    table.cell(dbg, 1, 2, na(sS) ? "-" : sS.name + (sS.absBar >= 0 ? " +abs" : ""), text_color = color.white)
+    table.cell(dbg, 0, 3, "RelVol / RelRange", text_color = color.white)
+    table.cell(dbg, 1, 3, str.tostring(relVol, "#.##") + " / " + str.tostring(relRange, "#.##"), text_color = color.white)
+    table.cell(dbg, 0, 4, "Stop", text_color = color.white)
+    table.cell(dbg, 1, 4, str.tostring(curStop, format.mintick), text_color = color.white)
+    table.cell(dbg, 0, 5, "Next 1000 / 500 level", text_color = color.white)
+    table.cell(dbg, 1, 5, str.tostring(math.round(close / 1000) * 1000) + " / " + str.tostring(math.round(close / 500) * 500), text_color = color.white)
+    if propOn
+        table.cell(dbg, 0, 6, "Phase / status", text_color = color.white)
+        table.cell(dbg, 1, 6, (phase == "EV" ? "Eval" : "Funded") + (halted ? " - BREACHED" : ""), text_color = halted ? color.red : color.white)
+        table.cell(dbg, 0, 7, "Balance / threshold", text_color = color.white)
+        table.cell(dbg, 1, 7, str.tostring(accBal(), "#") + " / " + str.tostring(thrBal, "#"), text_color = color.white)
+        table.cell(dbg, 0, 8, "Win days / best day", text_color = color.white)
+        table.cell(dbg, 1, 8, str.tostring(winDays) + "/" + str.tostring(winDaysReq) + " / " + str.tostring(bestDay, "#"), text_color = color.white)
+        table.cell(dbg, 0, 9, "Payouts (emulated)", text_color = color.white)
+        table.cell(dbg, 1, 9, str.tostring(nPayouts) + " = $" + str.tostring(paidTotal, "#"), text_color = color.white)
+        table.cell(dbg, 0, 10, "Next qty (100t stop)", text_color = color.white)
+        table.cell(dbg, 1, 10, str.tostring(propQty(stopTicks)), text_color = color.white)

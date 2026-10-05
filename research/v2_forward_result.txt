@@ -1,0 +1,51 @@
+
+=== V2 TRAIN ===
+{"label": "V2 TRAIN", "n": 159, "net_usd": 17150.0, "pf": 1.433, "win": 0.358, "avg_win": 995.5, "avg_loss": -388.2, "expR": 0.216, "maxdd_R": 7.81, "sumR": 34.3}
+trades/trade-day 1.20  max/day 2  avg bars held 25.6  stop-outs 64.15%  init-stop losses (R<-0.9) 43.40%  avg MFE R 1.26
+  by side: long: n=86 $11843 pf=1.592 wr=0.372 E=0.275R | short: n=73 $5306 pf=1.271 wr=0.342 E=0.145R
+  by tier: A: n=159 $17150 pf=1.433 wr=0.358 E=0.216R
+  by stopsz: 100: n=159 $17150 pf=1.433 wr=0.358 E=0.216R
+  by tod: 9:30-10: n=37 $11238 pf=2.682 wr=0.486 E=0.607R | 10-10:30: n=58 $2794 pf=1.173 wr=0.328 E=0.096R | 10:30-11: n=64 $3117 pf=1.186 wr=0.312 E=0.097R
+  by level: +1sd: n=13 $-1734 pf=0.633 wr=0.231 E=-0.267R | +2sd: n=19 $4990 pf=2.257 wr=0.474 E=0.525R | -1sd: n=23 $1816 pf=1.353 wr=0.304 E=0.158R | -2sd: n=13 $146 pf=1.038 wr=0.308 E=0.023R | M100: n=35 $4358 pf=1.508 wr=0.371 E=0.249R | M1000: n=4 $-533 pf=0.651 wr=0.25 E=-0.266R | M500: n=6 $328 pf=1.197 wr=0.333 E=0.109R | VWAP: n=19 $1600 pf=1.366 wr=0.316 E=0.168R | rVWAP: n=10 $3180 pf=2.769 wr=0.5 E=0.636R | x+0.5%: n=8 $1944 pf=1.954 wr=0.5 E=0.486R | x-0.5%: n=9 $1054 pf=1.546 wr=0.333 E=0.234R
+  by year: 2023: n=109 $15924 pf=1.615 wr=0.385 E=0.292R | 2024: n=50 $1225 pf=1.089 wr=0.3 E=0.049R
+  by why: stop: n=102 $-39594 pf=0.0 wr=0.0 E=-0.776R | tp: n=57 $56744 pf=inf wr=1.0 E=1.991R
+
+=== V2 VALIDATION ===
+{"label": "V2 VALIDATION", "n": 29, "net_usd": 2524.0, "pf": 1.34, "win": 0.345, "avg_win": 995.5, "avg_loss": -391.1, "expR": 0.174, "maxdd_R": 6.38, "sumR": 5.0}
+trades/trade-day 1.07  max/day 2  avg bars held 17.7  stop-outs 65.52%  init-stop losses (R<-0.9) 44.83%  avg MFE R 1.30
+  by side: long: n=14 $2647 pf=1.796 wr=0.429 E=0.378R | short: n=15 $-122 pf=0.97 wr=0.267 E=-0.016R
+  by tier: A: n=29 $2524 pf=1.34 wr=0.345 E=0.174R
+  by stopsz: 100: n=29 $2524 pf=1.34 wr=0.345 E=0.174R
+  by tod: 9:30-10: n=2 $-644 pf=0.0 wr=0.0 E=-0.644R | 10-10:30: n=15 $632 pf=1.146 wr=0.333 E=0.084R | 10:30-11: n=12 $2536 pf=2.039 wr=0.417 E=0.423R
+  by level: +1sd: n=3 $-1154 pf=0.0 wr=0.0 E=-0.769R | +2sd: n=1 $-510 pf=0.0 wr=0.0 E=-1.019R | -1sd: n=5 $-1422 pf=0.0 wr=0.0 E=-0.569R | -2sd: n=4 $3982 pf=inf wr=1.0 E=1.991R | M100: n=6 $1833 pf=2.589 wr=0.5 E=0.611R | M1000: n=1 $-134 pf=0.0 wr=0.0 E=-0.269R | VWAP: n=4 $972 pf=1.954 wr=0.5 E=0.486R | rVWAP: n=3 $-24 pf=0.977 wr=0.333 E=-0.016R | x+0.5%: n=2 $-1019 pf=0.0 wr=0.0 E=-1.019R
+  by year: 2024: n=29 $2524 pf=1.34 wr=0.345 E=0.174R
+  by why: stop: n=19 $-7430 pf=0.0 wr=0.0 E=-0.782R | tp: n=10 $9955 pf=inf wr=1.0 E=1.991R
+
+=== V2 IN-SAMPLE ===
+{"label": "V2 IN-SAMPLE", "n": 188, "net_usd": 19674.0, "pf": 1.418, "win": 0.356, "avg_win": 995.5, "avg_loss": -388.6, "expR": 0.209, "maxdd_R": 7.81, "sumR": 39.3}
+trades/trade-day 1.18  max/day 2  avg bars held 24.4  stop-outs 64.36%  init-stop losses (R<-0.9) 43.62%  avg MFE R 1.26
+  by side: long: n=100 $14490 pf=1.621 wr=0.38 E=0.29R | short: n=88 $5184 pf=1.219 wr=0.33 E=0.118R
+  by tier: A: n=188 $19674 pf=1.418 wr=0.356 E=0.209R
+  by stopsz: 100: n=188 $19674 pf=1.418 wr=0.356 E=0.209R
+  by tod: 9:30-10: n=39 $10594 pf=2.446 wr=0.462 E=0.543R | 10-10:30: n=73 $3426 pf=1.167 wr=0.329 E=0.094R | 10:30-11: n=76 $5653 pf=1.294 wr=0.329 E=0.149R
+  by level: +1sd: n=16 $-2887 pf=0.508 wr=0.188 E=-0.361R | +2sd: n=20 $4480 pf=2.0 wr=0.45 E=0.448R | -1sd: n=28 $394 pf=1.06 wr=0.25 E=0.028R | -2sd: n=17 $4128 pf=2.076 wr=0.471 E=0.486R | M100: n=41 $6190 pf=1.636 wr=0.39 E=0.302R | M1000: n=5 $-668 pf=0.599 wr=0.2 E=-0.267R | M500: n=6 $328 pf=1.197 wr=0.333 E=0.109R | VWAP: n=23 $2572 pf=1.477 wr=0.348 E=0.224R | rVWAP: n=13 $3156 pf=2.121 wr=0.462 E=0.486R | x+0.5%: n=10 $925 pf=1.303 wr=0.4 E=0.185R | x-0.5%: n=9 $1054 pf=1.546 wr=0.333 E=0.234R
+  by year: 2023: n=109 $15924 pf=1.615 wr=0.385 E=0.292R | 2024: n=79 $3750 pf=1.177 wr=0.316 E=0.095R
+  by why: stop: n=121 $-47024 pf=0.0 wr=0.0 E=-0.777R | tp: n=67 $66698 pf=inf wr=1.0 E=1.991R
+
+=== V2 FORWARD 2025 (pseudo-OOS, one run) ===
+{"label": "V2 FORWARD 2025 (pseudo-OOS, one run)", "n": 44, "net_usd": 6542.0, "pf": 1.63, "win": 0.386, "avg_win": 995.5, "avg_loss": -384.5, "expR": 0.297, "maxdd_R": 5.1, "sumR": 13.1}
+trades/trade-day 1.10  max/day 2  avg bars held 27.0  stop-outs 61.36%  init-stop losses (R<-0.9) 40.91%  avg MFE R 1.34
+  by side: long: n=22 $-679 pf=0.898 wr=0.273 E=-0.062R | short: n=22 $7221 pf=2.936 wr=0.5 E=0.656R
+  by tier: A: n=44 $6542 pf=1.63 wr=0.386 E=0.297R
+  by stopsz: 100: n=44 $6542 pf=1.63 wr=0.386 E=0.297R
+  by tod: 9:30-10: n=4 $-1663 pf=0.0 wr=0.0 E=-0.831R | 10-10:30: n=16 $3508 pf=2.014 wr=0.438 E=0.439R | 10:30-11: n=24 $4697 pf=1.893 wr=0.417 E=0.391R
+  by level: +1sd: n=2 $486 pf=1.954 wr=0.5 E=0.486R | +2sd: n=2 $486 pf=1.954 wr=0.5 E=0.486R | -1sd: n=6 $1078 pf=2.181 wr=0.333 E=0.359R | -2sd: n=8 $-316 pf=0.863 wr=0.25 E=-0.079R | M100: n=12 $281 pf=1.076 wr=0.333 E=0.047R | M1000: n=2 $-644 pf=0.0 wr=0.0 E=-0.644R | M500: n=2 $861 pf=7.401 wr=0.5 E=0.861R | VWAP: n=4 $972 pf=1.954 wr=0.5 E=0.486R | rVWAP: n=3 $352 pf=1.546 wr=0.333 E=0.234R | x-0.5%: n=3 $2986 pf=inf wr=1.0 E=1.991R
+  by year: 2025: n=44 $6542 pf=1.63 wr=0.386 E=0.297R
+  by why: stop: n=27 $-10382 pf=0.0 wr=0.0 E=-0.769R | tp: n=17 $16924 pf=inf wr=1.0 E=1.991R
+  kind M 9 E 0.234
+  kind MV 7 E -0.159
+  kind V 28 E 0.432
+  2025 slippage 2t: PF 1.495 E 0.24
+  2025 slippage 3t: PF 1.365 E 0.181
+PROP $250/trade [is] bootstrap: payout<=42d 0.0% <=63d 0.3% <=252d 34.5% pass 73.8% medEvalDays 108 med1stPay 168 | historical starts: pass 45.3% payout 2.1% payout<=42d 0.0% (n=95)
+PROP $250/trade [forward] bootstrap: payout<=42d 0.0% <=63d 0.1% <=252d 14.5% pass 54.2% medEvalDays 132 med1stPay 186 | historical starts: pass 17.8% payout 0.0% payout<=42d 0.0% (n=45)
