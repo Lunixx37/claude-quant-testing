@@ -1,0 +1,12 @@
+marker 683 trades, research 677; identical 673; only marker 6, only research 0, differ 4
+         sdate       e  dir_m     pts_m     fl  dir_b   pts_b     _merge
+0   2022-12-28    2314      1  -42.2500  False    NaN     NaN  left_only
+1   2022-12-28    2399     -1  -10.7500  False    NaN     NaN  left_only
+2   2022-12-29    3710      1   67.2500  False    NaN     NaN  left_only
+3   2022-12-30    5447      1   35.7500  False    NaN     NaN  left_only
+4   2023-01-03    6460      1  -45.0063  False    NaN     NaN  left_only
+5   2023-01-03    6466     -1   78.0734  False    NaN     NaN  left_only
+66  2023-04-05   97072     -1   57.5000  False   -1.0   53.50       both
+446 2024-12-24  707868      1  116.0000  False    1.0  113.00       both
+564 2025-06-19  877588     -1  -56.8187  False   -1.0   -0.25       both
+575 2025-07-03  891111      1   62.0000  False    1.0   61.75       both

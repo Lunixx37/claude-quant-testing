@@ -13,7 +13,7 @@
 // Research (net of costs): 1/day long-only E +0.18 R (CFD 2017-25, 9/9 years positive).
 // V7 prop default: both sides, k 0.35, stop 0.75x, max 2 trades/day: ~32 trades/month, E +0.14 R on NQ 2023-25;
 // prop sizing $500 risk/trade in eval, $250 in funded (research/V7_REPORT.md). Use MNQ (qtyStep 1).
-// Paper-trade first.
+// Paper-trade first. Companion indicator without orders: pine/NY_VolBreakout_Marker.pine (marks every trade).
 //@version=6
 strategy("NY Volatility Breakout Bot", shorttitle = "VBO-Bot", overlay = true, pyramiding = 0,
      initial_capital = 50000, default_qty_type = strategy.fixed, default_qty_value = 1, currency = currency.USD,
@@ -101,9 +101,35 @@ up = open930 + k * prevRange
 dn = open930 - k * prevRange
 stopPts = stopMult * k * prevRange
 
+// ---- gap-filtered ("phantom") trades: as in the research (research/v8_combo.py gapfilter), a filtered signal is
+// simulated but not traded. It blocks the slot until its virtual exit and counts toward the trades of the day.
+var int   phPend = 0
+var float phR = na
+var int   phDir = 0
+var float phEp = na
+var float phSt = na
+var float phMfe = 0.0
+var int   phExitBar = -1
+if phPend != 0
+    phDir := phPend
+    phEp := open + phDir * syminfo.mintick              // 1 tick slippage, as the strategy fills
+    phSt := phEp - phDir * cutR * phR
+    phMfe := 0.0
+    phPend := 0
+if phDir != 0
+    phMfe := math.max(phMfe, phDir == 1 ? high - phEp : phEp - low)
+    if (phDir == 1 and low <= phSt) or (phDir == -1 and high >= phSt) or modNow >= 959 or not inRTH
+        phDir := 0
+        phExitBar := bar_index
+    else if useTrail
+        nPh = math.floor(phMfe / phR + 1e-9)
+        if nPh >= 1
+            nsPh = phEp + phDir * (nPh - lag) * phR
+            phSt := phDir == 1 ? math.max(phSt, nsPh) : math.min(phSt, nsPh)
+
 // ---- signals at bar close
 exitedNow = strategy.closedtrades > nz(strategy.closedtrades[1])     // research engine: re-entry only after the exit bar
-canTrade = inRTH and modNow < 959 and not na(prevRange) and not na(open930) and tradesToday < maxTrades and not dayDone and strategy.position_size == 0 and not exitedNow and barstate.isconfirmed
+canTrade = inRTH and modNow < 959 and not na(prevRange) and not na(open930) and tradesToday < maxTrades and not dayDone and strategy.position_size == 0 and not exitedNow and phDir == 0 and phPend == 0 and bar_index != phExitBar and barstate.isconfirmed
 atr14 = array.size(rngHist) == 14 ? array.avg(rngHist) : na
 gapRaw = not na(pc) and not na(atr14) and atr14 > 0 ? (open930 - pc) / atr14 : na
 smallGap(int d) =>
@@ -112,6 +138,11 @@ sigL0 = canTrade and high >= up
 sigS0 = canTrade and side == "Both" and not sigL0 and low <= dn
 sigL = sigL0 and not smallGap(1)
 sigS = sigS0 and not smallGap(-1)
+phSig = sigL0 ? smallGap(1) : sigS0 ? smallGap(-1) : false
+if phSig
+    phPend := sigL0 ? 1 : -1
+    phR := stopPts
+    tradesToday += 1
 // as in the research engine: in long-only mode, a first touch of the SHORT trigger ends the day
 if canTrade and side == "Long only" and not sigL and low <= dn
     dayDone := true
