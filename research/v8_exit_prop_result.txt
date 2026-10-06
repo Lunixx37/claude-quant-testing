@@ -1,0 +1,17 @@
+Exit variants (same entries; win = R>0 after costs):
+  lag1.25 (base)       dev n=2254 win=37.7% E=+0.124 | testCFD win=38.3% E=+0.133 | NQ n=1124 win=38.2% E=+0.137 avgwin=1.64R avgloss=-0.79R
+  lag1.0 (BE at +1R)   dev n=2309 win=35.2% E=+0.102 | testCFD win=34.9% E=+0.101 | NQ n=1157 win=34.9% E=+0.127 avgwin=1.67R avgloss=-0.70R
+  lag0.75              dev n=2373 win=52.7% E=+0.073 | testCFD win=52.2% E=+0.097 | NQ n=1177 win=52.6% E=+0.112 avgwin=1.07R avgloss=-0.95R
+  lag0.5               dev n=2418 win=53.3% E=+0.059 | testCFD win=52.8% E=+0.101 | NQ n=1201 win=52.7% E=+0.091 avgwin=1.03R avgloss=-0.95R
+  TP1R+trail           dev n=2492 win=53.1% E=+0.001 | testCFD win=53.1% E=+0.025 | NQ n=1233 win=54.0% E=+0.056 avgwin=0.92R avgloss=-0.96R
+  TP1.5R+trail         dev n=2419 win=43.4% E=+0.038 | testCFD win=44.0% E=+0.090 | NQ n=1206 win=43.2% E=+0.088 avgwin=1.28R avgloss=-0.82R
+
+Prop lifecycle (sizing chosen on dev CFD 2017-22, reported on NQ 2023-25):
+  no filter (base)             trades/mo NQ 31.8 win 38.2% | sizing (500, 250) | NQ payouts 12m $ 5645 (median $ 4882) 24m $ 13614 | evals/24m 6.7 | 1st payout <=2M 14% <=3M 35% median 84d
+  gap filter (no small gap)    trades/mo NQ 19.1 win 39.9% | sizing (500, 250) | NQ payouts 12m $ 4559 (median $ 3500) 24m $ 12363 | evals/24m 3.2 | 1st payout <=2M 6% <=3M 21% median 104d
+  all 3 filters                trades/mo NQ  9.1 win 42.5% | sizing (500, 300) | NQ payouts 12m $ 2450 (median $ 1500) 24m $  8275 | evals/24m 1.9 | 1st payout <=2M 1% <=3M 5% median 149d
+  exit lag1.0 (BE at +1R)      trades/mo NQ 32.7 win 34.9% | sizing (500, 250) | NQ payouts 12m $ 5196 (median $ 4381) 24m $ 12963 | evals/24m 5.6 | 1st payout <=2M 12% <=3M 30% median 91d
+  exit lag0.75                 trades/mo NQ 33.2 win 52.6% | sizing (500, 300) | NQ payouts 12m $ 5518 (median $ 4254) 24m $ 13017 | evals/24m 8.7 | 1st payout <=2M 18% <=3M 36% median 84d
+  exit lag0.5                  trades/mo NQ 33.9 win 52.7% | sizing (500, 300) | NQ payouts 12m $ 4680 (median $ 3412) 24m $ 10927 | evals/24m 7.9 | 1st payout <=2M 14% <=3M 31% median 93d
+  exit TP1R+trail              trades/mo NQ 34.8 win 54.0% | sizing (500, 300) | NQ payouts 12m $ 3324 (median $ 2445) 24m $  7713 | evals/24m 7.1 | 1st payout <=2M 7% <=3M 19% median 122d
+  exit TP1.5R+trail            trades/mo NQ 34.1 win 43.2% | sizing (500, 300) | NQ payouts 12m $ 5086 (median $ 4169) 24m $ 11730 | evals/24m 7.0 | 1st payout <=2M 12% <=3M 31% median 91d

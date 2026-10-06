@@ -27,7 +27,10 @@ stopMult = input.float(0.75, "Stop = x * (k x prior range)", step = 0.25, group 
 side     = input.string("Both", "Direction", options = ["Long only", "Both"], group = grpS)
 maxTrades = input.int(2, "Max trades per day (re-entry on the next trigger touch after an exit)", minval = 1, maxval = 3, group = grpS)
 useTrail = input.bool(true, "R-step trailing stop", group = grpS)
-lag      = input.float(1.25, "Trailing lag (R)", step = 0.25, group = grpS)
+lag      = input.float(1.25, "Trailing lag (R): 1.25 = max payouts, 0.75 = win rate ~53% (stop to +0.25R at +1R)", step = 0.25, group = grpS)
+gapFilt  = input.bool(false, "Skip small-gap days (fewer blown accounts)", group = grpS)
+gapLo    = input.float(-0.405, "Skip if directional gap/ATR14 >", step = 0.01, group = grpS)
+gapHi    = input.float(0.079, "... and <=", step = 0.01, group = grpS)
 grpR = "Risk"
 riskMode = input.string("Prop phase $", "Sizing", options = ["Prop phase $", "% of equity", "Fixed $", "Fixed qty"], group = grpR)
 propPhase = input.string("Eval", "Prop phase", options = ["Eval", "Funded"], group = grpR)
@@ -47,15 +50,24 @@ var float rthH = na
 var float rthL = na
 var float prevRange = na
 var float open930 = na
+var float lastRthClose = na
+var float pc = na
+var array<float> rngHist = array.new_float(0)
 var int   tradesToday = 0
 var bool  dayDone = false
 if newDay
     tradesToday := 0
     dayDone := false
     open930 := na
+if inRTH and modNow == 959
+    lastRthClose := close                   // 15:59 bar close = RTH close
 if inRTH and modNow == 570
+    pc := lastRthClose
     if not na(rthH)
         prevRange := rthH - rthL            // completed prior session
+        array.push(rngHist, prevRange)
+        if array.size(rngHist) > 14
+            array.shift(rngHist)
     rthH := high
     rthL := low
     open930 := open
@@ -70,8 +82,14 @@ stopPts = stopMult * k * prevRange
 // ---- signals at bar close
 exitedNow = strategy.closedtrades > nz(strategy.closedtrades[1])     // research engine: re-entry only after the exit bar
 canTrade = inRTH and modNow < 959 and not na(prevRange) and not na(open930) and tradesToday < maxTrades and not dayDone and strategy.position_size == 0 and not exitedNow and barstate.isconfirmed
-sigL = canTrade and high >= up
-sigS = canTrade and side == "Both" and not sigL and low <= dn
+atr14 = array.size(rngHist) == 14 ? array.avg(rngHist) : na
+gapRaw = not na(pc) and not na(atr14) and atr14 > 0 ? (open930 - pc) / atr14 : na
+smallGap(int d) =>
+    gapFilt and not na(gapRaw) and gapRaw * d > gapLo and gapRaw * d <= gapHi
+sigL0 = canTrade and high >= up
+sigS0 = canTrade and side == "Both" and not sigL0 and low <= dn
+sigL = sigL0 and not smallGap(1)
+sigS = sigS0 and not smallGap(-1)
 // as in the research engine: in long-only mode, a first touch of the SHORT trigger ends the day
 if canTrade and side == "Long only" and not sigL and low <= dn
     dayDone := true

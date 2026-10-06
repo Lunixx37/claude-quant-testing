@@ -32,3 +32,12 @@ Continuous features are split into quintiles, with the bin edges taken from the 
 - The combined filter is then evaluated with the prop lifecycle simulator (sizing grid re-chosen on discovery).
 
 **Note:** Trades are filtered after the fact. A skipped trade could in reality free the slot for a later re-entry; this effect is ignored and stated.
+
+## Amendment 1 (after the scan, before the exit test)
+The filters raise the win rate only a little and cut the trades by ~70 %, so R/month drops. Because the
+win rate is mainly set by the exit design, an **exit variant test** is added. It uses the same model, decided
+on discovery and checked on both tests:
+- trailing lag 1.25 (base) / 1.0 / 0.75 / 0.5, so the stop moves to break-even or locks profit at +1R;
+- additionally a TP of 1R / 1.5R with trailing lag 1.25.
+
+The prop lifecycle compares: no filter / gap filter only / all 3 filters / best exit variant.

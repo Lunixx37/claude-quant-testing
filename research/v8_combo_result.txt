@@ -1,0 +1,4 @@
+gap filter + lag1.25 (base): dev n=1353 win=41.0% E=+0.220 | testCFD n=614 win=40.6% E=+0.211 | NQ n=677 (19.1/mo) win=39.9% E=+0.184 avgwin=1.69R avgloss=-0.81R
+   prop sizing (500, 250): NQ payouts 12m $4559 (median $3500), 24m $12363, payouts/24m 5.7, evals/24m 3.2, 1st payout <=1M 0% <=2M 6% <=3M 21% <=12M 92%, median 104d
+gap filter + lag0.75: dev n=1430 win=55.7% E=+0.153 | testCFD n=649 win=53.8% E=+0.162 | NQ n=711 (20.1/mo) win=53.4% E=+0.144 avgwin=1.10R avgloss=-0.96R
+   prop sizing (500, 300): NQ payouts 12m $4066 (median $3089), 24m $10747, payouts/24m 5.3, evals/24m 3.8, 1st payout <=1M 0% <=2M 6% <=3M 18% <=12M 89%, median 112d

@@ -1,0 +1,19 @@
+Exclusions passing the rule (ranked by the smallest E gain over all 3 sets):
+            feature        bucket  dev_n  min_dE  min_dwin
+          F_h_trend against trend   1197  0.0230    0.0103
+      F_f_gap_atr_q            Q3    450  0.0151    0.0080
+      F_f_gap_atr_q            Q2    451  0.0145    0.0042
+        F_i_weekday           Wed    455  0.0123    0.0030
+   F_g_vol_regime_q            Q3    451  0.0089    0.0110
+ F_j_bar_vs_range_q            Q3    451  0.0056    0.0032
+   F_g_vol_regime_q            Q1    451  0.0019    0.0086
+F_c_overnight_pos_q            Q3    450  0.0016    0.0049
+
+Chosen (top 3): [['F_h_trend', 'against trend'], ['F_f_gap_atr_q', 'Q3'], ['F_f_gap_atr_q', 'Q2']]
+
+Effect:
+  no filter                                     | dev: n=2254 (31/mo) win=37.7% E=+0.124R R/mo=3.87 | testCFD: n=1042 (32/mo) win=38.3% E=+0.133R R/mo=4.19 | testNQ: n=1124 (32/mo) win=38.2% E=+0.137R R/mo=4.35
+  only F_h_trend=against trend                  | dev: n=1057 (15/mo) win=38.7% E=+0.147R R/mo=2.15 | testCFD: n=517 (16/mo) win=40.4% E=+0.174R R/mo=2.72 | testNQ: n=537 (15/mo) win=39.3% E=+0.187R R/mo=2.84
+  only F_f_gap_atr_q=Q3                         | dev: n=1804 (25/mo) win=39.5% E=+0.181R R/mo=4.54 | testCFD: n=801 (24/mo) win=39.6% E=+0.162R R/mo=3.93 | testNQ: n=870 (25/mo) win=39.0% E=+0.152R R/mo=3.74
+  only F_f_gap_atr_q=Q2                         | dev: n=1803 (25/mo) win=38.4% E=+0.138R R/mo=3.46 | testCFD: n=855 (26/mo) win=38.7% E=+0.162R R/mo=4.19 | testNQ: n=931 (26/mo) win=38.7% E=+0.157R R/mo=4.14
+  all 3 combined                                | dev: n=653 (9/mo) win=41.8% E=+0.220R R/mo=2.00 | testCFD: n=307 (9/mo) win=44.0% E=+0.275R R/mo=2.56 | testNQ: n=322 (9/mo) win=42.5% E=+0.267R R/mo=2.43

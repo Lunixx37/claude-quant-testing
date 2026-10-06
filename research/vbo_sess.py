@@ -37,7 +37,7 @@ class Sess:
         return a, b
 
 
-def run_model(S, model, k, sm, exitm, side, maxtr=1):
+def run_model(S, model, k, sm, exitm, side, maxtr=1, lag=1.25, tp_r=0.0):
     ds = S.ds; f = ds.f
     o, h, l = f['o'], f['h'], f['l']
     hourly = model == 'M5 Hourly'
@@ -77,7 +77,7 @@ def run_model(S, model, k, sm, exitm, side, maxtr=1):
                     break
                 if i + 1 > deadline:
                     break
-                ep, x, xi, why, nights = lab.sim_trade(f, i + 1, dd, sp, 0, deadline, exitm == 'trail')
+                ep, x, xi, why, nights = lab.sim_trade(f, i + 1, dd, sp, tp_r * sp, deadline, exitm == 'trail', lag)
                 pts = (x - ep) * dd - (OFF_EXTRA if off else 0.0)
                 spread = OFF_SPREAD if off else lab.SPREAD
                 out.append((f['sdate'][i + 1], i + 1, xi, dd, sp, pts, why, model, (pts - spread) / sp, (pts - lab.COMM) / sp))
