@@ -1,0 +1,34 @@
+
+=== M0 NY 1/day k0.3 sm1.0 | trades/month NQ: 20.1, E +0.160R, win 39.5%
+  eval $250 / funded $150: DEV payouts/24m $  4662 | NQ: payouts 12m mean $ 1016 (median $  520), 24m $  3889, #payouts/24m 2.7, evals/24m 2.1, first payout <=1M 0% <=2M 0% <=3M 1% <=12M 52%, median 221d
+  eval $250 / funded $200: DEV payouts/24m $  5736 | NQ: payouts 12m mean $ 1487 (median $  605), 24m $  5072, #payouts/24m 3.3, evals/24m 2.4, first payout <=1M 0% <=2M 0% <=3M 2% <=12M 60%, median 198d
+  eval $250 / funded $250: DEV payouts/24m $  5877 | NQ: payouts 12m mean $ 1991 (median $  731), 24m $  5887, #payouts/24m 3.5, evals/24m 3.0, first payout <=1M 0% <=2M 0% <=3M 4% <=12M 65%, median 174d
+  eval $250 / funded $300: DEV payouts/24m $  5418 | NQ: payouts 12m mean $ 2421 (median $ 1172), 24m $  6498, #payouts/24m 3.5, evals/24m 3.6, first payout <=1M 0% <=2M 1% <=3M 5% <=12M 66%, median 164d
+  eval $250 / funded $400: DEV payouts/24m $  3879 | NQ: payouts 12m mean $ 2470 (median $ 1242), 24m $  6240, #payouts/24m 3.2, evals/24m 4.5, first payout <=1M 0% <=2M 2% <=3M 9% <=12M 65%, median 159d
+  eval $350 / funded $150: DEV payouts/24m $  5283 | NQ: payouts 12m mean $ 1420 (median $  618), 24m $  4636, #payouts/24m 3.2, evals/24m 2.4, first payout <=1M 0% <=2M 0% <=3M 2% <=12M 65%, median 186d
+  eval $350 / funded $200: DEV payouts/24m $  6753 | NQ: payouts 12m mean $ 2094 (median $ 1184), 24m $  6154, #payouts/24m 4.0, evals/24m 2.8, first payout <=1M 0% <=2M 1% <=3M 6% <=12M 74%, median 160d
+  eval $350 / funded $250: DEV payouts/24m $  7167 | NQ: payouts 12m mean $ 2800 (median $ 2310), 24m $  7444, #payouts/24m 4.5, evals/24m 3.6, first payout <=1M 0% <=2M 2% <=3M 10% <=12M 79%, median 140d
+  eval $350 / funded $300: DEV payouts/24m $  6937 | NQ: payouts 12m mean $ 3514 (median $ 2584), 24m $  8713, #payouts/24m 4.6, evals/24m 4.6, first payout <=1M 0% <=2M 4% <=3M 15% <=12M 81%, median 129d
+  eval $350 / funded $400: DEV payouts/24m $  5410 | NQ: payouts 12m mean $ 3747 (median $ 2631), 24m $  9076, #payouts/24m 4.6, evals/24m 6.1, first payout <=1M 0% <=2M 8% <=3M 21% <=12M 81%, median 121d
+  eval $500 / funded $150: DEV payouts/24m $  5753 | NQ: payouts 12m mean $ 1656 (median $  759), 24m $  5052, #payouts/24m 3.5, evals/24m 2.9, first payout <=1M 0% <=2M 1% <=3M 4% <=12M 70%, median 168d
+  eval $500 / funded $200: DEV payouts/24m $  7536 | NQ: payouts 12m mean $ 2428 (median $ 1826), 24m $  6768, #payouts/24m 4.4, evals/24m 3.5, first payout <=1M 0% <=2M 3% <=3M 10% <=12M 80%, median 139d
+  eval $500 / funded $250: DEV payouts/24m $  8273 | NQ: payouts 12m mean $ 3270 (median $ 2585), 24m $  8343, #payouts/24m 5.0, evals/24m 4.6, first payout <=1M 0% <=2M 5% <=3M 17% <=12M 85%, median 119d
+  eval $500 / funded $300: DEV payouts/24m $  8364 | NQ: payouts 12m mean $ 4093 (median $ 3077), 24m $  9979, #payouts/24m 5.3, evals/24m 6.0, first payout <=1M 0% <=2M 8% <=3M 22% <=12M 87%, median 108d  <== chosen on dev
+  eval $500 / funded $400: DEV payouts/24m $  7122 | NQ: payouts 12m mean $ 4697 (median $ 3453), 24m $ 11140, #payouts/24m 5.5, evals/24m 8.3, first payout <=1M 1% <=2M 15% <=3M 32% <=12M 89%, median 96d
+
+=== M1 NY re-entry 2/day k0.35 sm0.75 | trades/month NQ: 31.8, E +0.137R, win 38.2%
+  eval $250 / funded $150: DEV payouts/24m $  7773 | NQ: payouts 12m mean $ 2022 (median $ 1240), 24m $  6450, #payouts/24m 3.7, evals/24m 2.3, first payout <=1M 0% <=2M 1% <=3M 4% <=12M 70%, median 169d
+  eval $250 / funded $200: DEV payouts/24m $  8134 | NQ: payouts 12m mean $ 3086 (median $ 2332), 24m $  8485, #payouts/24m 4.6, evals/24m 3.2, first payout <=1M 0% <=2M 1% <=3M 9% <=12M 78%, median 140d
+  eval $250 / funded $250: DEV payouts/24m $  7553 | NQ: payouts 12m mean $ 3899 (median $ 2717), 24m $ 10070, #payouts/24m 5.0, evals/24m 4.2, first payout <=1M 0% <=2M 4% <=3M 15% <=12M 82%, median 126d
+  eval $250 / funded $300: DEV payouts/24m $  6788 | NQ: payouts 12m mean $ 3838 (median $ 2664), 24m $  9536, #payouts/24m 4.6, evals/24m 5.3, first payout <=1M 0% <=2M 5% <=3M 18% <=12M 79%, median 129d
+  eval $250 / funded $400: DEV payouts/24m $  4497 | NQ: payouts 12m mean $ 2912 (median $ 1500), 24m $  7038, #payouts/24m 3.5, evals/24m 6.7, first payout <=1M 0% <=2M 7% <=3M 19% <=12M 71%, median 141d
+  eval $350 / funded $150: DEV payouts/24m $  8731 | NQ: payouts 12m mean $ 2387 (median $ 1500), 24m $  7098, #payouts/24m 4.1, evals/24m 2.8, first payout <=1M 0% <=2M 2% <=3M 8% <=12M 79%, median 147d
+  eval $350 / funded $200: DEV payouts/24m $  9517 | NQ: payouts 12m mean $ 3721 (median $ 2813), 24m $  9711, #payouts/24m 5.3, evals/24m 3.9, first payout <=1M 0% <=2M 5% <=3M 18% <=12M 87%, median 116d
+  eval $350 / funded $250: DEV payouts/24m $  9356 | NQ: payouts 12m mean $ 4828 (median $ 3500), 24m $ 12035, #payouts/24m 5.9, evals/24m 5.3, first payout <=1M 0% <=2M 9% <=3M 26% <=12M 90%, median 102d
+  eval $350 / funded $300: DEV payouts/24m $  8691 | NQ: payouts 12m mean $ 4967 (median $ 3500), 24m $ 12064, #payouts/24m 5.7, evals/24m 7.0, first payout <=1M 0% <=2M 12% <=3M 29% <=12M 90%, median 101d
+  eval $350 / funded $400: DEV payouts/24m $  6270 | NQ: payouts 12m mean $ 4027 (median $ 2991), 24m $  9669, #payouts/24m 4.6, evals/24m 9.7, first payout <=1M 1% <=2M 13% <=3M 28% <=12M 83%, median 114d
+  eval $500 / funded $150: DEV payouts/24m $  9376 | NQ: payouts 12m mean $ 2674 (median $ 2245), 24m $  7607, #payouts/24m 4.4, evals/24m 3.3, first payout <=1M 0% <=2M 3% <=3M 13% <=12M 83%, median 132d
+  eval $500 / funded $200: DEV payouts/24m $ 10547 | NQ: payouts 12m mean $ 4186 (median $ 3338), 24m $ 10592, #payouts/24m 5.8, evals/24m 4.8, first payout <=1M 0% <=2M 9% <=3M 25% <=12M 91%, median 101d
+  eval $500 / funded $250: DEV payouts/24m $ 10874 | NQ: payouts 12m mean $ 5645 (median $ 4882), 24m $ 13614, #payouts/24m 6.7, evals/24m 6.7, first payout <=1M 1% <=2M 14% <=3M 35% <=12M 96%, median 84d  <== chosen on dev
+  eval $500 / funded $300: DEV payouts/24m $ 10630 | NQ: payouts 12m mean $ 6068 (median $ 5041), 24m $ 14392, #payouts/24m 6.7, evals/24m 9.3, first payout <=1M 2% <=2M 19% <=3M 39% <=12M 95%, median 78d
+  eval $500 / funded $400: DEV payouts/24m $  8263 | NQ: payouts 12m mean $ 5268 (median $ 3814), 24m $ 12415, #payouts/24m 5.8, evals/24m 13.7, first payout <=1M 4% <=2M 21% <=3M 39% <=12M 91%, median 85d

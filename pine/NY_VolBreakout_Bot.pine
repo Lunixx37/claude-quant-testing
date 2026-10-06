@@ -10,23 +10,29 @@
 //     the stop moves to entry + (n - lag) R; updated at bar close, active from the next bar.
 //   * Exit at the close of the 15:59 bar (or the last bar of the session). No overnight positions.
 // No lookahead: PR comes from the completed prior session, decisions at bar close, fills at the next open.
-// Research (net of costs): long-only E +0.18 R (CFD 2017-25, 9/9 years positive), +0.22 R (NQ 2023-25).
+// Research (net of costs): 1/day long-only E +0.18 R (CFD 2017-25, 9/9 years positive).
+// V7 prop default: both sides, k 0.35, stop 0.75x, max 2 trades/day: ~32 trades/month, E +0.14 R on NQ 2023-25;
+// prop sizing $500 risk/trade in eval, $250 in funded (research/V7_REPORT.md). Use MNQ (qtyStep 1).
 // Paper-trade first.
 //@version=6
 strategy("NY Volatility Breakout Bot", shorttitle = "VBO-Bot", overlay = true, pyramiding = 0,
-     initial_capital = 1000, default_qty_type = strategy.fixed, default_qty_value = 1, currency = currency.USD,
+     initial_capital = 50000, default_qty_type = strategy.fixed, default_qty_value = 1, currency = currency.USD,
      commission_type = strategy.commission.cash_per_contract, commission_value = 0.75, slippage = 1,
      process_orders_on_close = false, calc_on_every_tick = false)
 
 TZ = "America/New_York"
 grpS = "Signal"
-k        = input.float(0.3, "k (breakout distance = k x prior RTH range)", step = 0.05, group = grpS)
-stopMult = input.float(1.0, "Stop = x * (k x prior range)", step = 0.25, group = grpS)
-side     = input.string("Long only", "Direction", options = ["Long only", "Both"], group = grpS)
+k        = input.float(0.35, "k (breakout distance = k x prior RTH range)", step = 0.05, group = grpS)
+stopMult = input.float(0.75, "Stop = x * (k x prior range)", step = 0.25, group = grpS)
+side     = input.string("Both", "Direction", options = ["Long only", "Both"], group = grpS)
+maxTrades = input.int(2, "Max trades per day (re-entry on the next trigger touch after an exit)", minval = 1, maxval = 3, group = grpS)
 useTrail = input.bool(true, "R-step trailing stop", group = grpS)
 lag      = input.float(1.25, "Trailing lag (R)", step = 0.25, group = grpS)
 grpR = "Risk"
-riskMode = input.string("% of equity", "Sizing", options = ["% of equity", "Fixed $", "Fixed qty"], group = grpR)
+riskMode = input.string("Prop phase $", "Sizing", options = ["Prop phase $", "% of equity", "Fixed $", "Fixed qty"], group = grpR)
+propPhase = input.string("Eval", "Prop phase", options = ["Eval", "Funded"], group = grpR)
+riskEval = input.float(500, "Prop: $ risk per trade in EVAL", group = grpR)
+riskFund = input.float(250, "Prop: $ risk per trade in FUNDED", group = grpR)
 riskPct  = input.float(1.0, "Risk % of equity per trade", step = 0.25, group = grpR)
 riskUsd  = input.float(250, "Fixed $ risk per trade", group = grpR)
 fixedQty = input.float(1, "Fixed quantity", group = grpR)
@@ -62,7 +68,8 @@ dn = open930 - k * prevRange
 stopPts = stopMult * k * prevRange
 
 // ---- signals at bar close
-canTrade = inRTH and modNow < 959 and not na(prevRange) and not na(open930) and tradesToday == 0 and not dayDone and strategy.position_size == 0 and barstate.isconfirmed
+exitedNow = strategy.closedtrades > nz(strategy.closedtrades[1])     // research engine: re-entry only after the exit bar
+canTrade = inRTH and modNow < 959 and not na(prevRange) and not na(open930) and tradesToday < maxTrades and not dayDone and strategy.position_size == 0 and not exitedNow and barstate.isconfirmed
 sigL = canTrade and high >= up
 sigS = canTrade and side == "Both" and not sigL and low <= dn
 // as in the research engine: in long-only mode, a first touch of the SHORT trigger ends the day
@@ -70,7 +77,8 @@ if canTrade and side == "Long only" and not sigL and low <= dn
     dayDone := true
 
 qtyFor() =>
-    q = riskMode == "Fixed qty" ? fixedQty : (riskMode == "Fixed $" ? riskUsd : strategy.equity * riskPct / 100) / (stopPts * syminfo.pointvalue)
+    riskNow = riskMode == "Prop phase $" ? (propPhase == "Eval" ? riskEval : riskFund) : riskMode == "Fixed $" ? riskUsd : strategy.equity * riskPct / 100
+    q = riskMode == "Fixed qty" ? fixedQty : riskNow / (stopPts * syminfo.pointvalue)
     math.max(math.floor(q / qtyStep) * qtyStep, qtyStep)
 
 var float curStop = na

@@ -1,0 +1,43 @@
+Best per model by dev t-stat (CFD 2017-2022), with test results (CFD 2023-25, NQ futures 2023-25):
+
+-- M0/M1 NY: configs 18, share dev E>0: 100%, median dev E +0.079
+                                                                  cfg  dev_n_month  dev_E  dev_t  dev_pos_years  dev_R_month  test_cfd_E  nq_E  nq_t  nq_n_month
+{'exitm': 'trail', 'k': 0.35, 'maxtr': 2, 'side': 'both', 'sm': 0.75}       31.306  0.124  3.655              5        3.872       0.133 0.137 3.079      31.751
+ {'exitm': 'trail', 'k': 0.35, 'maxtr': 1, 'side': 'both', 'sm': 1.0}       19.069  0.133  3.340              5        2.529       0.127 0.123 2.442      18.983
+ {'exitm': 'trail', 'k': 0.3, 'maxtr': 2, 'side': 'both', 'sm': 0.75}       34.653  0.106  3.250              6        3.681       0.122 0.121 2.711      35.028
+  {'exitm': 'trail', 'k': 0.3, 'maxtr': 1, 'side': 'both', 'sm': 1.0}       19.861  0.129  3.196              5        2.568       0.151 0.160 2.946      20.085
+
+-- M2 Asia: configs 32, share dev E>0: 0%, median dev E -0.092
+                                                     cfg  dev_n_month  dev_E  dev_t  dev_pos_years  dev_R_month  test_cfd_E  nq_E  nq_t  nq_n_month
+{'exitm': 'trail', 'k': 0.4, 'side': 'long', 'sm': 0.75}        5.014 -0.028 -0.413              3       -0.141       0.058 0.054 0.666       3.107
+ {'exitm': 'trail', 'k': 0.3, 'side': 'long', 'sm': 1.0}        7.444 -0.027 -0.545              3       -0.204       0.021 0.024 0.402       5.226
+ {'exitm': 'trail', 'k': 0.2, 'side': 'long', 'sm': 1.0}       10.444 -0.045 -0.950              2       -0.471      -0.011 0.039 0.639       8.362
+  {'exitm': 'end', 'k': 0.4, 'side': 'long', 'sm': 0.75}        5.014 -0.068 -0.978              3       -0.339       0.116 0.119 1.056       3.107
+
+-- M3 London/asia: configs 32, share dev E>0: 0%, median dev E -0.283
+                                                    cfg  dev_n_month  dev_E  dev_t  dev_pos_years  dev_R_month  test_cfd_E   nq_E   nq_t  nq_n_month
+{'exitm': 'trail', 'k': 0.4, 'side': 'long', 'sm': 1.0}        9.708 -0.177 -3.469              0       -1.719      -0.111 -0.041 -0.554      10.650
+  {'exitm': 'end', 'k': 0.3, 'side': 'long', 'sm': 1.0}       10.153 -0.253 -3.634              1       -2.573      -0.097 -0.016 -0.154      11.469
+  {'exitm': 'end', 'k': 0.5, 'side': 'long', 'sm': 1.0}        8.792 -0.181 -3.653              1       -1.590      -0.072 -0.009 -0.120       9.718
+  {'exitm': 'end', 'k': 0.5, 'side': 'both', 'sm': 1.0}       17.208 -0.141 -3.673              0       -2.427      -0.082 -0.028 -0.463      18.362
+
+-- M3 London/prev: configs 32, share dev E>0: 0%, median dev E -0.158
+                                                   cfg  dev_n_month  dev_E  dev_t  dev_pos_years  dev_R_month  test_cfd_E   nq_E   nq_t  nq_n_month
+{'exitm': 'end', 'k': 0.5, 'side': 'both', 'sm': 0.75}        6.653 -0.053 -0.791              1       -0.353      -0.030 -0.056 -0.742       6.949
+ {'exitm': 'end', 'k': 0.5, 'side': 'both', 'sm': 1.0}        6.653 -0.051 -0.993              1       -0.341      -0.041 -0.045 -0.716       6.949
+ {'exitm': 'end', 'k': 0.4, 'side': 'both', 'sm': 1.0}        9.806 -0.091 -2.006              1       -0.892      -0.068 -0.041 -0.734       9.689
+ {'exitm': 'end', 'k': 0.5, 'side': 'long', 'sm': 1.0}        3.125 -0.112 -2.035              1       -0.350      -0.038 -0.048 -0.752       3.390
+
+-- M4 Afternoon: configs 32, share dev E>0: 16%, median dev E -0.040
+                                                   cfg  dev_n_month  dev_E  dev_t  dev_pos_years  dev_R_month  test_cfd_E   nq_E   nq_t  nq_n_month
+{'exitm': 'end', 'k': 0.5, 'side': 'long', 'sm': 0.75}        4.514  0.027  0.405              4        0.123      -0.051 -0.078 -1.144       4.520
+ {'exitm': 'end', 'k': 0.5, 'side': 'long', 'sm': 1.0}        4.514  0.021  0.403              3        0.095      -0.041 -0.067 -1.181       4.520
+ {'exitm': 'end', 'k': 0.2, 'side': 'long', 'sm': 1.0}       10.042  0.017  0.310              3        0.168      -0.057 -0.043 -0.594       9.746
+ {'exitm': 'end', 'k': 0.4, 'side': 'long', 'sm': 1.0}        6.153  0.008  0.189              3        0.048      -0.062 -0.088 -1.543       6.045
+
+-- M5 Hourly: configs 48, share dev E>0: 0%, median dev E -0.116
+                                                     cfg  dev_n_month  dev_E  dev_t  dev_pos_years  dev_R_month  test_cfd_E  nq_E  nq_t  nq_n_month
+{'exitm': 'trail', 'k': 1.0, 'side': 'long', 'sm': 0.75}       13.736 -0.059 -1.788              2       -0.804      -0.005 0.015 0.300      13.051
+  {'exitm': 'end', 'k': 1.0, 'side': 'long', 'sm': 0.75}       13.694 -0.066 -1.903              3       -0.902       0.023 0.048 0.886      12.938
+   {'exitm': 'end', 'k': 1.0, 'side': 'long', 'sm': 1.0}       13.639 -0.060 -2.180              2       -0.820       0.041 0.046 1.086      12.938
+ {'exitm': 'trail', 'k': 1.0, 'side': 'long', 'sm': 1.0}       13.667 -0.060 -2.253              1       -0.823       0.030 0.038 0.948      12.994
