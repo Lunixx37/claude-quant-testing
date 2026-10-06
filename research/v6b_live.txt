@@ -1,0 +1,25 @@
+
+VBO k0.3 trail side=long | CFD 2017-2025 (spread 1.2 + financing): n=1063 (10.1/month) win=42.1% E=+0.181R t=4.04 avg win 1.52R avg loss -0.80R RR 1.91 positive years 9/9 Kelly 10.3%
+   risk 0.50%/trade: avg return/month +0.92% (median +0.51%), positive months 62%, maxDD 6.9%, CAGR +11.2%
+   risk 1.00%/trade: avg return/month +1.84% (median +0.98%), positive months 62%, maxDD 13.3%, CAGR +23.0%
+   risk 5.15%/trade: avg return/month +9.71% (median +2.94%), positive months 59%, maxDD 53.0%, CAGR +125.0%
+
+VBO k0.3 trail side=long | NQ futures 2023-2025 (MNQ costs): n=350 (10.1/month) win=44.0% E=+0.219R t=2.95 avg win 1.50R avg loss -0.79R RR 1.91 positive years 3/3 Kelly 13.8%
+   risk 0.50%/trade: avg return/month +1.07% (median +0.94%), positive months 69%, maxDD 5.6%, CAGR +13.3%
+   risk 1.00%/trade: avg return/month +2.16% (median +1.86%), positive months 69%, maxDD 10.9%, CAGR +27.7%
+   risk 6.90%/trade: avg return/month +16.11% (median +11.40%), positive months 67%, maxDD 56.0%, CAGR +253.1%
+
+VBO k0.3 trail side=both | CFD 2017-2025 (spread 1.2 + financing): n=2092 (20.0/month) win=38.6% E=+0.136R t=4.11 avg win 1.65R avg loss -0.81R RR 2.03 positive years 8/9 Kelly 6.9%
+   risk 0.50%/trade: avg return/month +1.36% (median +1.24%), positive months 67%, maxDD 15.4%, CAGR +16.9%
+   risk 1.00%/trade: avg return/month +2.72% (median +2.39%), positive months 66%, maxDD 29.2%, CAGR +34.8%
+   risk 3.45%/trade: avg return/month +9.44% (median +6.64%), positive months 66%, maxDD 74.1%, CAGR +125.6%
+
+VBO k0.3 trail side=both | NQ futures 2023-2025 (MNQ costs): n=703 (20.2/month) win=39.8% E=+0.168R t=3.06 avg win 1.61R avg loss -0.78R RR 2.05 positive years 3/3 Kelly 9.5%
+   risk 0.50%/trade: avg return/month +1.66% (median +1.35%), positive months 67%, maxDD 5.5%, CAGR +21.0%
+   risk 1.00%/trade: avg return/month +3.37% (median +2.65%), positive months 67%, maxDD 10.8%, CAGR +44.6%
+   risk 4.75%/trade: avg return/month +17.78% (median +10.58%), positive months 64%, maxDD 43.4%, CAGR +283.4%
+
+HONEST walk-forward top-1 (selection incl. all refinements), OOS 2019-2025: win 44.6% E +0.109R RR 1.56 t 2.51
+   risk 0.5%: avg/month +0.57% median +0.78% maxDD 7.8% CAGR +6.9%
+   risk 1.0%: avg/month +1.14% median +1.55% maxDD 15.0% CAGR +13.7%
+   risk 2.0%: avg/month +2.25% median +3.00% maxDD 28.0% CAGR +26.8%

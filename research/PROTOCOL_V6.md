@@ -85,3 +85,25 @@ Data: CFD 2017-01..2025-09 (one consistent series). NQ futures 2023-25 is used a
 ## Stop rule
 The search continues with new families as long as there are untested, well-defined ideas. A result is
 called "working" only if its walk-forward OOS expectancy is clearly > 0 (t >= 2) **and** positive in most OOS years.
+
+## Amendment 1 (before any walk-forward run)
+Daily swing families (F5, F6, F9) trade far less than once per week and cannot pass the frequency rule.
+
+- **Second walk-forward track "low frequency":** >= 30 trades in history, no per-week requirement, same
+  t-stat score. It is reported separately and is relevant for a live bot, not for fast prop payouts.
+- **Gap family (F3):** enters at the 09:31 open, because the gap is only known at the 09:30 print.
+
+## Amendment 2 (after the first walk-forward: refinement round "V6b", decided before running it)
+The first walk-forward picked F7 VolBreakout from 2020 on. The refinements are **added to the universe**,
+and the whole walk-forward is re-run, so they are judged out-of-sample like everything else.
+
+**New family F7b** (360 configurations):
+- k = 0.2 / 0.25 / 0.3 / 0.35 / 0.4
+- stop = 0.75 / 1 / 1.5 x (k x prior range)
+- exit EOD / TP 2R / TP 3R / R-trailing
+- filter none / daily trend / low-vol
+- side both / long-only
+
+**Prop sizing per phase:**
+- Grid: eval risk {250, 350, 500} x funded risk {100, 150, 200, 250} $/trade.
+- Chosen on the CFD 2017-2022 pool, reported on NQ 2023-25.

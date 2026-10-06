@@ -59,15 +59,17 @@ class Policy:
     ev_coast: bool = False         # eval: size down so one average winner does not overshoot needlessly
     fu_payout_mode: bool = False   # funded: once balance >= pay_min_bal, trade minimum size to collect win days
     risk_usd: float = 0.0          # >0: fixed $ risk per trade in both phases (n = floor(risk_usd / R$))
+    risk_ev: float = 0.0           # >0: overrides risk_usd in the eval phase
+    risk_fu: float = 0.0           # >0: overrides risk_usd in the funded phase
     no_starve: bool = False        # if the EOD-floor guard says 0 contracts, still trade 1 (stalling = failing anyway)
     ev_min: int = 1                # minimum contracts (guards still apply)
     fu_min: int = 1
 
 
-def contracts(bal, thr, day_left, frac, cap, pol, env, risk_mult, mn=1):
+def contracts(bal, thr, day_left, frac, cap, pol, env, risk_mult, mn=1, ru=0.0):
     r = pol.r_usd * risk_mult
-    if pol.risk_usd > 0:
-        n = max(int(pol.risk_usd / r), 1)
+    if ru > 0:
+        n = max(int(ru / r), 1)
     else:
         n = max(int(frac * (bal - thr) / r), mn)
         n = min(n, cap)
@@ -109,7 +111,8 @@ def simulate(seq, pool, env: Env, pol: Policy, horizon=252):
                     need = math.ceil(remaining / (1.75 * pol.r_usd * rm))   # one +1.75R winner finishes
                     cap = min(cap, max(need, 1))
                 mn = pol.ev_min if phase == 'ev' else pol.fu_min
-                n = contracts(bal, thr, P.dll + (bal - day0), frac, cap, pol, env, rm, mn)
+                ru = (pol.risk_ev if phase == 'ev' else pol.risk_fu) or pol.risk_usd
+                n = contracts(bal, thr, P.dll + (bal - day0), frac, cap, pol, env, rm, mn, ru)
                 if n <= 0:
                     break
                 c = env.comm_rt * n

@@ -1,0 +1,14 @@
+CFD 2017-2025, net of costs, all configurations per family (in-sample overview, NOT the honest estimate):
+                              configs  share_positive  median_E  best_E  median_trades
+fam                                                                                   
+F5 Donchian                         2           1.000     0.388   0.636           52.5
+F7b VBO refined                   360           0.975     0.123   0.276         1047.5
+F7 VolBreakout                      6           1.000     0.058   0.160         1664.0
+F9 TurnOfMonth                      2           1.000     0.055   0.063          104.0
+F6 RSI2                             8           0.750     0.039   0.064           66.0
+F10 (ICT/VWAP/Mental setups)      990           0.486    -0.002   0.167         1559.5
+F1 ORB                             72           0.486    -0.004   0.127         1138.0
+F2 IntradayMom                     12           0.167    -0.026   0.003         1254.5
+F3 Gap                             24           0.083    -0.035   0.016         1422.0
+F4 PDH/PDL                         16           0.312    -0.036   0.069         1422.0
+F8 NewsRange                        6           0.000    -0.158  -0.092         2225.0

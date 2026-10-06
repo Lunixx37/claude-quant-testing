@@ -1,0 +1,13 @@
+Walk-forward top-5 portfolio (~66 trades/month), user prop rules, $ risk per trade eval/funded:
+  eval $150 / funded $75: 2019-22 payout<=2M 1.7% <=3M 5.3% <=12M 19.2% | 2023-25 payout<=1M 0.4% <=2M 6.3% <=3M 14.2% <=12M 22.8% median days 55 pass 65%
+  eval $150 / funded $100: 2019-22 payout<=2M 1.8% <=3M 5.6% <=12M 19.1% | 2023-25 payout<=1M 0.4% <=2M 6.2% <=3M 13.9% <=12M 22.4% median days 55 pass 65%
+  eval $150 / funded $150: 2019-22 payout<=2M 2.0% <=3M 6.7% <=12M 18.9% | 2023-25 payout<=1M 0.4% <=2M 6.3% <=3M 13.4% <=12M 21.4% median days 55 pass 65%
+  eval $150 / funded $200: 2019-22 payout<=2M 2.8% <=3M 7.8% <=12M 18.4% | 2023-25 payout<=1M 0.7% <=2M 7.2% <=3M 12.3% <=12M 16.6% median days 47 pass 65%
+  eval $250 / funded $75: 2019-22 payout<=2M 4.5% <=3M 9.1% <=12M 16.4% | 2023-25 payout<=1M 1.9% <=2M 11.6% <=3M 17.5% <=12M 19.7% median days 38 pass 55%
+  eval $250 / funded $100: 2019-22 payout<=2M 4.7% <=3M 9.7% <=12M 16.5% | 2023-25 payout<=1M 1.9% <=2M 11.4% <=3M 17.3% <=12M 19.7% median days 38 pass 55%
+  eval $250 / funded $150: 2019-22 payout<=2M 5.1% <=3M 10.8% <=12M 16.7% | 2023-25 payout<=1M 2.1% <=2M 11.1% <=3M 16.3% <=12M 18.8% median days 38 pass 55%
+  eval $250 / funded $200: 2019-22 payout<=2M 6.5% <=3M 12.2% <=12M 16.3% | 2023-25 payout<=1M 3.0% <=2M 11.9% <=3M 14.9% <=12M 15.7% median days 31 pass 55%
+  eval $350 / funded $75: 2019-22 payout<=2M 5.7% <=3M 10.7% <=12M 16.8% | 2023-25 payout<=1M 4.2% <=2M 14.8% <=3M 19.8% <=12M 21.4% median days 34 pass 59%
+  eval $350 / funded $100: 2019-22 payout<=2M 5.8% <=3M 11.3% <=12M 17.2% | 2023-25 payout<=1M 4.2% <=2M 14.6% <=3M 19.5% <=12M 21.1% median days 34 pass 59%
+  eval $350 / funded $150: 2019-22 payout<=2M 6.6% <=3M 12.2% <=12M 17.1% | 2023-25 payout<=1M 4.1% <=2M 14.8% <=3M 19.0% <=12M 20.6% median days 32 pass 59%
+  eval $350 / funded $200: 2019-22 payout<=2M 7.8% <=3M 13.6% <=12M 16.4% | 2023-25 payout<=1M 5.3% <=2M 14.2% <=3M 16.2% <=12M 16.6% median days 26 pass 59%  <== chosen on 2019-22

@@ -1,0 +1,52 @@
+
+######## track HF, top-1
+  2019: F10 S4 FVG {'exit_': 'TP2', 'filt': 'lowvol', 'hold': 2, 'setup': 'S4 FVG', 'stop_pts': 60.0} (t=2.74)
+  2020: F7 VolBreakout {'k': 0.3, 'stopm': 'k'} (t=2.63)
+  2021: F10 S4 FVG {'exit_': 'TP2', 'filt': 'lowvol', 'hold': 2, 'setup': 'S4 FVG', 'stop_pts': 60.0} (t=1.93)
+  2022: F7 VolBreakout {'k': 0.3, 'stopm': 'k'} (t=2.37)
+  2023: F7 VolBreakout {'k': 0.3, 'stopm': 'k'} (t=2.97)
+  2024: F7 VolBreakout {'k': 0.3, 'stopm': 'k'} (t=3.17)
+  2025: F7 VolBreakout {'k': 0.3, 'stopm': 'k'} (t=3.71)
+  OOS 2019-2025: n=1437 (17.8/month) win=38.1% E=+0.111R t=2.46 avgwin=1.84R avgloss=-0.95R RR=1.93 positive years 4/7
+  by year: {2019: -0.051, 2020: -0.02, 2021: -0.058, 2022: 0.239, 2023: 0.117, 2024: 0.283, 2025: 0.162}
+  live risk 1%: avg/month +1.98% median +1.56% positive months 60% maxDD 34.7% CAGR +23.0%
+  live risk 2%: avg/month +3.95% median +2.89% positive months 59% maxDD 60.4% CAGR +42.7%
+
+######## track HF, top-5
+  2019: F10 S4 FVG {'exit_': 'TP2', 'filt': 'lowvol', 'hold': 2, 'setup': 'S4 FVG', 'stop_pts': 60.0} (t=2.74); F10 S3 Mental {'exit_': 'TP2', 'filt': 'with930', 'hold': 2, 'setup': 'S3 Mental', 'stop_pts': 40.0} (t=2.60); F10 S3 Mental {'exit_': 'TP2', 'filt': 'with930', 'hold': 2, 'setup': 'S3 Mental', 'stop_pts': 60.0} (t=2.59); F10 S4 FVG {'exit_': 'TP2', 'filt': 'none', 'hold': 2, 'setup': 'S4 FVG', 'stop_pts': 60.0} (t=2.52); F10 S11 Score>=2 {'exit_': 'Trail', 'filt': 'body60', 'hold': 1, 'setup': 'S11 Score>=2', 'stop_pts': 60.0} (t=2.34)
+  2020: F7 VolBreakout {'k': 0.3, 'stopm': 'k'} (t=2.63); F10 S10 Absorption {'exit_': 'Trail', 'filt': 'body60', 'hold': 2, 'setup': 'S10 Absorption', 'stop_pts': 60.0} (t=2.12); F10 S2 VWAP bands {'exit_': 'TP3', 'filt': 'lowvol', 'hold': 2, 'setup': 'S2 VWAP bands', 'stop_pts': 40.0} (t=1.98); F10 S10 Absorption {'exit_': 'TP3', 'filt': 'body60', 'hold': 2, 'setup': 'S10 Absorption', 'stop_pts': 60.0} (t=1.96); F10 S3 Mental {'exit_': 'Trail', 'filt': 'none', 'hold': 2, 'setup': 'S3 Mental', 'stop_pts': 25.0} (t=1.91)
+  2021: F10 S4 FVG {'exit_': 'TP2', 'filt': 'lowvol', 'hold': 2, 'setup': 'S4 FVG', 'stop_pts': 60.0} (t=1.93); F10 S10 Absorption {'exit_': 'TP2', 'filt': 'with930', 'hold': 2, 'setup': 'S10 Absorption', 'stop_pts': 60.0} (t=1.88); F7 VolBreakout {'k': 0.5, 'stopm': 'k'} (t=1.80); F10 S3 Mental {'exit_': 'Trail', 'filt': 'lowvol', 'hold': 2, 'setup': 'S3 Mental', 'stop_pts': 40.0} (t=1.78); F10 S7 Sweep+MSS {'exit_': 'TP3', 'filt': 'with930', 'hold': 2, 'setup': 'S7 Sweep+MSS', 'stop_pts': 40.0} (t=1.76)
+  2022: F7 VolBreakout {'k': 0.3, 'stopm': 'k'} (t=2.37); F10 S10 Absorption {'exit_': 'TP3', 'filt': 'lowvol', 'hold': 2, 'setup': 'S10 Absorption', 'stop_pts': 40.0} (t=2.29); F7 VolBreakout {'k': 0.5, 'stopm': 'k'} (t=2.09); F10 S4 FVG {'exit_': 'TP2', 'filt': 'with930', 'hold': 2, 'setup': 'S4 FVG', 'stop_pts': 60.0} (t=1.93); F10 S10 Absorption {'exit_': 'Trail', 'filt': 'lowvol', 'hold': 2, 'setup': 'S10 Absorption', 'stop_pts': 40.0} (t=1.92)
+  2023: F7 VolBreakout {'k': 0.3, 'stopm': 'k'} (t=2.97); F10 S4 FVG {'exit_': 'TP3', 'filt': 'lowvol', 'hold': 1, 'setup': 'S4 FVG', 'stop_pts': 40.0} (t=2.81); F10 S4 FVG {'exit_': 'TP3', 'filt': 'lowvol', 'hold': 2, 'setup': 'S4 FVG', 'stop_pts': 40.0} (t=2.74); F7 VolBreakout {'k': 0.5, 'stopm': 'k'} (t=2.49); F10 S10 Absorption {'exit_': 'Trail', 'filt': 'lowvol', 'hold': 2, 'setup': 'S10 Absorption', 'stop_pts': 40.0} (t=2.26)
+  2024: F7 VolBreakout {'k': 0.3, 'stopm': 'k'} (t=3.17); F7 VolBreakout {'k': 0.5, 'stopm': 'k'} (t=2.61); F10 S10 Absorption {'exit_': 'Trail', 'filt': 'lowvol', 'hold': 2, 'setup': 'S10 Absorption', 'stop_pts': 40.0} (t=2.59); F10 S4 FVG {'exit_': 'TP3', 'filt': 'lowvol', 'hold': 2, 'setup': 'S4 FVG', 'stop_pts': 40.0} (t=2.52); F10 S10 Absorption {'exit_': 'TP3', 'filt': 'lowvol', 'hold': 2, 'setup': 'S10 Absorption', 'stop_pts': 40.0} (t=2.48)
+  2025: F7 VolBreakout {'k': 0.3, 'stopm': 'k'} (t=3.71); F10 S2 VWAP bands {'exit_': 'Trail', 'filt': 'lowvol', 'hold': 2, 'setup': 'S2 VWAP bands', 'stop_pts': 60.0} (t=3.41); F10 S4 FVG {'exit_': 'TP3', 'filt': 'lowvol', 'hold': 1, 'setup': 'S4 FVG', 'stop_pts': 40.0} (t=3.07); F7 VolBreakout {'k': 0.5, 'stopm': 'k'} (t=3.07); F10 S4 FVG {'exit_': 'TP3', 'filt': 'lowvol', 'hold': 2, 'setup': 'S4 FVG', 'stop_pts': 40.0} (t=3.04)
+  OOS 2019-2025: n=6354 (78.5/month) win=35.6% E=+0.044R t=2.23 avgwin=1.81R avgloss=-0.93R RR=1.95 positive years 4/7
+  by year: {2019: -0.037, 2020: -0.06, 2021: -0.01, 2022: 0.112, 2023: 0.063, 2024: 0.196, 2025: 0.055}
+  live risk 1%: avg/month +0.73% median +0.35% positive months 57% maxDD 23.3% CAGR +8.2%
+  live risk 2%: avg/month +1.53% median +0.61% positive months 57% maxDD 42.1% CAGR +16.0%
+
+######## track LF, top-1
+  2019: F10 S4 FVG {'exit_': 'TP2', 'filt': 'lowvol', 'hold': 2, 'setup': 'S4 FVG', 'stop_pts': 60.0} (t=2.74)
+  2020: F7 VolBreakout {'k': 0.3, 'stopm': 'k'} (t=2.63)
+  2021: F10 S4 FVG {'exit_': 'TP2', 'filt': 'lowvol', 'hold': 2, 'setup': 'S4 FVG', 'stop_pts': 60.0} (t=1.93)
+  2022: F7 VolBreakout {'k': 0.3, 'stopm': 'k'} (t=2.37)
+  2023: F7 VolBreakout {'k': 0.3, 'stopm': 'k'} (t=2.97)
+  2024: F7 VolBreakout {'k': 0.3, 'stopm': 'k'} (t=3.17)
+  2025: F7 VolBreakout {'k': 0.3, 'stopm': 'k'} (t=3.71)
+  OOS 2019-2025: n=1437 (17.8/month) win=38.1% E=+0.111R t=2.46 avgwin=1.84R avgloss=-0.95R RR=1.93 positive years 4/7
+  by year: {2019: -0.051, 2020: -0.02, 2021: -0.058, 2022: 0.239, 2023: 0.117, 2024: 0.283, 2025: 0.162}
+  live risk 1%: avg/month +1.98% median +1.56% positive months 60% maxDD 34.7% CAGR +23.0%
+  live risk 2%: avg/month +3.95% median +2.89% positive months 59% maxDD 60.4% CAGR +42.7%
+
+######## track LF, top-5
+  2019: F10 S4 FVG {'exit_': 'TP2', 'filt': 'lowvol', 'hold': 2, 'setup': 'S4 FVG', 'stop_pts': 60.0} (t=2.74); F10 S3 Mental {'exit_': 'TP2', 'filt': 'with930', 'hold': 2, 'setup': 'S3 Mental', 'stop_pts': 40.0} (t=2.60); F10 S3 Mental {'exit_': 'TP2', 'filt': 'with930', 'hold': 2, 'setup': 'S3 Mental', 'stop_pts': 60.0} (t=2.59); F10 S4 FVG {'exit_': 'TP2', 'filt': 'none', 'hold': 2, 'setup': 'S4 FVG', 'stop_pts': 60.0} (t=2.52); F10 S11 Score>=2 {'exit_': 'Trail', 'filt': 'body60', 'hold': 1, 'setup': 'S11 Score>=2', 'stop_pts': 60.0} (t=2.34)
+  2020: F7 VolBreakout {'k': 0.3, 'stopm': 'k'} (t=2.63); F10 S10 Absorption {'exit_': 'Trail', 'filt': 'body60', 'hold': 2, 'setup': 'S10 Absorption', 'stop_pts': 60.0} (t=2.12); F10 S2 VWAP bands {'exit_': 'TP3', 'filt': 'lowvol', 'hold': 2, 'setup': 'S2 VWAP bands', 'stop_pts': 40.0} (t=1.98); F10 S10 Absorption {'exit_': 'TP3', 'filt': 'body60', 'hold': 2, 'setup': 'S10 Absorption', 'stop_pts': 60.0} (t=1.96); F10 S3 Mental {'exit_': 'Trail', 'filt': 'none', 'hold': 2, 'setup': 'S3 Mental', 'stop_pts': 25.0} (t=1.91)
+  2021: F10 S4 FVG {'exit_': 'TP2', 'filt': 'lowvol', 'hold': 2, 'setup': 'S4 FVG', 'stop_pts': 60.0} (t=1.93); F9 TurnOfMonth {'variant': 'tdm3'} (t=1.92); F10 S10 Absorption {'exit_': 'TP2', 'filt': 'with930', 'hold': 2, 'setup': 'S10 Absorption', 'stop_pts': 60.0} (t=1.88); F7 VolBreakout {'k': 0.5, 'stopm': 'k'} (t=1.80); F10 S3 Mental {'exit_': 'Trail', 'filt': 'lowvol', 'hold': 2, 'setup': 'S3 Mental', 'stop_pts': 40.0} (t=1.78)
+  2022: F7 VolBreakout {'k': 0.3, 'stopm': 'k'} (t=2.37); F10 S10 Absorption {'exit_': 'TP3', 'filt': 'lowvol', 'hold': 2, 'setup': 'S10 Absorption', 'stop_pts': 40.0} (t=2.29); F7 VolBreakout {'k': 0.5, 'stopm': 'k'} (t=2.09); F10 S4 FVG {'exit_': 'TP2', 'filt': 'with930', 'hold': 2, 'setup': 'S4 FVG', 'stop_pts': 60.0} (t=1.93); F10 S10 Absorption {'exit_': 'Trail', 'filt': 'lowvol', 'hold': 2, 'setup': 'S10 Absorption', 'stop_pts': 40.0} (t=1.92)
+  2023: F7 VolBreakout {'k': 0.3, 'stopm': 'k'} (t=2.97); F10 S4 FVG {'exit_': 'TP3', 'filt': 'lowvol', 'hold': 1, 'setup': 'S4 FVG', 'stop_pts': 40.0} (t=2.81); F10 S4 FVG {'exit_': 'TP3', 'filt': 'lowvol', 'hold': 2, 'setup': 'S4 FVG', 'stop_pts': 40.0} (t=2.74); F7 VolBreakout {'k': 0.5, 'stopm': 'k'} (t=2.49); F10 S10 Absorption {'exit_': 'Trail', 'filt': 'lowvol', 'hold': 2, 'setup': 'S10 Absorption', 'stop_pts': 40.0} (t=2.26)
+  2024: F7 VolBreakout {'k': 0.3, 'stopm': 'k'} (t=3.17); F7 VolBreakout {'k': 0.5, 'stopm': 'k'} (t=2.61); F10 S10 Absorption {'exit_': 'Trail', 'filt': 'lowvol', 'hold': 2, 'setup': 'S10 Absorption', 'stop_pts': 40.0} (t=2.59); F10 S4 FVG {'exit_': 'TP3', 'filt': 'lowvol', 'hold': 2, 'setup': 'S4 FVG', 'stop_pts': 40.0} (t=2.52); F10 S10 Absorption {'exit_': 'TP3', 'filt': 'lowvol', 'hold': 2, 'setup': 'S10 Absorption', 'stop_pts': 40.0} (t=2.48)
+  2025: F7 VolBreakout {'k': 0.3, 'stopm': 'k'} (t=3.71); F10 S2 VWAP bands {'exit_': 'Trail', 'filt': 'lowvol', 'hold': 2, 'setup': 'S2 VWAP bands', 'stop_pts': 60.0} (t=3.41); F10 S4 FVG {'exit_': 'TP3', 'filt': 'lowvol', 'hold': 1, 'setup': 'S4 FVG', 'stop_pts': 40.0} (t=3.07); F7 VolBreakout {'k': 0.5, 'stopm': 'k'} (t=3.07); F10 S4 FVG {'exit_': 'TP3', 'filt': 'lowvol', 'hold': 2, 'setup': 'S4 FVG', 'stop_pts': 40.0} (t=3.04)
+  OOS 2019-2025: n=6112 (75.5/month) win=36.0% E=+0.048R t=2.39 avgwin=1.78R avgloss=-0.93R RR=1.92 positive years 5/7
+  by year: {2019: -0.037, 2020: -0.06, 2021: 0.004, 2022: 0.112, 2023: 0.063, 2024: 0.196, 2025: 0.055}
+  live risk 1%: avg/month +0.76% median +0.70% positive months 57% maxDD 20.1% CAGR +8.6%
+  live risk 2%: avg/month +1.59% median +1.32% positive months 57% maxDD 37.6% CAGR +16.9%

@@ -1,0 +1,33 @@
+
+=== WF top-1 OOS 2019-2025 (CFD)
+  trades 1437 (17.8/month), win 38.1%, E +0.111R (t=2.46), avg win 1.84R, avg loss -0.95R, RR 1.93, positive years 4/7
+  Kelly fraction 4.4%
+  LIVE risk 2.20%/trade: avg return/month +4.35% (median +3.14%), positive months 59%, maxDD 64.6%, CAGR +46.0%
+  LIVE risk 1.00%/trade: avg return/month +1.98% (median +1.56%), positive months 60%, maxDD 34.7%, CAGR +23.0%
+  LIVE risk 2.00%/trade: avg return/month +3.95% (median +2.89%), positive months 59%, maxDD 60.4%, CAGR +42.7%
+  PROP $150/trade: payout <=1M 0.1% <=2M 0.1% <=3M 0.4% <=12M 18.4% | median days to 1st payout 177 | eval pass 61.3% (median 112 days), eval blown 20.8%
+  PROP $250/trade: payout <=1M 0.1% <=2M 0.4% <=3M 2.5% <=12M 24.3% | median days to 1st payout 118 | eval pass 64.0% (median 66 days), eval blown 33.7%
+  PROP $350/trade: payout <=1M 0.4% <=2M 3.0% <=3M 8.1% <=12M 23.7% | median days to 1st payout 79 | eval pass 63.6% (median 37 days), eval blown 36.0%
+  PROP $500/trade: payout <=1M 0.9% <=2M 6.0% <=3M 9.3% <=12M 11.4% | median days to 1st payout 41 | eval pass 53.6% (median 17 days), eval blown 46.4%
+
+=== VolBreakout k0.3 CFD 2017-2025
+  trades 2092 (20.0/month), win 38.5%, E +0.160R (t=3.92), avg win 1.96R, avg loss -0.97R, RR 2.02, positive years 8/9
+  Kelly fraction 5.6%
+  LIVE risk 2.80%/trade: avg return/month +9.09% (median +6.96%), positive months 61%, maxDD 67.3%, CAGR +115.5%
+  LIVE risk 1.00%/trade: avg return/month +3.21% (median +2.89%), positive months 64%, maxDD 29.6%, CAGR +40.8%
+  LIVE risk 2.00%/trade: avg return/month +6.47% (median +5.45%), positive months 62%, maxDD 53.1%, CAGR +83.6%
+  PROP $150/trade: payout <=1M 0.0% <=2M 0.1% <=3M 0.8% <=12M 37.2% | median days to 1st payout 167 | eval pass 77.6% (median 95 days), eval blown 15.0%
+  PROP $250/trade: payout <=1M 0.1% <=2M 2.1% <=3M 6.4% <=12M 31.8% | median days to 1st payout 101 | eval pass 72.0% (median 46 days), eval blown 27.9%
+  PROP $350/trade: payout <=1M 0.7% <=2M 7.1% <=3M 14.4% <=12M 23.8% | median days to 1st payout 56 | eval pass 66.4% (median 25 days), eval blown 33.6%
+  PROP $500/trade: payout <=1M 1.9% <=2M 8.5% <=3M 11.6% <=12M 12.3% | median days to 1st payout 35 | eval pass 56.4% (median 13 days), eval blown 43.6%
+
+=== VolBreakout k0.3 NQ futures 2023-2025
+  trades 703 (20.2/month), win 39.3%, E +0.179R (t=2.61), avg win 1.90R, avg loss -0.93R, RR 2.04, positive years 3/3
+  Kelly fraction 6.9%
+  LIVE risk 3.45%/trade: avg return/month +12.73% (median +8.12%), positive months 61%, maxDD 43.3%, CAGR +179.5%
+  LIVE risk 1.00%/trade: avg return/month +3.56% (median +2.87%), positive months 64%, maxDD 14.2%, CAGR +46.5%
+  LIVE risk 2.00%/trade: avg return/month +7.23% (median +5.34%), positive months 64%, maxDD 27.1%, CAGR +99.9%
+  PROP $150/trade: payout <=1M 0.0% <=2M 0.3% <=3M 1.4% <=12M 39.6% | median days to 1st payout 165 | eval pass 82.0% (median 88 days), eval blown 10.5%
+  PROP $250/trade: payout <=1M 0.0% <=2M 1.6% <=3M 5.9% <=12M 38.4% | median days to 1st payout 111 | eval pass 77.4% (median 56 days), eval blown 21.9%
+  PROP $350/trade: payout <=1M 0.9% <=2M 6.2% <=3M 14.6% <=12M 28.1% | median days to 1st payout 61 | eval pass 68.2% (median 28 days), eval blown 31.8%
+  PROP $500/trade: payout <=1M 2.8% <=2M 10.2% <=3M 13.6% <=12M 15.4% | median days to 1st payout 34 | eval pass 55.4% (median 15 days), eval blown 44.6%

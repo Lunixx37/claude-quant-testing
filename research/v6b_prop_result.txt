@@ -1,0 +1,28 @@
+
+=== VBO k0.3 trail, side=both: prop rules of the user (eval $ risk / funded $ risk)
+  eval $250 / funded $100: DEV payout<=2M 0.0% <=3M 0.8% <=12M 38.0% | NQ 23-25 payout<=1M 0.0% <=2M 0.0% <=3M 0.7% <=12M 42.5% median days 165, pass 85% (median 67d)
+  eval $250 / funded $150: DEV payout<=2M 0.2% <=3M 2.6% <=12M 49.5% | NQ 23-25 payout<=1M 0.0% <=2M 0.1% <=3M 0.9% <=12M 47.4% median days 162, pass 85% (median 67d)
+  eval $250 / funded $200: DEV payout<=2M 0.4% <=3M 4.7% <=12M 50.1% | NQ 23-25 payout<=1M 0.0% <=2M 0.3% <=3M 1.9% <=12M 51.4% median days 145, pass 85% (median 67d)
+  eval $250 / funded $250: DEV payout<=2M 1.0% <=3M 6.2% <=12M 46.5% | NQ 23-25 payout<=1M 0.0% <=2M 0.7% <=3M 3.4% <=12M 53.2% median days 128, pass 85% (median 67d)
+  eval $350 / funded $100: DEV payout<=2M 0.3% <=3M 1.7% <=12M 41.0% | NQ 23-25 payout<=1M 0.0% <=2M 0.2% <=3M 1.9% <=12M 46.5% median days 142, pass 80% (median 36d)
+  eval $350 / funded $150: DEV payout<=2M 0.8% <=3M 5.0% <=12M 48.8% | NQ 23-25 payout<=1M 0.0% <=2M 0.4% <=3M 2.5% <=12M 50.7% median days 138, pass 80% (median 36d)
+  eval $350 / funded $200: DEV payout<=2M 1.8% <=3M 8.2% <=12M 47.6% | NQ 23-25 payout<=1M 0.0% <=2M 1.2% <=3M 5.3% <=12M 53.8% median days 117, pass 80% (median 36d)  <== chosen on dev
+  eval $350 / funded $250: DEV payout<=2M 3.0% <=3M 11.2% <=12M 43.5% | NQ 23-25 payout<=1M 0.0% <=2M 2.8% <=3M 10.5% <=12M 51.8% median days 96, pass 80% (median 36d)
+  eval $500 / funded $100: DEV payout<=2M 0.5% <=3M 2.6% <=12M 37.9% | NQ 23-25 payout<=1M 0.0% <=2M 0.7% <=3M 3.3% <=12M 40.2% median days 126, pass 65% (median 20d)
+  eval $500 / funded $150: DEV payout<=2M 1.7% <=3M 7.1% <=12M 44.6% | NQ 23-25 payout<=1M 0.0% <=2M 0.8% <=3M 4.3% <=12M 43.2% median days 121, pass 65% (median 20d)
+  eval $500 / funded $200: DEV payout<=2M 3.7% <=3M 12.2% <=12M 42.9% | NQ 23-25 payout<=1M 0.1% <=2M 2.4% <=3M 8.2% <=12M 45.5% median days 99, pass 65% (median 20d)
+  eval $500 / funded $250: DEV payout<=2M 5.7% <=3M 16.1% <=12M 38.6% | NQ 23-25 payout<=1M 0.3% <=2M 5.2% <=3M 15.1% <=12M 43.1% median days 76, pass 65% (median 20d)
+
+=== VBO k0.3 trail, side=long: prop rules of the user (eval $ risk / funded $ risk)
+  eval $250 / funded $100: DEV payout<=2M 0.0% <=3M 0.0% <=12M 13.1% | NQ 23-25 payout<=1M 0.0% <=2M 0.0% <=3M 0.0% <=12M 20.5% median days 205, pass 84% (median 103d)
+  eval $250 / funded $150: DEV payout<=2M 0.0% <=3M 0.1% <=12M 25.4% | NQ 23-25 payout<=1M 0.0% <=2M 0.0% <=3M 0.0% <=12M 23.2% median days 201, pass 84% (median 103d)
+  eval $250 / funded $200: DEV payout<=2M 0.0% <=3M 0.2% <=12M 36.8% | NQ 23-25 payout<=1M 0.0% <=2M 0.0% <=3M 0.3% <=12M 34.2% median days 186, pass 84% (median 103d)
+  eval $250 / funded $250: DEV payout<=2M 0.1% <=3M 0.6% <=12M 40.7% | NQ 23-25 payout<=1M 0.0% <=2M 0.0% <=3M 0.4% <=12M 43.6% median days 179, pass 84% (median 103d)
+  eval $350 / funded $100: DEV payout<=2M 0.0% <=3M 0.0% <=12M 18.0% | NQ 23-25 payout<=1M 0.0% <=2M 0.0% <=3M 0.1% <=12M 30.6% median days 186, pass 88% (median 63d)
+  eval $350 / funded $150: DEV payout<=2M 0.0% <=3M 0.1% <=12M 32.6% | NQ 23-25 payout<=1M 0.0% <=2M 0.0% <=3M 0.1% <=12M 35.0% median days 184, pass 88% (median 63d)
+  eval $350 / funded $200: DEV payout<=2M 0.0% <=3M 1.1% <=12M 43.4% | NQ 23-25 payout<=1M 0.0% <=2M 0.0% <=3M 0.4% <=12M 46.9% median days 172, pass 88% (median 63d)
+  eval $350 / funded $250: DEV payout<=2M 0.2% <=3M 1.8% <=12M 45.9% | NQ 23-25 payout<=1M 0.0% <=2M 0.0% <=3M 1.3% <=12M 55.0% median days 158, pass 88% (median 63d)
+  eval $500 / funded $100: DEV payout<=2M 0.0% <=3M 0.0% <=12M 19.7% | NQ 23-25 payout<=1M 0.0% <=2M 0.0% <=3M 0.1% <=12M 32.2% median days 179, pass 77% (median 37d)
+  eval $500 / funded $150: DEV payout<=2M 0.0% <=3M 0.5% <=12M 35.4% | NQ 23-25 payout<=1M 0.0% <=2M 0.0% <=3M 0.2% <=12M 36.1% median days 173, pass 77% (median 37d)
+  eval $500 / funded $200: DEV payout<=2M 0.1% <=3M 1.8% <=12M 44.1% | NQ 23-25 payout<=1M 0.0% <=2M 0.0% <=3M 1.1% <=12M 47.4% median days 159, pass 77% (median 37d)
+  eval $500 / funded $250: DEV payout<=2M 0.6% <=3M 3.8% <=12M 44.9% | NQ 23-25 payout<=1M 0.0% <=2M 0.2% <=3M 2.6% <=12M 53.5% median days 138, pass 77% (median 37d)  <== chosen on dev

@@ -1,0 +1,113 @@
+// This Pine Script® code is subject to the terms of the Mozilla Public License 2.0
+// NY Volatility Breakout Bot (V6 result) - NQ / MNQ / NAS100 CFD, 1-minute chart
+//
+// Rules (mirror research/lab.py fam_vbo2, see research/V6_REPORT.md):
+//   * Prior RTH range PR = high - low of the previous NY regular session (09:30-16:00).
+//   * Triggers: UP = today's 09:30 open + k*PR, DN = 09:30 open - k*PR.
+//   * First 1-min bar (09:30-15:59 NY) whose high >= UP (long) / low <= DN (short, if enabled):
+//     market order at the next bar's open. Max 1 trade per day.
+//   * Initial stop = stopMult * k * PR from the fill. R-step trailing: at +nR open profit (MFE)
+//     the stop moves to entry + (n - lag) R; updated at bar close, active from the next bar.
+//   * Exit at the close of the 15:59 bar (or the last bar of the session). No overnight positions.
+// No lookahead: PR comes from the completed prior session, decisions at bar close, fills at the next open.
+// Research (net of costs): long-only E +0.18 R (CFD 2017-25, 9/9 years positive), +0.22 R (NQ 2023-25).
+// Paper-trade first.
+//@version=6
+strategy("NY Volatility Breakout Bot", shorttitle = "VBO-Bot", overlay = true, pyramiding = 0,
+     initial_capital = 1000, default_qty_type = strategy.fixed, default_qty_value = 1, currency = currency.USD,
+     commission_type = strategy.commission.cash_per_contract, commission_value = 0.75, slippage = 1,
+     process_orders_on_close = false, calc_on_every_tick = false)
+
+TZ = "America/New_York"
+grpS = "Signal"
+k        = input.float(0.3, "k (breakout distance = k x prior RTH range)", step = 0.05, group = grpS)
+stopMult = input.float(1.0, "Stop = x * (k x prior range)", step = 0.25, group = grpS)
+side     = input.string("Long only", "Direction", options = ["Long only", "Both"], group = grpS)
+useTrail = input.bool(true, "R-step trailing stop", group = grpS)
+lag      = input.float(1.25, "Trailing lag (R)", step = 0.25, group = grpS)
+grpR = "Risk"
+riskMode = input.string("% of equity", "Sizing", options = ["% of equity", "Fixed $", "Fixed qty"], group = grpR)
+riskPct  = input.float(1.0, "Risk % of equity per trade", step = 0.25, group = grpR)
+riskUsd  = input.float(250, "Fixed $ risk per trade", group = grpR)
+fixedQty = input.float(1, "Fixed quantity", group = grpR)
+qtyStep  = input.float(1, "Quantity step (1 for futures, 0.01 for CFD lots)", group = grpR)
+
+modNow = hour(time, TZ) * 60 + minute(time, TZ)
+inRTH  = modNow >= 570 and modNow < 960
+newDay = ta.change(time("D")) != 0
+
+// ---- prior RTH range and today's 09:30 open
+var float rthH = na
+var float rthL = na
+var float prevRange = na
+var float open930 = na
+var int   tradesToday = 0
+var bool  dayDone = false
+if newDay
+    tradesToday := 0
+    dayDone := false
+    open930 := na
+if inRTH and modNow == 570
+    if not na(rthH)
+        prevRange := rthH - rthL            // completed prior session
+    rthH := high
+    rthL := low
+    open930 := open
+else if inRTH
+    rthH := math.max(rthH, high)
+    rthL := math.min(rthL, low)
+
+up = open930 + k * prevRange
+dn = open930 - k * prevRange
+stopPts = stopMult * k * prevRange
+
+// ---- signals at bar close
+canTrade = inRTH and modNow < 959 and not na(prevRange) and not na(open930) and tradesToday == 0 and not dayDone and strategy.position_size == 0 and barstate.isconfirmed
+sigL = canTrade and high >= up
+sigS = canTrade and side == "Both" and not sigL and low <= dn
+// as in the research engine: in long-only mode, a first touch of the SHORT trigger ends the day
+if canTrade and side == "Long only" and not sigL and low <= dn
+    dayDone := true
+
+qtyFor() =>
+    q = riskMode == "Fixed qty" ? fixedQty : (riskMode == "Fixed $" ? riskUsd : strategy.equity * riskPct / 100) / (stopPts * syminfo.pointvalue)
+    math.max(math.floor(q / qtyStep) * qtyStep, qtyStep)
+
+var float curStop = na
+var float mfe = 0.0
+var float R = na
+if sigL or sigS
+    R := stopPts
+    q = qtyFor()
+    if sigL
+        strategy.entry("L", strategy.long, qty = q)
+        strategy.exit("XL", "L", loss = R / syminfo.mintick, comment_loss = "SL/Trail")
+    else
+        strategy.entry("S", strategy.short, qty = q)
+        strategy.exit("XS", "S", loss = R / syminfo.mintick, comment_loss = "SL/Trail")
+    tradesToday += 1
+
+pos = strategy.position_size
+if pos != 0
+    ep = strategy.position_avg_price
+    if na(curStop)
+        curStop := pos > 0 ? ep - R : ep + R
+        mfe := 0.0
+    mfe := math.max(mfe, pos > 0 ? high - ep : ep - low)
+    if useTrail
+        n = math.floor(mfe / R + 1e-9)
+        if n >= 1
+            ns = ep + (pos > 0 ? 1 : -1) * (n - lag) * R
+            curStop := pos > 0 ? math.max(curStop, ns) : math.min(curStop, ns)
+    if pos > 0
+        strategy.exit("XL", "L", stop = curStop, comment_loss = "SL/Trail")
+    else
+        strategy.exit("XS", "S", stop = curStop, comment_loss = "SL/Trail")
+    if modNow >= 959 or session.islastbar
+        strategy.close_all(comment = "EOD", immediately = true)
+else
+    curStop := na
+
+plot(inRTH ? up : na, "Long trigger", color.new(color.green, 0), 1, plot.style_linebr)
+plot(inRTH and side == "Both" ? dn : na, "Short trigger", color.new(color.red, 0), 1, plot.style_linebr)
+plot(strategy.position_size != 0 ? curStop : na, "Stop / trail", color.new(color.fuchsia, 0), 2, plot.style_linebr)
