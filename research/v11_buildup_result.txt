@@ -1,0 +1,17 @@
+Build-up simulation: 2,000 paths x 12 months, monthly block bootstrap of NQ 2023-25 trades; equity relative to start.
+
+=== HW: VBO long k0.5, TP 0.2x stop (Winrate ~80 %): NQ n=285, win 80.4%, E +0.024 R (t = 1.05), Kelly (dev) 0.143
+  risk/trade  median 6M  median 12M  10% quantile 12M  P(2x in 6M)  P(DD>=50%)  P(<start 12M)
+        2.0%       1.02x       1.05x             0.96x         0.0%        0.0%          25.9%
+        5.0%       1.05x       1.10x             0.87x         0.0%        0.0%          29.0%
+       10.0%       1.09x       1.20x             0.73x         0.6%        5.3%          30.9%
+       20.0%       1.07x       1.14x             0.44x        19.4%       58.1%          43.2%
+7.1% (Kelly/2)       1.07x       1.14x             0.82x         0.0%        0.5%          30.6%
+
+=== Ref: VBO-Live (V7 + Gap-Filter): NQ n=677, win 39.9%, E +0.184 R (t = 3.15), Kelly (dev) 0.106
+  risk/trade  median 6M  median 12M  10% quantile 12M  P(2x in 6M)  P(DD>=50%)  P(<start 12M)
+        2.0%       1.41x       2.05x             1.22x        18.7%        0.1%           3.6%
+        5.0%       1.96x       4.11x             1.14x        62.9%       45.1%           7.8%
+       10.0%       2.36x       6.03x             0.49x        75.2%       99.2%          18.6%
+       20.0%       0.93x       0.96x             0.01x        72.5%      100.0%          50.4%
+5.3% (Kelly/2)       1.98x       4.35x             1.08x        65.1%       51.1%           8.6%
