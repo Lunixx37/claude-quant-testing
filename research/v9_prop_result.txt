@@ -1,0 +1,5 @@
+BASE (no target, trail 1R/1.25)      NQ win 38.2% avgwin 1.64R E +0.137 | sizing (500, 250) | payouts 12m $ 5645 (median $ 4882) 24m $ 13614 | evals/24m 6.7 | 1st payout <=2M 14% <=3M 35% median 84d
+POC target >=1.5R + base trail       NQ win 38.4% avgwin 1.64R E +0.144 | sizing (500, 250) | payouts 12m $ 6194 (median $ 5294) 24m $ 14904 | evals/24m 6.6 | 1st payout <=2M 16% <=3M 38% median 79d
+POC target >=1.0R, no trail          NQ win 37.1% avgwin 2.09R E +0.170 | sizing (500, 250) | payouts 12m $ 4391 (median $ 3500) 24m $ 10871 | evals/24m 11.1 | 1st payout <=2M 16% <=3M 33% median 91d
+no target, no trail (EOD)            NQ win 35.9% avgwin 2.18R E +0.166 | sizing (500, 250) | payouts 12m $ 4180 (median $ 3414) 24m $ 10345 | evals/24m 11.7 | 1st payout <=2M 16% <=3M 32% median 92d
+high win rate: trail 0.75R/lag 0.5   NQ win 58.7% avgwin 0.80R E +0.075 | sizing (500, 300) | payouts 12m $ 4289 (median $ 3100) 24m $ 10161 | evals/24m 6.9 | 1st payout <=2M 11% <=3M 26% median 102d

@@ -29,6 +29,9 @@ maxTrades = input.int(2, "Max trades per day (re-entry on the next trigger touch
 useTrail = input.bool(true, "R-step trailing stop", group = grpS)
 lag      = input.float(1.25, "Trailing lag (R): 1.25 = max payouts, 0.75 = win rate ~53% (stop to +0.25R at +1R)", step = 0.25, group = grpS)
 gapFilt  = input.bool(false, "Skip small-gap days (fewer blown accounts)", group = grpS)
+usePoc   = input.bool(false, "Take profit at prior RTH volume POC (if >= min R away)", group = grpS)
+pocMinR  = input.float(1.5, "POC target: min distance (R)", step = 0.25, group = grpS)
+pocMaxR  = input.float(8.0, "POC target: max distance (R)", step = 0.5, group = grpS)
 gapLo    = input.float(-0.405, "Skip if directional gap/ATR14 >", step = 0.01, group = grpS)
 gapHi    = input.float(0.079, "... and <=", step = 0.01, group = grpS)
 grpR = "Risk"
@@ -53,6 +56,9 @@ var float open930 = na
 var float lastRthClose = na
 var float pc = na
 var array<float> rngHist = array.new_float(0)
+var map<int, float> volBins = map.new<int, float>()      // prior-session volume by price bin (for the POC target)
+var float binW = na
+var float prevPoc = na
 var int   tradesToday = 0
 var bool  dayDone = false
 if newDay
@@ -63,6 +69,18 @@ if inRTH and modNow == 959
     lastRthClose := close                   // 15:59 bar close = RTH close
 if inRTH and modNow == 570
     pc := lastRthClose
+    // POC of the completed prior RTH session = bin with the highest volume
+    if map.size(volBins) > 0 and not na(binW)
+        float bestV = -1.0
+        int bestK = 0
+        for kk in map.keys(volBins)
+            vv = map.get(volBins, kk)
+            if vv > bestV
+                bestV := vv
+                bestK := kk
+        prevPoc := (bestK + 0.5) * binW
+    map.clear(volBins)
+    binW := math.max(syminfo.mintick, math.round(open * 0.0002 / syminfo.mintick) * syminfo.mintick)
     if not na(rthH)
         prevRange := rthH - rthL            // completed prior session
         array.push(rngHist, prevRange)
@@ -74,6 +92,9 @@ if inRTH and modNow == 570
 else if inRTH
     rthH := math.max(rthH, high)
     rthL := math.min(rthL, low)
+if inRTH and not na(binW)
+    kb = int(math.floor(hlc3 / binW))
+    map.put(volBins, kb, (map.contains(volBins, kb) ? map.get(volBins, kb) : 0.0) + volume)
 
 up = open930 + k * prevRange
 dn = open930 - k * prevRange
@@ -102,15 +123,21 @@ qtyFor() =>
 var float curStop = na
 var float mfe = 0.0
 var float R = na
+var float tpDist = na
 if sigL or sigS
     R := stopPts
     q = qtyFor()
+    dSig = sigL ? 1 : -1
+    tpDist := na
+    if usePoc and not na(prevPoc)
+        dist = (prevPoc - close) * dSig                    // close as proxy for the next-bar fill
+        tpDist := dist >= pocMinR * R and dist <= pocMaxR * R ? dist : na
     if sigL
         strategy.entry("L", strategy.long, qty = q)
-        strategy.exit("XL", "L", loss = R / syminfo.mintick, comment_loss = "SL/Trail")
+        strategy.exit("XL", "L", loss = R / syminfo.mintick, profit = na(tpDist) ? na : tpDist / syminfo.mintick, comment_loss = "SL/Trail", comment_profit = "POC")
     else
         strategy.entry("S", strategy.short, qty = q)
-        strategy.exit("XS", "S", loss = R / syminfo.mintick, comment_loss = "SL/Trail")
+        strategy.exit("XS", "S", loss = R / syminfo.mintick, profit = na(tpDist) ? na : tpDist / syminfo.mintick, comment_loss = "SL/Trail", comment_profit = "POC")
     tradesToday += 1
 
 pos = strategy.position_size
@@ -125,10 +152,11 @@ if pos != 0
         if n >= 1
             ns = ep + (pos > 0 ? 1 : -1) * (n - lag) * R
             curStop := pos > 0 ? math.max(curStop, ns) : math.min(curStop, ns)
+    tpPx = na(tpDist) ? na : ep + (pos > 0 ? 1 : -1) * tpDist
     if pos > 0
-        strategy.exit("XL", "L", stop = curStop, comment_loss = "SL/Trail")
+        strategy.exit("XL", "L", stop = curStop, limit = tpPx, comment_loss = "SL/Trail", comment_profit = "POC")
     else
-        strategy.exit("XS", "S", stop = curStop, comment_loss = "SL/Trail")
+        strategy.exit("XS", "S", stop = curStop, limit = tpPx, comment_loss = "SL/Trail", comment_profit = "POC")
     if modNow >= 959 or session.islastbar
         strategy.close_all(comment = "EOD", immediately = true)
 else
@@ -137,3 +165,4 @@ else
 plot(inRTH ? up : na, "Long trigger", color.new(color.green, 0), 1, plot.style_linebr)
 plot(inRTH and side == "Both" ? dn : na, "Short trigger", color.new(color.red, 0), 1, plot.style_linebr)
 plot(strategy.position_size != 0 ? curStop : na, "Stop / trail", color.new(color.fuchsia, 0), 2, plot.style_linebr)
+plot(usePoc and inRTH ? prevPoc : na, "Prior RTH POC", color.new(color.orange, 0), 1, plot.style_circles)
