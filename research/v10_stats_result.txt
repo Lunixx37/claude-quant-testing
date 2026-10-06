@@ -1,0 +1,92 @@
+=== LIVE: V7 + Gap-Filter (R = $ actually risked per trade; CFD net of spread, NQ net of MNQ costs)
+                         Entw. CFD 2017-22 Test CFD 2023-25 Test NQ 2023-25
+Trades                                1353              614             677
+Trades/Monat                        18.792           18.606          18.806
+Trefferquote                         0.410            0.406           0.399
+Ø Gewinn (R)                         1.715            1.710           1.689
+Ø Verlust (R)                       -0.820           -0.812          -0.814
+RR (Ø Gew./Ø Verl.)                  2.091            2.108           2.075
+Erwartungswert (R/Trade)             0.220            0.211           0.184
+Profit-Faktor                        1.454            1.438           1.377
+Größter Gewinn (R)                  12.629            7.009           7.022
+Gewinne >= 3R                        0.064            0.062           0.065
+Längste Verlustserie                    16                8              11
+Max. Drawdown (R)                   21.016           14.729          14.581
+R/Monat                              4.129            3.929           3.464
+Positive Monate                      0.736            0.697           0.639
+Schlechtester Monat (R)             -7.757           -7.955          -6.421
+Bester Monat (R)                    26.606           24.189          25.996
+Positive Jahre                         6/6              3/3             3/3
+Long: n / E                   698 / +0.261     324 / +0.202    344 / +0.211
+Short: n / E                  655 / +0.176     290 / +0.221    333 / +0.156
+Haltedauer Median (Min.)            66.000           72.000          67.000
+
+=== PROP: V7 Basis (R = $ actually risked per trade; CFD net of spread, NQ net of MNQ costs)
+                         Entw. CFD 2017-22 Test CFD 2023-25 Test NQ 2023-25
+Trades                                2254             1042            1124
+Trades/Monat                        31.306           31.576          31.222
+Trefferquote                         0.377            0.383           0.382
+Ø Gewinn (R)                         1.704            1.645           1.643
+Ø Verlust (R)                       -0.831           -0.806          -0.793
+RR (Ø Gew./Ø Verl.)                  2.050            2.041           2.073
+Erwartungswert (R/Trade)             0.124            0.133           0.137
+Profit-Faktor                        1.239            1.266           1.279
+Größter Gewinn (R)                  12.629            7.657           7.606
+Gewinne >= 3R                        0.060            0.053           0.055
+Längste Verlustserie                    14               15              16
+Max. Drawdown (R)                   30.182           25.756          20.629
+R/Monat                              3.872            4.185           4.276
+Positive Monate                      0.694            0.758           0.722
+Schlechtester Monat (R)            -12.764          -15.398         -13.538
+Bester Monat (R)                    29.511           23.196          24.373
+Positive Jahre                         5/6              3/3             3/3
+Long: n / E                  1090 / +0.164     520 / +0.153    556 / +0.159
+Short: n / E                 1164 / +0.086     522 / +0.112    568 / +0.116
+Haltedauer Median (Min.)            65.000           62.500          58.000
+
+=== Alt: V7 + Cut 0.9R (R = $ actually risked per trade; CFD net of spread, NQ net of MNQ costs)
+                         Entw. CFD 2017-22 Test CFD 2023-25 Test NQ 2023-25
+Trades                                2272             1047            1133
+Trades/Monat                        31.556           31.727          31.472
+Trefferquote                         0.363            0.370           0.371
+Ø Gewinn (R)                         1.879            1.846           1.837
+Ø Verlust (R)                       -0.863           -0.831          -0.819
+RR (Ø Gew./Ø Verl.)                  2.178            2.221           2.243
+Erwartungswert (R/Trade)             0.133            0.158           0.166
+Profit-Faktor                        1.242            1.302           1.321
+Größter Gewinn (R)                  14.032            8.507           8.451
+Gewinne >= 3R                        0.069            0.077           0.082
+Längste Verlustserie                    14               15              16
+Max. Drawdown (R)                   28.739           25.339          18.921
+R/Monat                              4.188            5.024           5.211
+Positive Monate                      0.694            0.758           0.750
+Schlechtester Monat (R)            -14.466          -15.920         -13.042
+Bester Monat (R)                    32.194           26.895          27.168
+Positive Jahre                         6/6              3/3             3/3
+Long: n / E                  1096 / +0.173     522 / +0.173    558 / +0.189
+Short: n / E                 1176 / +0.096     525 / +0.144    575 / +0.143
+Haltedauer Median (Min.)            58.000           52.000          48.000
+
+=== Alt: V7 + POC-Ziel >=1.5R (R = $ actually risked per trade; CFD net of spread, NQ net of MNQ costs)
+                         Entw. CFD 2017-22 Test CFD 2023-25 Test NQ 2023-25
+Trades                                2264             1044            1127
+Trades/Monat                        31.444           31.636          31.306
+Trefferquote                         0.378            0.381           0.384
+Ø Gewinn (R)                         1.701            1.662           1.645
+Ø Verlust (R)                       -0.831           -0.805          -0.792
+RR (Ø Gew./Ø Verl.)                  2.046            2.065           2.077
+Erwartungswert (R/Trade)             0.126            0.136           0.144
+Profit-Faktor                        1.244            1.272           1.296
+Größter Gewinn (R)                  12.629            7.657           7.606
+Gewinne >= 3R                        0.059            0.048           0.049
+Längste Verlustserie                    14               15              16
+Max. Drawdown (R)                   35.312           27.824          20.897
+R/Monat                              3.967            4.290           4.516
+Positive Monate                      0.694            0.727           0.722
+Schlechtester Monat (R)            -12.764          -15.398         -13.538
+Bester Monat (R)                    30.251           22.840          25.367
+Positive Jahre                         5/6              2/3             3/3
+Long: n / E                  1096 / +0.172     520 / +0.166    556 / +0.167
+Short: n / E                 1168 / +0.084     524 / +0.106    571 / +0.122
+Haltedauer Median (Min.)            64.000           58.000          56.000
+

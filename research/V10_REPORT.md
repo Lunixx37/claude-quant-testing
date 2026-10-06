@@ -116,3 +116,14 @@ Neuer Eingang `cutR` in `pine/NY_VolBreakout_Bot.pine`:
 - Die Daten 2023–25 wurden in V6–V9 schon mehrfach angesehen. Sie sind kein unberührter Test mehr.
 - Die CFD-Daten haben kein echtes Volumen. Das spielt für V10 keine Rolle.
 - Alle MAE-Werte basieren auf 1-Minuten-Bars. Innerhalb eines Bars ist die Reihenfolge von Hoch und Tief unbekannt. Stop-Ausstiege werden deshalb konservativ behandelt (Stop vor TP im selben Bar).
+
+## Nachtrag: Live-Vergleich und Statistiken (`v10_live.py`, `v10_stats.py`)
+- **Live (1 % Risiko/Trade, Zinseszins, echte Reihenfolge):** siehe `v10_live_result.txt`.
+  - Bestes Verhältnis Ertrag/Drawdown: V7 + Gap-Filter (Ø 4,2 / 4,0 / 3,5 %/Monat, max. DD 19 / 14 / 14 %).
+  - Der Gap-Filter wurde in V8 mit Blick auf alle drei Datensätze gewählt; seine Testwerte sind nicht ganz sauber.
+- **Korrektur:** In der ersten Fassung von `v10_live.py` wurde Cut −0,9R nicht auf das tatsächlich riskierte $ umgerechnet (Groß-/Kleinschreibung im Namensvergleich).
+  - Korrigiert: Ø 4,1 / 5,2 / 5,3 %/Monat, max. DD 26 / 23 / 18 %.
+  - **Normiert auf gleiches $-Risiko pro Trade** (größere Position, weil der Stop 10 % enger ist) ist Cut −0,9R in allen drei Datensätzen besser als die Basis: R/Monat 4,19 / 5,02 / 5,21 statt 3,87 / 4,19 / 4,28, max. DD 28,7 / 25,3 / 18,9 R statt 30,2 / 25,8 / 20,6 R.
+  - Das Protokoll V10 hatte Cuts bei **gleicher Positionsgröße** verglichen. Dieser Vergleich bei gleichem $-Risiko ist nachträglich, also nicht vorab registriert.
+  - Im Pine-Bot gilt: Mit `cutR` 0,9 ist das Risiko 10 % kleiner als eingestellt. Für gleiches $-Risiko die Risikoeingabe durch 0,9 teilen (z. B. 278 statt 250 $).
+- **Statistiken je Strategie:** `v10_stats_result.txt` (Trefferquote, Ø Gewinn/Verlust, Profit-Faktor, Serien, Drawdown, Monate, Jahre, Long/Short, Haltedauer).

@@ -20,7 +20,7 @@ rows = []
 for name, (c, n) in C.items():
     c = c.assign(sdate=pd.to_datetime(c.sdate), w=1.0); n = n.assign(sdate=pd.to_datetime(n.sdate), w=1.0)
     # R relative to the actual $ risk taken (cut variants: stop column = R*cut, so rescale to 'per $ risked')
-    rs = lambda t, col: t[col] * (t.stop / t.stop) if 'cut' not in name else t[col] / 0.9
+    rs = lambda t, col: t[col] * (t.stop / t.stop) if 'Cut' not in name else t[col] / 0.9
     sets = {'dev': (c[c.sdate < '2023-01-01'], 'Rc'), 'cfd23': (c[c.sdate >= '2023-01-01'], 'Rc'), 'nq': (n, 'Rf')}
     kel = kelly(rs(sets['dev'][0], 'Rc').to_numpy())
     r = dict(variant=name, kelly_dev=kel)
