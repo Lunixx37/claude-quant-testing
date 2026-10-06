@@ -27,6 +27,7 @@ stopMult = input.float(0.75, "Stop = x * (k x prior range)", step = 0.25, group 
 side     = input.string("Both", "Direction", options = ["Long only", "Both"], group = grpS)
 maxTrades = input.int(2, "Max trades per day (re-entry on the next trigger touch after an exit)", minval = 1, maxval = 3, group = grpS)
 useTrail = input.bool(true, "R-step trailing stop", group = grpS)
+cutR     = input.float(1.0, "Initial stop at x * R (1.0 = normal; 0.9 = cut losses slightly earlier, trailing still in R)", step = 0.05, minval = 0.5, maxval = 1.0, group = grpS)
 lag      = input.float(1.25, "Trailing lag (R): 1.25 = max payouts, 0.75 = win rate ~53% (stop to +0.25R at +1R)", step = 0.25, group = grpS)
 gapFilt  = input.bool(false, "Skip small-gap days (fewer blown accounts)", group = grpS)
 usePoc   = input.bool(false, "Take profit at prior RTH volume POC (if >= min R away)", group = grpS)
@@ -134,17 +135,17 @@ if sigL or sigS
         tpDist := dist >= pocMinR * R and dist <= pocMaxR * R ? dist : na
     if sigL
         strategy.entry("L", strategy.long, qty = q)
-        strategy.exit("XL", "L", loss = R / syminfo.mintick, profit = na(tpDist) ? na : tpDist / syminfo.mintick, comment_loss = "SL/Trail", comment_profit = "POC")
+        strategy.exit("XL", "L", loss = cutR * R / syminfo.mintick, profit = na(tpDist) ? na : tpDist / syminfo.mintick, comment_loss = "SL/Trail", comment_profit = "POC")
     else
         strategy.entry("S", strategy.short, qty = q)
-        strategy.exit("XS", "S", loss = R / syminfo.mintick, profit = na(tpDist) ? na : tpDist / syminfo.mintick, comment_loss = "SL/Trail", comment_profit = "POC")
+        strategy.exit("XS", "S", loss = cutR * R / syminfo.mintick, profit = na(tpDist) ? na : tpDist / syminfo.mintick, comment_loss = "SL/Trail", comment_profit = "POC")
     tradesToday += 1
 
 pos = strategy.position_size
 if pos != 0
     ep = strategy.position_avg_price
     if na(curStop)
-        curStop := pos > 0 ? ep - R : ep + R
+        curStop := pos > 0 ? ep - cutR * R : ep + cutR * R
         mfe := 0.0
     mfe := math.max(mfe, pos > 0 ? high - ep : ep - low)
     if useTrail

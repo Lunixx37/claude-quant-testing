@@ -1,0 +1,13 @@
+# HINWEIS: Die Spalte "counterfactual on SAME base trades" wurde mit der fehlerhaften MAE berechnet und ist ungültig (korrigiert: v10_mae.txt, Spalte cutE). Die Werte der "full simulation" sind gültig.
+
+=== dev CFD 2017-22: base n=2254 E=+0.124  (1st trades n=1373 E=+0.122, re-entries n=881 E=+0.126)
+  cut 0.5R: counterfactual on SAME base trades E=+0.199 | full simulation n=2405 E=+0.072 (1st trades E=+0.098, re-entries n=1032 E=+0.038) R/mo 2.42
+  cut 0.6R: counterfactual on SAME base trades E=+0.190 | full simulation n=2364 E=+0.091 (1st trades E=+0.115, re-entries n=991 E=+0.057) R/mo 2.99
+  cut 0.75R: counterfactual on SAME base trades E=+0.166 | full simulation n=2312 E=+0.112 (1st trades E=+0.120, re-entries n=939 E=+0.101) R/mo 3.60
+  cut 0.9R: counterfactual on SAME base trades E=+0.140 | full simulation n=2272 E=+0.119 (1st trades E=+0.133, re-entries n=899 E=+0.099) R/mo 3.77
+
+=== NQ 2023-25: base n=1124 E=+0.137  (1st trades n=672 E=+0.203, re-entries n=452 E=+0.038)
+  cut 0.5R: counterfactual on SAME base trades E=+0.208 | full simulation n=1201 E=+0.099 (1st trades E=+0.152, re-entries n=529 E=+0.031) R/mo 3.35
+  cut 0.6R: counterfactual on SAME base trades E=+0.190 | full simulation n=1182 E=+0.121 (1st trades E=+0.148, re-entries n=510 E=+0.085) R/mo 4.02
+  cut 0.75R: counterfactual on SAME base trades E=+0.173 | full simulation n=1153 E=+0.131 (1st trades E=+0.180, re-entries n=481 E=+0.061) R/mo 4.25
+  cut 0.9R: counterfactual on SAME base trades E=+0.159 | full simulation n=1133 E=+0.149 (1st trades E=+0.184, re-entries n=461 E=+0.099) R/mo 4.77
