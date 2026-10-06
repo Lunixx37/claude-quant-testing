@@ -31,7 +31,7 @@ grpC = "Kosten & Anzeige"
 market   = input.string("MNQ/NQ Future", "Kosten", options = ["MNQ/NQ Future", "NAS100 CFD"], group = grpC, tooltip = "Future: 0,75 Pkt. Kommission pro Trade. CFD: 1,2 Pkt. Spread pro Trade.")
 slip     = input.float(0.25, "Slippage pro Market-Fill (Punkte)", step = 0.05, group = grpC)
 riskUsd  = input.float(100, "Risiko pro Trade in $ (nur für die $-Anzeige)", group = grpC)
-startT   = input.time(timestamp("UTC", 2026, 10, 6, 0, 0), "Forward-Test ab", group = grpC)
+startT   = input.time(timestamp("06 Oct 2026 00:00 +0000"), "Forward-Test ab", group = grpC)
 showFilt = input.bool(true, "Gefilterte Trades grau anzeigen", group = grpC)
 showTbl  = input.bool(true, "Statistik-Tabelle", group = grpC)
 cost = market == "MNQ/NQ Future" ? 0.75 : 1.2
