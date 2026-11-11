@@ -397,3 +397,84 @@ Bestehenswahrscheinlichkeit binnen 250 Handelstagen (in Klammern: mittlere Dauer
 * Das beste Risiko liegt bei **≈ 0,3–0,4 % pro Trade (150–200 $)**. Beim mittleren Stop von ≈ 22,5 NQ-Punkten sind das ≈ 3–4 MNQ.
 * Höheres Risiko geht schneller, senkt aber die Bestehensquote deutlich. Bei 1 % sind es nur noch 28 % (Regel A) bzw. 44 % (Regel B).
 * Selbst wenn die Backtest-Kante echt wäre, läge die Bestehensquote pro Versuch nur bei **≈ 50 % (A) bzw. ≈ 60 % (B)**, bei einer Dauer von 4–6 Monaten. Ohne echte Kante sind es ≈ 20 % bzw. ≈ 30 %. Ein verlässlich konsistentes Bestehen gibt diese Strategie nicht her, weil der Erwartungswert (≈ 0,1–0,2 R pro Trade bei 2–4 Trades pro Woche) im Verhältnis zum erlaubten Drawdown zu klein ist.
+
+## Teil 8 – K1: Kennzahlen, Lockerungen, 50k-Eval, TradingView-Strategie (`k1_study.py`, `k1_strategy.pine`)
+
+Ergebnisse liegen in `results/k1/`.
+
+**K1-Regeln:** Limit-Order an einem Stdv-Level (unter der Box Long, über der Box Short), nur Touches zwischen 11:00 und 13:30 ET, Level liegt in einer gültigen ICT-Zone passender Richtung (FVG / OB / RB auf 5 Minuten), Stop 0,06 ATR hinter dem Level, Ziel Box-Mitte, maximal 3 Touches pro Level und Tag, 15:59 flat.
+
+### Kennzahlen
+
+| | NQ 2023–2025 | CFD 2016–2022 |
+|---|---|---|
+| Handelstage | 722 | 1.466 |
+| Trades (pro Woche) | 471 (3,3) | 1.068 (3,6) |
+| Long / Short | 241 / 230 | 533 / 535 |
+| Winrate | 33,3 % | 28,8 % |
+| Geplantes Chance-Risiko-Verhältnis (Median) | ≈ 3,5 | ≈ 3,8 |
+| Ø Gewinner / Ø Verlierer | +2,70 R / −1,03 R | +2,68 R / −1,02 R |
+| **Ø R pro Trade** | **+0,215** | **+0,046** |
+| Σ R | +101,1 | +48,7 |
+| Profit-Faktor | 1,31 | 1,06 |
+| t-Wert (Tagesbasis) | 2,1 | 0,7 |
+| Max. Drawdown | −23,4 R | −47,9 R |
+| Längste Verlustserie | 15 | 19 |
+| Stop (Median) | 16,8 Punkte | 9,7 Punkte |
+| Long Ø R / Short Ø R | +0,11 / +0,32 | +0,11 / −0,02 |
+
+Summe R pro Jahr: 2017 −26,3 · 2018 +42,7 · 2019 +4,2 · 2020 +24,1 · 2021 −4,7 · 2022 +6,8 · 2023 +37,9 · 2024 +29,7 · 2025 +33,5.
+
+**K1 ist deutlich wackliger als K2.**
+* Im CFD-Datensatz ist der Ertrag fast null (+0,046 R, t = 0,7). Das gute Gesamtbild kommt praktisch nur aus NQ 2023–2025.
+* Nach Level aufgeschlüsselt widersprechen sich die Datensätze. Auf NQ tragen die Level 2–2.5 (+0,38 bis +0,74 R), und 4–4.5 verlieren (−0,09 bis −0,64 R). Im CFD ist es umgekehrt: 4–4.5 sind positiv, 2.25 und 3.5 negativ. Ein echtes Muster sähe in beiden Datensätzen ähnlich aus.
+
+### Lockerungen
+
+| Variante | CFD Trades/Wo | CFD Ø R | NQ Trades/Wo | NQ Ø R | NQ R/Woche |
+|---|---|---|---|---|---|
+| **K1 Basis** | 3,6 | +0,046 | 3,3 | +0,215 | 0,70 |
+| bis 6 Touches pro Level | 5,8 | +0,039 | 5,4 | +0,064 | 0,34 |
+| Zeit 10:30–14:00 | 5,4 | −0,006 | 4,7 | +0,035 | 0,16 |
+| Zeit 10:00–14:30 | 7,9 | −0,024 | 7,3 | +0,011 | 0,08 |
+| Zeit 09:30–16:00 | 14,1 | −0,038 | 12,7 | −0,017 | −0,22 |
+| ohne ICT-Zone | 5,8 | −0,052 | 5,6 | +0,166 | 0,93 |
+| Stop 0,03 ATR | 4,5 | −0,013 | 3,9 | +0,334 | 1,30 |
+| Box ≥ 0,1 ATR (strenger) | 2,6 | +0,079 | 2,1 | +0,239 | 0,51 |
+
+**K1 lässt sich nicht sinnvoll lockern.** Jede Erweiterung von Zeitfenster oder Touch-Anzahl drückt den Ertrag in mindestens einem Datensatz auf null oder ins Minus. Die Varianten, die auf NQ besser aussehen (ohne ICT, engerer Stop), sind im CFD negativ. Wer mehr Trades will, sollte lieber **K1 und K2+ parallel handeln**, als K1 aufzuweichen. Die tägliche Korrelation der beiden liegt nur bei 0,10–0,16, und zusammen ergeben sie ≈ 7 Trades pro Woche.
+
+### 50k-Eval-Simulation (Annahmen wie in Teil 7, Horizont 250 Handelstage)
+
+Bestehenswahrscheinlichkeit (in Klammern: mittlere Dauer in Handelstagen):
+
+**K1 Basis**
+
+| Risiko pro Trade | Regel A: wie Backtest | A: halbe Kante | A: keine Kante | Regel B: wie Backtest | B: halbe Kante | B: keine Kante |
+|---|---|---|---|---|---|---|
+| 0,2 % (100 $) | 40 % (127) | 30 % | 22 % | 44 % (130) | 34 % | 25 % |
+| 0,25 % (125 $) | 42 % (93) | 33 % | 25 % | 48 % (102) | 39 % | 30 % |
+| **0,3 % (150 $)** | **41 % (72)** | 33 % | 25 % | **49 % (76)** | 39 % | 31 % |
+| 0,4 % (200 $) | 36 % (46) | 30 % | 24 % | 46 % (46) | 38 % | 32 % |
+| 0,5 % (250 $) | 33 % (36) | 28 % | 24 % | 44 % (31) | 37 % | 32 % |
+| 0,75 % (375 $) | 27 % (26) | 22 % | 19 % | 42 % (15) | 39 % | 31 % |
+| 1,0 % (500 $) | 21 % (23) | 19 % | 16 % | 38 % (10) | 36 % | 34 % |
+
+**K1 + K2+ zusammen** (jede Strategie mit dem genannten Risiko pro Trade)
+
+| Risiko pro Trade | Regel A: wie Backtest | A: halbe Kante | A: keine Kante | Regel B: wie Backtest | B: halbe Kante | B: keine Kante |
+|---|---|---|---|---|---|---|
+| **0,15 % (75 $)** | **54 % (115)** | 38 % | 24 % | 59 % (118) | 42 % | 27 % |
+| **0,2 % (100 $)** | **54 % (75)** | 38 % | 26 % | **61 % (81)** | 46 % | 31 % |
+| 0,25 % (125 $) | 47 % (57) | 35 % | 24 % | 57 % (54) | 44 % | 32 % |
+| 0,3 % (150 $) | 43 % (44) | 32 % | 23 % | 54 % (39) | 42 % | 32 % |
+| 0,5 % (250 $) | 34 % (26) | 26 % | 20 % | 46 % (16) | 39 % | 32 % |
+
+**Ergebnis:**
+* K1 allein: Das beste Risiko liegt bei **≈ 0,25–0,3 % pro Trade (125–150 $)**. Beim Stop von ≈ 17 NQ-Punkten sind das ≈ 4 MNQ. Die Bestehensquote liegt nur bei ≈ 41 % (A) bzw. ≈ 49 % (B) und damit schlechter als bei K2+ (50 % / 59 %), weil der gepoolte Ertrag pro Trade kleiner ist (≈ 0,10 R).
+* K1 + K2+ zusammen: **≈ 0,15–0,2 % pro Trade (75–100 $)** ergibt ≈ 54 % (A) bzw. ≈ 60 % (B) in ≈ 75–115 Tagen. Das ist eine ähnliche Quote wie K2+ allein, aber etwas schneller.
+* Auch hier gilt: Ohne echte Kante liegt die Quote bei 20–30 %. Ein konsistentes Bestehen ist nicht drin.
+
+### `k1_strategy.pine`
+
+Pine-v6-Strategie für den 1-Minuten-Chart. Sie baut die 5-Minuten-ICT-Zonen selbst aus den 1-Minuten-Kerzen und legt Limit-Orders an die qualifizierten Level, mit Stop und Ziel. Ein Fill gilt erst, wenn der Preis einen Tick durchhandelt (`backtest_fill_limits_assumption = 1`). Entry-Fenster, Touch-Anzahl, ICT-Filter, Stop und Risiko sind einstellbar.
