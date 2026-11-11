@@ -1,0 +1,85 @@
+Variante,Kante,Regel,Risiko %,Pass %,Bust %,offen nach 120 T %,Pass ≤30 T %,Pass ≤60 T %,Median Tage bis Pass
+K2 Basis,wie Backtest,A,0.2,33.4,12.4,54.2,0.2,1.2,166
+K2 Basis,wie Backtest,A,0.3,47.6,32.2,20.3,0.9,5.5,132
+K2 Basis,wie Backtest,A,0.4,48.3,43.9,7.8,2.7,11.2,100
+K2 Basis,wie Backtest,A,0.5,46.1,49.8,4.1,5.5,17.2,75
+K2 Basis,wie Backtest,A,0.6,42.5,54.6,2.9,7.9,21.3,60
+K2 Basis,wie Backtest,A,0.75,37.9,60.0,2.1,10.0,23.3,49
+K2 Basis,wie Backtest,A,1.0,31.8,66.8,1.4,12.0,22.5,39
+K2 Basis,wie Backtest,B,0.2,36.6,5.4,57.9,0.3,2.1,161
+K2 Basis,wie Backtest,B,0.3,56.5,21.0,22.4,2.5,9.4,123
+K2 Basis,wie Backtest,B,0.4,60.2,34.2,5.6,6.4,18.6,87
+K2 Basis,wie Backtest,B,0.5,58.9,40.3,0.8,11.6,28.3,63
+K2 Basis,wie Backtest,B,0.6,55.3,44.5,0.1,15.8,34.3,48
+K2 Basis,wie Backtest,B,0.75,52.0,48.0,0.0,24.0,41.9,33
+K2 Basis,wie Backtest,B,1.0,47.4,52.6,0.0,33.0,44.9,21
+K2 Basis,halbe Kante,A,0.2,19.2,27.0,53.9,0.1,0.8,166
+K2 Basis,halbe Kante,A,0.3,29.8,51.4,18.8,0.6,3.4,135
+K2 Basis,halbe Kante,A,0.4,32.1,60.3,7.6,1.7,8.0,97
+K2 Basis,halbe Kante,A,0.5,31.1,65.0,3.9,4.2,13.0,72
+K2 Basis,halbe Kante,A,0.6,29.6,67.5,2.9,6.5,16.2,56
+K2 Basis,halbe Kante,A,0.75,27.7,70.5,1.8,8.7,18.3,44
+K2 Basis,halbe Kante,A,1.0,23.7,74.8,1.5,9.9,17.5,36
+K2 Basis,halbe Kante,B,0.2,21.8,14.1,64.0,0.2,1.2,163
+K2 Basis,halbe Kante,B,0.3,39.5,38.7,21.9,2.0,7.0,121
+K2 Basis,halbe Kante,B,0.4,44.9,50.5,4.6,5.6,15.0,84
+K2 Basis,halbe Kante,B,0.5,44.2,55.2,0.6,9.8,22.0,61
+K2 Basis,halbe Kante,B,0.6,42.5,57.4,0.1,14.3,27.6,43
+K2 Basis,halbe Kante,B,0.75,40.1,59.9,0.0,19.7,33.3,31
+K2 Basis,halbe Kante,B,1.0,39.2,60.8,0.0,28.5,37.6,19
+K2 Basis,keine Kante,A,0.2,10.0,45.7,44.3,0.0,0.5,164
+K2 Basis,keine Kante,A,0.3,17.1,68.7,14.2,0.4,2.4,127
+K2 Basis,keine Kante,A,0.4,19.0,75.2,5.8,1.3,5.2,93
+K2 Basis,keine Kante,A,0.5,19.7,77.0,3.2,3.1,9.1,64
+K2 Basis,keine Kante,A,0.6,20.0,77.5,2.5,4.4,11.3,53
+K2 Basis,keine Kante,A,0.75,18.4,79.8,1.8,6.1,12.1,43
+K2 Basis,keine Kante,A,1.0,16.6,81.8,1.6,7.6,12.5,34
+K2 Basis,keine Kante,B,0.2,12.7,29.2,58.1,0.1,0.7,156
+K2 Basis,keine Kante,B,0.3,26.0,57.0,16.9,1.9,5.7,112
+K2 Basis,keine Kante,B,0.4,30.1,66.8,3.1,4.4,11.1,79
+K2 Basis,keine Kante,B,0.5,31.4,68.3,0.3,8.1,17.1,55
+K2 Basis,keine Kante,B,0.6,30.6,69.4,0.0,11.0,21.7,41
+K2 Basis,keine Kante,B,0.75,31.3,68.7,0.0,16.9,27.1,28
+K2 Basis,keine Kante,B,1.0,31.6,68.4,0.0,23.8,30.6,18
+K2+ (6 Touches),wie Backtest,A,0.2,44.4,25.8,29.8,0.4,3.5,144
+K2+ (6 Touches),wie Backtest,A,0.3,50.1,43.5,6.4,2.6,12.1,98
+K2+ (6 Touches),wie Backtest,A,0.4,44.8,53.1,2.1,5.8,18.8,70
+K2+ (6 Touches),wie Backtest,A,0.5,40.6,58.1,1.3,9.1,22.8,54
+K2+ (6 Touches),wie Backtest,A,0.6,37.4,61.6,1.0,11.6,24.9,44
+K2+ (6 Touches),wie Backtest,A,0.75,33.5,65.6,0.8,14.2,25.0,36
+K2+ (6 Touches),wie Backtest,A,1.0,27.8,71.6,0.6,14.2,22.0,30
+K2+ (6 Touches),wie Backtest,B,0.2,48.5,14.7,36.8,0.6,4.5,144
+K2+ (6 Touches),wie Backtest,B,0.3,59.0,34.2,6.8,4.9,15.9,94
+K2+ (6 Touches),wie Backtest,B,0.4,57.2,42.2,0.6,11.6,29.5,59
+K2+ (6 Touches),wie Backtest,B,0.5,52.6,47.4,0.1,18.5,36.8,42
+K2+ (6 Touches),wie Backtest,B,0.6,49.9,50.1,0.0,25.2,41.9,30
+K2+ (6 Touches),wie Backtest,B,0.75,47.2,52.8,0.0,32.5,44.7,21
+K2+ (6 Touches),wie Backtest,B,1.0,44.4,55.6,0.0,38.9,44.1,13
+K2+ (6 Touches),halbe Kante,A,0.2,29.3,42.3,28.3,0.3,2.3,145
+K2+ (6 Touches),halbe Kante,A,0.3,34.2,59.7,6.2,1.9,8.0,99
+K2+ (6 Touches),halbe Kante,A,0.4,31.5,66.3,2.2,4.6,14.0,67
+K2+ (6 Touches),halbe Kante,A,0.5,30.2,68.5,1.3,7.3,17.4,53
+K2+ (6 Touches),halbe Kante,A,0.6,27.8,71.1,1.1,8.7,18.7,44
+K2+ (6 Touches),halbe Kante,A,0.75,24.3,74.9,0.8,10.4,18.4,35
+K2+ (6 Touches),halbe Kante,A,1.0,21.6,77.8,0.5,11.1,17.1,29
+K2+ (6 Touches),halbe Kante,B,0.2,32.7,28.7,38.6,0.5,3.1,143
+K2+ (6 Touches),halbe Kante,B,0.3,44.4,49.8,5.8,3.8,12.7,92
+K2+ (6 Touches),halbe Kante,B,0.4,43.4,56.2,0.4,9.8,22.6,58
+K2+ (6 Touches),halbe Kante,B,0.5,41.9,58.0,0.1,15.6,30.2,40
+K2+ (6 Touches),halbe Kante,B,0.6,39.7,60.3,0.0,21.0,34.2,29
+K2+ (6 Touches),halbe Kante,B,0.75,39.5,60.5,0.0,28.3,37.8,20
+K2+ (6 Touches),halbe Kante,B,1.0,38.5,61.5,0.0,34.4,38.2,12
+K2+ (6 Touches),keine Kante,A,0.2,16.9,61.1,22.0,0.3,1.5,139
+K2+ (6 Touches),keine Kante,A,0.3,21.8,73.6,4.6,1.6,6.0,92
+K2+ (6 Touches),keine Kante,A,0.4,21.1,77.2,1.7,2.9,9.4,66
+K2+ (6 Touches),keine Kante,A,0.5,20.4,78.5,1.1,5.4,12.3,50
+K2+ (6 Touches),keine Kante,A,0.6,19.1,79.8,1.0,7.0,13.5,40
+K2+ (6 Touches),keine Kante,A,0.75,17.9,81.4,0.6,8.5,14.1,32
+K2+ (6 Touches),keine Kante,A,1.0,16.1,83.5,0.5,9.0,13.0,27
+K2+ (6 Touches),keine Kante,B,0.2,19.8,46.8,33.4,0.5,2.3,139
+K2+ (6 Touches),keine Kante,B,0.3,30.6,65.4,4.1,3.4,9.8,87
+K2+ (6 Touches),keine Kante,B,0.4,31.9,68.0,0.2,8.2,18.6,53
+K2+ (6 Touches),keine Kante,B,0.5,32.2,67.8,0.0,13.0,24.4,37
+K2+ (6 Touches),keine Kante,B,0.6,31.7,68.3,0.0,18.0,28.0,27
+K2+ (6 Touches),keine Kante,B,0.75,32.1,67.9,0.0,24.0,31.2,19
+K2+ (6 Touches),keine Kante,B,1.0,33.5,66.5,0.0,30.4,33.4,12

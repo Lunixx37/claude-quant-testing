@@ -343,3 +343,57 @@ Als Muster stabil sind:
 * Größere Boxen und äußere Level (3.5–4.5) sind besser als kleine Boxen und der Cluster 2–2.5.
 
 Im Durchschnitt bleibt trotzdem alles negativ.
+
+## Teil 7 – K2 als TradingView-Strategie, mehr Trades, 50k-Eval
+
+### `k2_strategy.pine`
+
+Das ist eine Pine-v6-**Strategie** für den **1-Minuten-Chart**. Sie zeichnet Box, Mitte und Level, setzt die K2-Trades mit Stop und Ziel, und der Strategy Tester zeigt die Statistik. Die Regeln stehen im Kopf des Skripts und entsprechen dem Python-Backtest. Die Lockerungen sind als Einstellungen schaltbar, die Positionsgröße ergibt sich aus „Risiko pro Trade ($)“.
+
+Kleine Abweichungen zum Backtest sind möglich: TradingView nimmt innerhalb einer Kerze eine eigene Reihenfolge an, die Daten bzw. der Kontrakt-Rollover können abweichen, und die ATR kommt aus TradingView-Tageskerzen.
+
+### Kriterien lockern (`k2_relax.py`, `results/k2/k2_relaxations.csv`)
+
+| Variante | CFD Trades/Wo | CFD Ø R | CFD R/Woche | NQ Trades/Wo | NQ Ø R | NQ R/Woche |
+|---|---|---|---|---|---|---|
+| **K2 Basis** | 2,4 | +0,144 | 0,35 | 2,3 | +0,196 | 0,46 |
+| ohne „vorherige Gegenreaktion“ | 2,6 | +0,142 | 0,37 | 2,5 | +0,162 | 0,41 |
+| Reclaim-Fenster 30 statt 10 Kerzen | 2,9 | +0,148 | 0,43 | 2,7 | +0,137 | 0,38 |
+| **K2+ : bis 6 statt 3 Touches pro Level** | **3,7** | +0,114 | 0,42 | **3,6** | +0,145 | **0,52** |
+| K2-breit: ohne Vorreaktion, Fenster 30, 6 Touches | 4,6 | +0,090 | 0,42 | 4,5 | +0,082 | 0,37 |
+| Momentum nur „Kerzenfarbe“ | 4,8 | −0,019 | −0,09 | 4,9 | +0,075 | 0,36 |
+| zusätzlich Level 4–4.5 | 9,1 | −0,009 | −0,08 | 8,7 | −0,010 | −0,09 |
+| alle Stdv-Level bzw. ohne Momentum | 10–30 | ≤ 0 | < 0 | 10–30 | ≈ 0 | ≤ 0 |
+
+* Die **Momentum-Kerze** und das **3.5-Level** sind der Kern. Lockert man sie, ist der Ertrag weg.
+* Sinnvoll lockern lässt sich nur die **Zahl der Touches pro Level** (K2+): ≈ 3,6 Trades pro Woche, Ertrag pro Woche gleich oder besser.
+* K2-breit bringt ≈ 4,5 Trades pro Woche, aber nur noch ≈ 0,09 R pro Trade. Es ist damit deutlich kostenempfindlicher.
+* Diese Lockerungen wurden im Nachhinein auf denselben Daten gewählt und sind damit genauso unbestätigt wie K2 selbst.
+
+### 50k-Eval-Simulation (`eval_sim.py`, `results/k2/eval_simulation*.csv`)
+
+Monte-Carlo-Simulation: Handelstage werden zufällig aus dem Backtest gezogen (CFD + NQ, inklusive Tagen ohne Trade), mit festem Dollar-Risiko pro Trade.
+
+**Annahmen (bitte an deine Firma anpassen):**
+* **Regel A** (Topstep-ähnlich): Ziel +3.000 $, maximaler Verlust 2.000 $ nachlaufend auf den Tagesend-Stand (endet beim Startkapital), bester Tag ≤ 50 % des Gewinns.
+* **Regel B** (Apex-ähnlich): Ziel +3.000 $, 2.500 $ nachlaufend auf das Hoch. Hier wird nur nach jedem geschlossenen Trade geprüft, was leicht optimistisch ist. Keine Konsistenzregel.
+
+Bestehenswahrscheinlichkeit binnen 250 Handelstagen (in Klammern: mittlere Dauer in Handelstagen):
+
+**K2+ (≈ 3,6 Trades/Woche)**
+
+| Risiko pro Trade | Regel A: Kante wie Backtest | A: halbe Kante | A: keine Kante | Regel B: wie Backtest | B: halbe Kante | B: keine Kante |
+|---|---|---|---|---|---|---|
+| 0,2 % (100 $) | 44 % (144) | 29 % | 17 % | 49 % (144) | 33 % | 20 % |
+| **0,3 % (150 $)** | **50 % (98)** | 34 % | 22 % | **59 % (94)** | 44 % | 31 % |
+| 0,4 % (200 $) | 45 % (70) | 32 % | 21 % | 57 % (59) | 43 % | 32 % |
+| 0,5 % (250 $) | 41 % (54) | 30 % | 20 % | 53 % (42) | 42 % | 32 % |
+| 0,75 % (375 $) | 34 % (36) | 24 % | 18 % | 47 % (21) | 40 % | 32 % |
+| 1,0 % (500 $) | 28 % (30) | 22 % | 16 % | 44 % (13) | 39 % | 34 % |
+
+**K2 Basis (≈ 2,3 Trades/Woche):** Das Optimum liegt etwas höher, bei 0,3–0,4 %: Regel A ≈ 48 % (≈ 100–130 Tage), Regel B ≈ 57–60 % (≈ 90–120 Tage).
+
+**Ergebnis:**
+* Das beste Risiko liegt bei **≈ 0,3–0,4 % pro Trade (150–200 $)**. Beim mittleren Stop von ≈ 22,5 NQ-Punkten sind das ≈ 3–4 MNQ.
+* Höheres Risiko geht schneller, senkt aber die Bestehensquote deutlich. Bei 1 % sind es nur noch 28 % (Regel A) bzw. 44 % (Regel B).
+* Selbst wenn die Backtest-Kante echt wäre, läge die Bestehensquote pro Versuch nur bei **≈ 50 % (A) bzw. ≈ 60 % (B)**, bei einer Dauer von 4–6 Monaten. Ohne echte Kante sind es ≈ 20 % bzw. ≈ 30 %. Ein verlässlich konsistentes Bestehen gibt diese Strategie nicht her, weil der Erwartungswert (≈ 0,1–0,2 R pro Trade bei 2–4 Trades pro Woche) im Verhältnis zum erlaubten Drawdown zu klein ist.

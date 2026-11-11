@@ -227,7 +227,9 @@ def build(kind, start, end, first_day, shift=0.0):
             if r >= 0 and r < len(C) - 1:
                 entry = C[r]
                 rec = dict(base, kind="R", bar=r,
-                           mom=bool((C[r] > H[r - 1] and C[r] > O[r]) if side == 1 else (C[r] < L[r - 1] and C[r] < O[r])) if r > 0 else False)
+                           mom=bool((C[r] > H[r - 1] and C[r] > O[r]) if side == 1 else (C[r] < L[r - 1] and C[r] < O[r])) if r > 0 else False,
+                           mom_ext=bool((C[r] > H[r - 1]) if side == 1 else (C[r] < L[r - 1])) if r > 0 else False,
+                           mom_body=bool((C[r] > O[r]) if side == 1 else (C[r] < O[r])), reclaim_bars=r - s)
                 sstruct = ext - side * TICK
                 for si, sm in enumerate(STOPS_R):
                     if sm == "struct":
