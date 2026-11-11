@@ -271,6 +271,116 @@ def final(evdir):
     print(res.to_string(index=False))
 
 
+
+# ----------------------------------------------------------------------------- full-sample scan + fake-level null
+def scan_one(ev, days):
+    """All combinations on one dataset: n, sum R, sum of squared daily R, positive years."""
+    nd = len(days)
+    yr = days.day.dt.year.values
+    years = [y for y in np.unique(yr) if (yr == y).sum() > 100]
+    rows = []
+    for kind in ("T", "R"):
+        s = ev[ev.kind == kind].sort_values(["di", "bar"]).reset_index(drop=True)
+        O, risk = outcome_arrays(s)
+        di = s.di.values
+        fo = filter_options(s, kind)
+        cmb = combos(fo)
+        stops = STOPS_T if kind == "T" else STOPS_R
+        for mr in MINRISK:
+            V = ~np.isnan(O)
+            if mr > 0:
+                V &= np.repeat(risk >= mr, NX, axis=1)
+            O0 = np.where(V, O, 0.0)
+            for rel in RELS:
+                for grp in GROUPS:
+                    base = strat_mask(s, kind, rel, grp, ())
+                    for f in cmb:
+                        mk = base.copy()
+                        for name in f:
+                            mk &= fo[name][1]
+                        idx = np.flatnonzero(mk)
+                        if len(idx) < MIN_TPD * nd * 0.5:
+                            continue
+                        d = daily_sums(di[idx], O0[idx], nd)
+                        n = V[idx].sum(axis=0)
+                        ypos = sum((d[yr == y].sum(0) > 0).astype(int) for y in years)
+                        tt = tstat(d)
+                        S, SS = d.sum(0), (d ** 2).sum(0)
+                        for k in np.flatnonzero(n >= MIN_TPD * nd):
+                            si, xi = divmod(k, NX)
+                            rows.append((kind, rel, grp, mr, "+".join(f), stops[si], EXITS[xi],
+                                         n[k], S[k], SS[k], tt[k], ypos[k]))
+    return pd.DataFrame(rows, columns=["kind", "rel", "grp", "minrisk", "filter", "stop", "exit",
+                                       "n", "S", "SS", "t", "ypos"]), nd, len(years)
+
+
+def scan(evdir, suffix=""):
+    """Full-sample scan (CFD 2016-2022 + NQ 2023-2025) for real levels (suffix '') or a fake-level table."""
+    key = ["kind", "rel", "grp", "minrisk", "filter", "stop", "exit"]
+    parts, nds, nys = [], [], []
+    for name in ("CFD", "NQ"):
+        r, nd, ny = scan_one(pd.read_pickle(evdir / f"events_{name}{suffix}.pkl"), pd.read_pickle(evdir / f"days_{name}.pkl"))
+        parts.append(r.set_index(key).add_suffix(f"_{name}"))
+        nds.append(nd)
+        nys.append(ny)
+    M = parts[0].join(parts[1], how="inner").reset_index()
+    N = sum(nds)
+    S, SS = M.S_CFD + M.S_NQ, M.SS_CFD + M.SS_NQ
+    var = (SS - S ** 2 / N) / (N - 1)
+    M["t_all"] = (S / N) / np.sqrt(var) * np.sqrt(N)
+    M["R_CFD"], M["R_NQ"] = M.S_CFD / M.n_CFD, M.S_NQ / M.n_NQ
+    M["ypos"] = M.ypos_CFD + M.ypos_NQ
+    M["n_years"] = sum(nys)
+    M.to_pickle(OUT / f"scan{suffix or '_real'}.pkl")
+    good = M[(M.R_CFD > 0) & (M.R_NQ > 0) & (M.t_CFD >= 1.5) & (M.t_NQ >= 1.5) & (M.ypos >= M.n_years - 2)]
+    print(f"[{suffix or 'ECHTE LEVEL'}] Kombinationen: {len(M):,} | max t_all: {M.t_all.max():.2f} | "
+          f"t_all>=3: {(M.t_all >= 3).sum():,} | t_all>=3.5: {(M.t_all >= 3.5).sum():,} | "
+          f"robust (beide Datensätze t>=1.5, >= {int(M.n_years.iloc[0]) - 2} von {int(M.n_years.iloc[0])} Jahren positiv): {len(good):,} "
+          f"| bestes robustes t_all: {good.t_all.max() if len(good) else float('nan'):.2f}", flush=True)
+    return M, good
+
+
+def select_all(evdir, n_pick=5, max_corr=0.6):
+    """Top-5 forward-test candidates on ALL data (in-sample!), diverse, >= 2 trades/week in both datasets."""
+    M = pd.read_pickle(OUT / "scan_real.pkl")
+    good = M[(M.R_CFD > 0) & (M.R_NQ > 0) & (M.t_CFD >= 1.5) & (M.t_NQ >= 1.5) & (M.ypos >= M.n_years - 2)]
+    good = good.sort_values("t_all", ascending=False)
+    good.head(300).to_csv(OUT / "robust_candidates_all_data.csv", index=False)
+    evs = {n: pd.read_pickle(evdir / f"events_{n}.pkl") for n in ("CFD", "NQ")}
+    nds = {n: len(pd.read_pickle(evdir / f"days_{n}.pkl")) for n in ("CFD", "NQ")}
+    picked, series = [], []
+    for _, row in good.iterrows():
+        st = {k: (row[k].item() if hasattr(row[k], "item") else row[k]) for k in
+              ("kind", "rel", "grp", "minrisk", "filter", "stop", "exit")}
+        ts = {n: one_at_a_time(events_of(evs[n], st)) for n in evs}
+        if min(len(ts[n]) / nds[n] * 5 for n in evs) < 2.0:
+            continue
+        d = np.concatenate([daily_series(ts[n], nds[n]) for n in ("CFD", "NQ")])
+        if any(abs(np.corrcoef(d, x)[0, 1]) > max_corr for x in series):
+            continue
+        st["t_all"] = round(float(row.t_all), 2)
+        picked.append(st)
+        series.append(d)
+        if len(picked) == n_pick:
+            break
+    json.dump(picked, open(OUT / "top5_all_data.json", "w"), indent=1, ensure_ascii=False)
+    rows = []
+    for i, st in enumerate(picked, 1):
+        for n, lab in (("CFD", "CFD 2016–2022"), ("NQ", "NQ 2023–2025")):
+            t = one_at_a_time(events_of(evs[n], st))
+            t.to_csv(OUT / f"trades_K{i}_{n}.csv", index=False)
+            r = {"Kandidat": f"K{i}", **stats(t, nds[n], lab)}
+            rows.append(r)
+            for suffix in ("_fake+0.07", "_fake-0.07"):
+                tf = one_at_a_time(events_of(pd.read_pickle(evdir / f"events_{n}{suffix}.pkl"), st))
+                r[f"Ø R Fake{suffix[5:]}"] = round(tf.R.mean(), 3)
+    res = pd.DataFrame(rows)
+    res.to_csv(OUT / "top5_all_data.csv", index=False)
+    pd.set_option("display.width", 250)
+    print(json.dumps(picked, ensure_ascii=False))
+    print(res.to_string(index=False))
+
+
 if __name__ == "__main__":
     cmd, evdir = sys.argv[1], Path(sys.argv[2])
     if cmd == "search":
@@ -283,3 +393,8 @@ if __name__ == "__main__":
         select(evdir)
     elif cmd == "final":
         final(evdir)
+    elif cmd == "scan":
+        for suffix in ("", "_fake+0.07", "_fake-0.07"):
+            scan(evdir, suffix)
+    elif cmd == "select_all":
+        select_all(evdir)

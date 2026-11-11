@@ -1,2 +1,3 @@
 __pycache__/
 nq_stdv_box/results/search/all_results.pkl
+nq_stdv_box/results/search/scan_*.pkl
