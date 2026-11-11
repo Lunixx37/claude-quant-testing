@@ -1,47 +1,62 @@
 [
  {
   "kind": "R",
-  "rel": 0.0,
-  "grp": "kante00",
-  "minrisk": 0.03,
-  "filter": "vwap_mit+vorher_reaktion_q",
-  "stop": "struct_min",
-  "exit": "trail1R"
- },
- {
-  "kind": "R",
   "rel": 0.1,
-  "grp": "aussen",
-  "minrisk": 0.03,
-  "filter": "vwap_mit+erster_touch",
-  "stop": "0.03atr",
-  "exit": "trail1R"
- },
- {
-  "kind": "T",
-  "rel": 0.1,
-  "grp": "stdv",
+  "grp": "c4",
   "minrisk": 0.0,
-  "filter": "flip+erster_touch",
-  "stop": "0.03atr",
-  "exit": "trail1R"
- },
- {
-  "kind": "R",
-  "rel": 0.1,
-  "grp": "aussen",
-  "minrisk": 0.03,
   "filter": "ict+vorher_gegen",
-  "stop": "0.03atr",
-  "exit": "trail1R"
+  "stop": "0.06atr",
+  "exit": "1.5R",
+  "confirmed_A_B": true,
+  "tA": 2.84,
+  "tB": 1.68
  },
  {
   "kind": "R",
   "rel": 0.1,
   "grp": "c4",
-  "minrisk": 0.02,
+  "minrisk": 0.0,
   "filter": "ict+erster_touch",
   "stop": "0.06atr",
-  "exit": "3R"
+  "exit": "3R",
+  "confirmed_A_B": true,
+  "tA": 2.6,
+  "tB": 1.91
+ },
+ {
+  "kind": "R",
+  "rel": 0.1,
+  "grp": "c4",
+  "minrisk": 0.03,
+  "filter": "natural+ict",
+  "stop": "0.06atr",
+  "exit": "2R",
+  "confirmed_A_B": true,
+  "tA": 2.6,
+  "tB": 1.72
+ },
+ {
+  "kind": "R",
+  "rel": 0.0,
+  "grp": "kante00",
+  "minrisk": 0.03,
+  "filter": "vwap_mit+vorher_gegen",
+  "stop": "struct",
+  "exit": "3R",
+  "confirmed_A_B": true,
+  "tA": 2.55,
+  "tB": 1.62
+ },
+ {
+  "kind": "R",
+  "rel": 0.1,
+  "grp": "aussen",
+  "minrisk": 0.03,
+  "filter": "mit_box+ict",
+  "stop": "0.03atr",
+  "exit": "3R",
+  "confirmed_A_B": true,
+  "tA": 2.56,
+  "tB": 1.53
  }
 ]

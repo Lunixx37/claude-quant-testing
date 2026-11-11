@@ -14,6 +14,10 @@ For each event we store features known at entry time and the net R outcome for e
   stops R : struct (sweep extreme + 1 tick) | struct_min (>= 0.02 ATR) | 0.03 ATR | 0.06 ATR from entry
   exits   : 1R 1.5R 2R 3R 5R | mid | trail1R | trail2R | BE@1R->3R | BE@1R->mid      (all flat at 15:59)
 
+Conservative fills: a limit order only fills if price trades one tick THROUGH the level; stop wins if stop
+and target are inside one bar; a trailing / break-even stop that is moved inside a bar is assumed to be hit
+in that same bar if the bar's opposite extreme reaches it (1-min data cannot resolve the order).
+
 Costs: NQ futures 0.5 pt (limit) / 1.0 pt (market entry) round turn.
        CFD (lower price level 2016-2022): same cost relative to volatility = 0.0016 / 0.0032 x ATR14.
 """
@@ -44,7 +48,7 @@ EXIT_DEF = [(0, 1.0), (0, 1.5), (0, 2.0), (0, 3.0), (0, 5.0), (1, 0.0), (2, 1.0)
 
 
 @njit(cache=True)
-def find_events(O, H, L, C, lvl, side, rearm, nrec, maxev):
+def find_events(O, H, L, C, lvl, side, rearm, nrec, maxev, thr):
     """side +1: support (touched from above). Returns touch bar s, reclaim bar r (-1), extreme."""
     n = len(C)
     S = np.full(maxev, -1, np.int64)
@@ -55,7 +59,7 @@ def find_events(O, H, L, C, lvl, side, rearm, nrec, maxev):
     i = 0
     while i < n and k < maxev:
         if armed:
-            touched = (L[i] <= lvl) if side == 1 else (H[i] >= lvl)
+            touched = (L[i] <= lvl - thr) if side == 1 else (H[i] >= lvl + thr)
             if touched:
                 S[k] = i
                 # reclaim?
@@ -113,10 +117,15 @@ def sim(H, L, C, j, side, entry, stop0, mode, rmult, mid, is_limit):
             if H[i] > best:
                 best = H[i]
             fav = (best - entry) / risk
+            new = stop
             if mode == 2 and fav >= rmult:
-                stop = max(stop, best - rmult * risk)
+                new = max(stop, best - rmult * risk)
             elif (mode == 3 or mode == 4) and fav >= 1.0:
-                stop = max(stop, entry)
+                new = max(stop, entry)
+            if new > stop:
+                stop = new
+                if L[i] <= stop:          # pessimistic: high first, then the low of the same bar hits the moved stop
+                    return stop, i
         else:
             if H[i] >= stop:
                 return stop, i
@@ -127,10 +136,15 @@ def sim(H, L, C, j, side, entry, stop0, mode, rmult, mid, is_limit):
             if L[i] < best:
                 best = L[i]
             fav = (entry - best) / risk
+            new = stop
             if mode == 2 and fav >= rmult:
-                stop = min(stop, best + rmult * risk)
+                new = min(stop, best + rmult * risk)
             elif (mode == 3 or mode == 4) and fav >= 1.0:
-                stop = min(stop, entry)
+                new = min(stop, entry)
+            if new < stop:
+                stop = new
+                if H[i] >= stop:
+                    return stop, i
     return C[n - 1], n - 1
 
 
@@ -152,28 +166,30 @@ def prepare(kind, start, end, first_day):
     return days, zones
 
 
-def levels_of(b):
+def levels_of(b, shift=0.0):
+    """shift != 0 moves ALL levels by shift x ATR (fake-level control)."""
     out = [("edge00", b.o0, "edge00"), ("edge830", b.o830, "edge830")]
     for k in m.STDV_LEVELS:
         g = "c2" if k <= 2.5 else ("l35" if k == 3.5 else "c4")
         out.append((f"+{k}", b.mid + k * b.h, g))
         out.append((f"-{k}", b.mid - k * b.h, g))
-    return out
+    return [(n, p + shift * b.atr, g) for n, p, g in out]
 
 
-def build(kind, start, end, first_day):
+def build(kind, start, end, first_day, shift=0.0):
     days, zones = prepare(kind, start, end, first_day)
     rows = []
     for di, d in enumerate(days):
         b, O, H, L, C, T = d["b"], d["O"], d["H"], d["L"], d["C"], d["T"]
         atr, h, mid = b.atr, b.h, b.mid
         cost_l, cost_m = (0.5, 1.0) if kind == "NQ" else (0.0016 * atr, 0.0032 * atr)
+        thr = TICK if kind == "NQ" else 0.0008 * atr      # limit fills only if price trades 1 tick through
         zd = ict.day_zones(zones, d)
         z_av, z_inv, z_lo, z_hi, z_pol = (zd[c].values for c in ("avail", "inv", "lo", "hi", "pol"))
         ev_day = []
-        for name, lvl, grp in levels_of(b):
+        for name, lvl, grp in levels_of(b, shift):
             for side in (1, -1):
-                S, R, E = find_events(O, H, L, C, lvl, side, REARM * atr, NREC, MAXEV)
+                S, R, E = find_events(O, H, L, C, lvl, side, REARM * atr, NREC, MAXEV, thr)
                 for k in range(MAXEV):
                     if S[k] < 0:
                         break
@@ -236,10 +252,12 @@ def build(kind, start, end, first_day):
 
 if __name__ == "__main__":
     out = Path(sys.argv[1])
+    shift = float(sys.argv[2]) if len(sys.argv) > 2 else 0.0
+    suffix = "" if shift == 0 else f"_fake{shift:+.2f}"
     out.mkdir(parents=True, exist_ok=True)
     for name, args in {"CFD": ("CFD", "2016-11-01", "2023-01-01", "2016-11-16"),
                        "NQ": ("NQ", "2022-12-01", "2026-01-01", "2023-01-01")}.items():
-        ev, dl = build(*args)
-        ev.to_pickle(out / f"events_{name}.pkl")
+        ev, dl = build(*args, shift=shift)
+        ev.to_pickle(out / f"events_{name}{suffix}.pkl")
         dl.to_pickle(out / f"days_{name}.pkl")
         print(name, len(dl), "Tage", len(ev), "Events", ev.kind.value_counts().to_dict(), flush=True)

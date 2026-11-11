@@ -219,6 +219,12 @@ def select(evdir, n_pick=5, max_corr=0.6, pool=400):
     ev = pd.read_pickle(evdir / "events_CFD.pkl")
     nd = len(pd.read_pickle(evdir / "days_CFD.pkl"))
     P = pd.read_csv(OUT / "passed_A_and_B.csv", keep_default_na=False).head(pool)
+    P["confirmed"] = True
+    # fallback pool if fewer than n strategies survived A+B: best remaining by combined t (NOT confirmed)
+    allr = pd.read_pickle(OUT / "all_results.pkl")
+    rest = allr[(allr.R_A > 0) & (allr.R_B > 0) & (allr.tA >= 2.0)].sort_values("tAB", ascending=False).head(pool)
+    rest["confirmed"] = False
+    P = pd.concat([P, rest], ignore_index=True)
     picked, series = [], []
     for _, row in P.iterrows():
         st = {k: (row[k].item() if hasattr(row[k], "item") else row[k]) for k in
@@ -229,6 +235,8 @@ def select(evdir, n_pick=5, max_corr=0.6, pool=400):
         d = daily_series(t, nd)
         if any(abs(np.corrcoef(d, x)[0, 1]) > max_corr for x in series):
             continue
+        st["confirmed_A_B"] = bool(row["confirmed"])
+        st["tA"], st["tB"] = round(float(row["tA"]), 2), round(float(row["tB"]), 2)
         picked.append(st)
         series.append(d)
         if len(picked) == n_pick:
@@ -241,16 +249,18 @@ def select(evdir, n_pick=5, max_corr=0.6, pool=400):
 def final(evdir):
     picked = json.load(open(OUT / "selected.json"))
     rows = []
-    for name in ("CFD", "NQ"):
-        ev = pd.read_pickle(evdir / f"events_{name}.pkl")
-        days = pd.read_pickle(evdir / f"days_{name}.pkl")
-        nd = len(days)
+    sets = [("CFD", "", "CFD 2016–2022 (Suche+Bestätigung)"), ("NQ", "", "NQ 2023–2025 (Endtest)"),
+            ("CFD", "_fake+0.07", "CFD Fake-Level +0.07 ATR"), ("CFD", "_fake-0.07", "CFD Fake-Level −0.07 ATR"),
+            ("NQ", "_fake+0.07", "NQ Fake-Level +0.07 ATR"), ("NQ", "_fake-0.07", "NQ Fake-Level −0.07 ATR")]
+    for name, suffix, label in sets:
+        ev = pd.read_pickle(evdir / f"events_{name}{suffix}.pkl")
+        nd = len(pd.read_pickle(evdir / f"days_{name}.pkl"))
         for i, st in enumerate(picked, 1):
             t = one_at_a_time(events_of(ev, st))
-            t.to_csv(OUT / f"trades_S{i}_{name}.csv", index=False)
-            label = "CFD 2016–2022 (Suche+Bestätigung)" if name == "CFD" else "NQ 2023–2025 (Endtest)"
+            if suffix == "":
+                t.to_csv(OUT / f"trades_S{i}_{name}.csv", index=False)
             r = {"Strategie": f"S{i}", **stats(t, nd, label)}
-            if name == "NQ":
+            if name == "NQ" and suffix == "":
                 yr = t.day.dt.year
                 for y in sorted(yr.unique()):
                     r[f"Σ R {y}"] = round(t.R[yr == y].sum(), 1)
