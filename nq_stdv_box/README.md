@@ -242,3 +242,104 @@ Winrate 21–28 % bei durchschnittlich geplantem RR von 5–10.
 
   Auf NQ liegt das ungefähr bei 0, im CFD leicht positiv (t ≈ 1,3–1,6). In beiden Datensätzen ist es besser als die Kontrolle. Der Mindest-Stop wurde allerdings nachträglich festgelegt, und 6 Punkte entsprechen bei den niedrigeren CFD-Kursen 2016–2022 relativ mehr Risiko als bei NQ 2023–2025.
 * Erste Reaktion am Cluster 4–4.5 war in beiden Datensätzen positiv (NQ +0,24 R, CFD +0,72 R), aber nur bei 25 bzw. 29 Trades. Erste Reaktion an der Box-Kante (der häufigste Fall) ist in beiden negativ.
+
+## Teil 6 – Systematische Suche nach den besten 5 Strategien (`search_events.py`, `search.py`)
+
+Ergebnisse liegen in `results/search/`. Der erste, fehlerhafte Lauf ist in `results/search_v1_optimistic/` dokumentiert.
+
+### Aufbau
+
+**Ereignistabelle.** Für jeden Tag (08:30–16:00) und jedes Level (Box-Kanten, Stdv ±2 … ±4.5, jeweils als Support **und** als Resistance) werden bis zu 3 Berührungen erfasst. Daraus ergeben sich rund 120.000 mögliche Einstiege im CFD-Datensatz und 62.000 auf NQ.
+
+| Baustein | Varianten |
+|---|---|
+| Entry | **T** = Limit am Level · **R** = Reclaim (durchhandeln, dann 1-Minuten-Schluss zurück innerhalb von 10 Kerzen) |
+| Stop (T) | 0,25 h · 0,5 h · 0,03 ATR · 0,06 ATR hinter dem Level |
+| Stop (R) | Struktur (Sweep-Extrem) · Struktur mit mindestens 0,02 ATR · 0,03 ATR · 0,06 ATR |
+| Exit | 1R · 1,5R · 2R · 3R · 5R · Box-Mitte · Trailing 1R · Trailing 2R · BE@1R → 3R · BE@1R → Mitte |
+| Box-Filter | ≥ 0 / 0,1 / 0,2 ATR |
+| Level-Gruppe | alle · Kanten · 00:00-Kante · Cluster 2–2.5 · 3.5 · Cluster 4–4.5 · alle Stdv · außen (3.5–4.5) |
+| Mindest-Stop | 0 / 0,01 / 0,02 / 0,03 ATR |
+| Zusatzfilter (bis zu 2) | natürliche Seite / Flip (Level als Retest) · mit / gegen Box-Richtung · Tageszeit (5 Fenster) · ICT-Zone · VWAP gedehnt / mit VWAP · vorherige Reaktion gleiche Richtung / Gegenrichtung / keine · erster Touch / wiederholt · Psych-50 · Momentum-Kerze |
+
+Das ergibt rund **830.000 Kombinationen** mit mindestens 0,5 Trades pro Tag. Die Statistik läuft auf **Tagesbasis**, sodass mehrere Trades am selben Tag den t-Wert nicht aufblähen.
+
+**Konservative Ausführung.**
+* Limit-Orders füllen nur, wenn der Preis einen Tick **durch** das Level handelt.
+* Liegen Stop und Ziel in derselben Kerze, zählt der Stop.
+* Wird ein Trailing- oder Break-even-Stop in einer Kerze nachgezogen und erreicht dieselbe Kerze ihn, gilt er als ausgelöst.
+* Kosten: NQ 0,5 Punkte (Limit) bzw. 1 Punkt (Market). CFD: derselbe Betrag relativ zur ATR.
+
+**Drei getrennte Stufen.** A = Suche auf CFD 2016–2020. B = Bestätigung auf CFD 2021–2022. C = einmaliger Endtest auf NQ 2023–2025. Die Auswahl wurde vor dem Endtest committet.
+
+### Ein Fehler im ersten Lauf (transparent dokumentiert)
+
+Im ersten Lauf bestand eine Strategie (Limit am Retest-Level, Trailing 1R) den NQ-Endtest mit t = 3,05. Das war ein **Simulationsartefakt**: Mit 1-Minuten-Kerzen und einem Stop von nur ≈ 10 Punkten wurde ein innerhalb der Kerze nachgezogener Trailing-Stop zu optimistisch behandelt, und Limit-Fills bei bloßer Berührung waren ebenfalls zu günstig. Nach der konservativen Korrektur ist Trailing 1R das **schlechteste** Ausstiegsmodell (Ø t = −6,9). Der gesamte Ablauf wurde danach mit derselben mechanischen Auswahlregel wiederholt.
+
+### Ergebnis des 3-Stufen-Tests
+
+* Stufe A: 231 von 829.538 Kombinationen bestanden (t ≥ 2,5 und mindestens 3 von 4 Jahren positiv).
+* Stufe B: 43 davon bestätigt (20 %, bei reinem Zufall wären 6,7 % zu erwarten). Fast alle stammen aus einer Familie: **Reclaim am Cluster 4–4.5 mit ICT-Zone, Stop 0,06 ATR, Ziel 1,5–3R**.
+* Stufe C (NQ, einmalig):
+
+| | Strategie | CFD 2016–22 Ø R (t) | **NQ 2023–25 Ø R (t)** | Trades/Woche NQ |
+|---|---|---|---|---|
+| S1 | Reclaim, 4–4.5, Box ≥ 0,1, ICT + vorher Gegenreaktion, Stop 0,06 ATR, 1,5R | +0,076 (2,4) | **−0,028 (−0,6)** | 4,4 |
+| S2 | Reclaim, 4–4.5, Box ≥ 0,1, ICT + erster Touch, Stop 0,06 ATR, 3R | +0,202 (2,9) | **−0,040 (−0,4)** | 2,1 |
+| S3 | Reclaim, 4–4.5, Box ≥ 0,1, natürliche Seite + ICT, Stop 0,06 ATR, 2R | +0,113 (2,3) | **−0,001 (0,0)** | 2,7 |
+| S4 | Reclaim, 00:00-Kante, mit VWAP + vorher Gegenreaktion, Struktur-Stop ≥ 0,03 ATR, 3R | +0,163 (2,6) | **−0,173 (−2,0)** | 2,6 |
+| S5 | Reclaim, 3.5–4.5, Box ≥ 0,1, mit Box-Richtung + ICT, Stop 0,03 ATR, 3R | +0,167 (2,4) | **+0,011 (0,1)** | 2,2 |
+
+**Keine der 5 Strategien besteht den Out-of-Sample-Test.** Auf NQ sind sie mit echten Leveln auch nicht besser als mit Fake-Leveln (verschoben um ± 0,07 ATR).
+
+### Gegenprobe: dieselbe Suche auf Fake-Leveln (alle Daten)
+
+Dieselben ≈ 825.000 Kombinationen wurden auf CFD 2016–2022 **und** NQ 2023–2025 zusammen ausgewertet, einmal mit den echten Leveln und zweimal mit Leveln, die um ± 0,07 ATR verschoben sind:
+
+| | bester t-Wert (alle Daten) | Kombinationen mit t ≥ 3 | „robuste“ Kombinationen* |
+|---|---|---|---|
+| **Echte Level** | **3,14** | 5 | 62 |
+| Fake +0,07 ATR | 3,18 | 8 | 19 |
+| Fake −0,07 ATR | 2,47 | 0 | 16 |
+
+\* In beiden Datensätzen t ≥ 1,5 und mindestens 7 von 9 Jahren positiv.
+
+Die beste Strategie auf den echten Leveln ist **nicht besser als die beste auf zufällig verschobenen Leveln**. Bei 825.000 Versuchen ist ein t von etwa 3 reiner Suchgewinn. Ein echtes Edge müsste deutlich darüber liegen (≈ 4,5–5). Einziger schwacher Hinweis: Mit echten Leveln gibt es 3- bis 4-mal so viele „robuste“ Kombinationen. Das sind aber wenige, stark überlappende Familien.
+
+### Top 5 über alle Daten (in-sample, nur als Kandidaten für einen Forward-Test)
+
+Ausgewählt aus den 62 robusten Kombinationen nach t-Wert, mit geringer gegenseitiger Korrelation und mindestens 2 Trades pro Woche in beiden Datensätzen (mit maximal einer offenen Position):
+
+| | Regel | CFD Ø R | NQ Ø R | Winrate | Trades/Woche | Ø R auf Fake-Leveln (CFD / NQ) |
+|---|---|---|---|---|---|---|
+| K1 | **Limit** an Stdv-Level, 11:00–13:30, in ICT-Zone, Stop 0,06 ATR (≥ 0,01), Ziel **Box-Mitte** | +0,046 | +0,215 | 29–33 % | 3,3–3,6 | −0,02 … +0,01 / +0,07 … +0,08 |
+| K2 | **Reclaim** am 3.5-Level mit Momentum-Kerze, vorher Gegenreaktion, Struktur-Stop ≥ 0,02 ATR, Ziel **Box-Mitte** | +0,144 | +0,196 | 41–44 % | 2,3–2,4 | −0,05 … −0,04 / −0,15 … +0,03 |
+| K3 | **Limit** an 3.5–4.5, 11:00–13:30, erster Touch, Stop 0,06 ATR, Ziel **3R** | +0,055 | +0,137 | 27–29 % | 2,0–2,4 | +0,01 / −0,16 … +0,02 |
+| K4 | **Reclaim** an 3.5–4.5, Box ≥ 0,2 ATR, ICT-Zone, Struktur-Stop ≥ 0,02 ATR, Ziel **5R** | +0,107 | +0,165 | 22–24 % | 2,4–2,9 | +0,01 … +0,11 / −0,07 … +0,14 |
+| K5 | wie K1, Ziel **5R** | +0,072 | +0,140 | 20–22 % | 4,9–5,4 | 0,00 … +0,02 / +0,03 … +0,10 |
+
+Am saubersten ist **K2**: in beiden Datensätzen einzeln p < 0,03, Winrate über 40 %, auf Fake-Leveln negativ. Aber auch K2 ist das Maximum aus 825.000 Versuchen und damit **nicht** von Zufall unterscheidbar. Diese 5 sind Hypothesen für einen Forward-Test, keine bestätigten Strategien.
+
+### Stop- und Exit-Modelle im Überblick (Ø t-Wert über alle Kombinationen, Stufe A / B)
+
+| Stop | Ø t | | Exit | Ø t |
+|---|---|---|---|---|
+| 0,06 ATR | −2,3 / −2,0 | | Box-Mitte | −0,8 / −1,0 |
+| Struktur (mind. 0,02 ATR) | −2,8 / −2,8 | | 5R | −0,8 / −1,1 |
+| Struktur | −2,9 / −2,8 | | 3R | −1,3 / −1,5 |
+| 0,5 h | −3,4 / −2,9 | | 2R | −2,1 / −2,1 |
+| 0,03 ATR | −4,8 / −4,0 | | 1,5R | −3,0 / −2,6 |
+| 0,25 h | −5,1 / −4,1 | | 1R | −4,7 / −3,7 |
+| | | | Trailing 2R | −4,4 / −3,6 |
+| | | | BE@1R → Mitte | −4,6 / −4,2 |
+| | | | BE@1R → 3R | −6,0 / −4,8 |
+| | | | Trailing 1R | −6,9 / −5,7 |
+
+Als Muster stabil sind:
+* Weite Stops (0,06 ATR ≈ 19 NQ-Punkte, oder Struktur mit Mindestabstand) sind besser als enge.
+* Weite Ziele (Mitte, 3–5R) sind besser als nahe.
+* Break-even und enges Trailing kosten deutlich. Unter konservativer Annahme wird man auf 1-Minuten-Basis zu oft ausgestoppt.
+* Reclaim-Entries sind besser als blinde Limits.
+* Größere Boxen und äußere Level (3.5–4.5) sind besser als kleine Boxen und der Cluster 2–2.5.
+
+Im Durchschnitt bleibt trotzdem alles negativ.
