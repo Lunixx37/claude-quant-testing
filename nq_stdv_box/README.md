@@ -145,3 +145,57 @@ Untersucht wurde der erste Touch jedes alten Levels zwischen 08:30 und 16:00. Al
 1. Winzige Boxen herauszufiltern ist sinnvoll und wirkt robust.
 2. Selbst mit Filter bleibt das Edge nahe 0. Am vielversprechendsten ist „große Box (≥ 0,3 ATR), Limit am Level, Stop 0,25 h, Ziel Box-Mitte“: in beiden Datensätzen leicht positiv, aber nicht signifikant.
 3. Box-Richtung, erste Reaktion und alte Level als POI liefern keinen Mehrwert, der die Gegenprobe übersteht.
+
+## Teil 4 – ICT-Konfluenz (FVG / OB / RB) und nur 4.5-Level (`ict.py`)
+
+Ergebnisse liegen in `results/ict/ict_and_45_grid.csv`.
+
+**Wie die ICT-Zonen erkannt werden** (auf 5-Minuten-Kerzen aus den 1-Minuten-Daten):
+
+| Zone | bullisch | bärisch |
+|---|---|---|
+| FVG | Low[i] > High[i−2], Zone = Lücke | High[i] < Low[i−2], Zone = Lücke |
+| Order Block | letzte rote Kerze vor einer grünen Displacement-Kerze, die über ihr High schließt **und** ein bullisches FVG erzeugt | spiegelbildlich |
+| Rejection Block | Swing-Low (2 Kerzen je Seite) mit unterem Docht ≥ 50 % der Range, Zone = Docht | Swing-High mit oberem Docht ≥ 50 %, Zone = Docht |
+
+Eine Zone gilt, sobald das Muster abgeschlossen ist, und bleibt gültig bis zum ersten 5-Minuten-Schlusskurs jenseits der Zone, höchstens 48 h. Konfluenz heißt: Das Level liegt beim ersten Touch in einer gültigen Zone passender Polarität (Toleranz ± 2,5 Punkte). Shorts brauchen eine bärische Zone, Longs eine bullische.
+
+**Box-Kanten:** Die 00:00-Kante zählt beim Touch von innen. Die 08:30-Kante zählt beim ersten Retest, nachdem der Preis sich 0,5 h entfernt hat.
+
+### A) ICT-Konfluenz an Box-Kanten und Stdv-Leveln
+
+Ø R pro Trade, gemittelt über die Entry/Ziel-Kombinationen, Box ≥ 0,2 ATR:
+
+| | ohne ICT | FVG | OB | RB | irgendeine ICT-Zone |
+|---|---|---|---|---|---|
+| NQ (Box-Kanten + Stdv) | −0,114 | −0,067 | −0,132 | −0,143 | −0,080 |
+| CFD (Box-Kanten + Stdv) | −0,124 | −0,097 | −0,158 | +0,005 | −0,082 |
+
+* Box-Kanten sind mit und ohne ICT klar negativ (≈ −0,25 R im Schnitt).
+* An den Stdv-Leveln verbessert „irgendeine ICT-Zone“ in beiden Datensätzen leicht, um ≈ +0,03 bis +0,04 R. Beste Kombination: Stdv + ICT, Box ≥ 0,2, Limit mit Stop 0,25 h → Mitte. Das ergibt NQ +0,149 R (t = 0,8) und CFD +0,081 R (t = 0,7), ohne ICT −0,010 bzw. −0,027.
+* Einzelne Zonentypen sind nicht konsistent. RB ist im CFD gut, auf NQ nicht. OB ist in beiden schlechter als ohne Filter.
+
+### B) Nur die 4.5-Level, feste Ziele gegen Trailing
+
+Exit-Varianten: fest 2R / 3R / 5R / Box-Mitte, Trailing 1R (ab +1R Stop 1R hinter dem besten Kurs), Trailing 2R (ab +2R), Break-even ab +1R mit Ziel Mitte.
+
+Ohne Filter verlieren die 4.5-Level stark (−0,3 R). Mit Box-Filter (gemittelt):
+
+| | Winrate fest | Winrate Trailing | Ø R fest | Ø R Trailing |
+|---|---|---|---|---|
+| NQ, Box ≥ 0,2 | 19,5 % | 25,5 % | −0,202 | −0,161 |
+| CFD, Box ≥ 0,2 | 24,3 % | 28,9 % | −0,072 | −0,050 |
+
+Trailing hebt die Winrate um 4–6 Prozentpunkte und ist im Schnitt etwas besser als feste Ziele. Ohne ICT bleibt aber beides negativ.
+
+**4.5 + irgendeine ICT-Zone + Box ≥ 0,2 ATR + Limit-Entry** ist die bisher konsistenteste Kombination. 12 von 14 Exit-Varianten sind in **beiden** Datensätzen positiv:
+
+| Exit | NQ (25 Trades) Ø R | CFD (84 Trades) Ø R |
+|---|---|---|
+| Limit 0,25 h → Mitte | +1,22 | +0,44 |
+| Limit 0,25 h → BE@1R → Mitte | +0,86 | +0,47 |
+| Limit 0,5 h → Trailing 2R | +0,28 | +0,30 |
+| Limit 0,5 h → Trailing 1R | +0,23 | +0,08 |
+| Limit 0,25 h → 5R fest | +0,14 | +0,25 |
+
+**Aber:** Das sind nur ≈ 8 (NQ) bzw. ≈ 14 (CFD) Trades pro Jahr. Kein Wert ist signifikant (alle t < 1,2), und die Varianten mit Ziel Mitte leben von wenigen großen Gewinnern (Winrate 8–12 %). Mit Box ≥ 0,3 bricht das Ergebnis im CFD-Datensatz ein. Das ist ein Kandidat für einen Forward-Test, aber noch kein bestätigtes Edge.
