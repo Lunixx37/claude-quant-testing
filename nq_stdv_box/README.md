@@ -199,3 +199,46 @@ Trailing hebt die Winrate um 4–6 Prozentpunkte und ist im Schnitt etwas besser
 | Limit 0,25 h → 5R fest | +0,14 | +0,25 |
 
 **Aber:** Das sind nur ≈ 8 (NQ) bzw. ≈ 14 (CFD) Trades pro Jahr. Kein Wert ist signifikant (alle t < 1,2), und die Varianten mit Ziel Mitte leben von wenigen großen Gewinnern (Winrate 8–12 %). Mit Box ≥ 0,3 bricht das Ergebnis im CFD-Datensatz ein. Das ist ein Kandidat für einen Forward-Test, aber noch kein bestätigtes Edge.
+
+## Teil 5 – „Erste Reaktion + zweiter Sweep“ (Setup wie im Gold-Chart, `sweep.py`)
+
+Ergebnisse liegen in `results/sweep/`. Getestet ist NQ bzw. der NAS100-CFD; Gold-Daten sind nicht vorhanden.
+
+**Regeln**
+1. **Sweep & Reclaim:** Der Preis kommt von der einen Seite, handelt durch das Level, und innerhalb von ≤ 10 1-Minuten-Kerzen (Variante: ≤ 3) **schließt** eine Kerze wieder auf der Ausgangsseite.
+2. **Erste Reaktion des Tages:** der erste Sweep & Reclaim
+   * des ganzen Clusters 2–2.25–2.5 (äußerstes Level 2.5 gesweept),
+   * oder des Clusters 4–4.25–4.5,
+   * oder einzeln des 3.5-Levels,
+   * oder einer Box-Kante. Die 08:30-Kante zählt erst, wenn der Preis sich 0,5 h entfernt hat, denn er eröffnet genau dort.
+
+   Daraus ergibt sich die Richtung: Ist Support gesweept und reclaimed → bullisch, ist es Resistance → bärisch.
+3. **Entry:** Der nächste Sweep & Reclaim eines **anderen** Levels (Stdv oder Box-Kante) in dieselbe Richtung. Einstieg zum Schlusskurs der Reclaim-Kerze.
+4. **SL:** hinter dem Extrem dieses Sweeps (+ 1 Tick).
+5. **TP:** das Hoch bzw. Tief zwischen erster Reaktion und zweitem Sweep („Zwischenhoch“). Variante: der nächste bestätigte 1-Minuten-Pivot (5/5).
+6. Nur Setups mit geplantem RR > 1. Maximal ein Trade pro Tag, Kosten 1 Punkt.
+7. **Kontrolle:** der erste Sweep & Reclaim irgendeines Levels, **ohne** die Bedingung „erste Reaktion“, mit denselben SL/TP-Regeln.
+
+**Ergebnis (Ø R pro Trade)**
+
+| Variante | NQ alle | NQ Box ≥ 0,2 | CFD alle | CFD Box ≥ 0,2 |
+|---|---|---|---|---|
+| Setup, TP Zwischenhoch | −0,28 (689) | −0,21 (250) | −0,38 (1.387) | −0,10 (531) |
+| Setup, TP Pivot | −0,22 (674) | −0,32 (247) | −0,30 (1.348) | −0,05 (522) |
+| Setup, auch gleiches Level erlaubt | −0,31 | −0,11 | −0,37 | −0,15 |
+| Setup, Reclaim ≤ 3 Kerzen | −0,30 | −0,24 | −0,34 | −0,04 |
+| Kontrolle ohne erste Reaktion | −0,39 (704) | −0,35 (264) | −0,39 (1.427) | −0,33 (572) |
+
+Winrate 21–28 % bei durchschnittlich geplantem RR von 5–10.
+
+* Die Bedingung „erste Reaktion“ verbessert das Ergebnis gegenüber der Kontrolle in beiden Datensätzen, um ≈ +0,1 bis +0,3 R. Insgesamt bleibt das Setup aber negativ.
+* **Größter Bremsklotz sind sehr enge Stops.** Trades mit SL ≤ 3 Punkten liegen bei −0,6 bis −0,8 R, weil Kosten und Rauschen dominieren. Mit **SL ≥ 6 Punkten** (nachträglich gewählter Filter):
+
+| SL ≥ 6 Pkt | NQ alle | NQ Box ≥ 0,2 | CFD alle | CFD Box ≥ 0,2 |
+|---|---|---|---|---|
+| Setup, TP Zwischenhoch | −0,05 (361) | +0,04 (165) | +0,23 (353) | +0,33 (188) |
+| Setup, TP Pivot | +0,04 (348) | −0,05 (167) | +0,09 (381) | +0,22 (201) |
+| Kontrolle | −0,17 (303) | −0,29 (151) | −0,04 (341) | +0,01 (205) |
+
+  Auf NQ liegt das ungefähr bei 0, im CFD leicht positiv (t ≈ 1,3–1,6). In beiden Datensätzen ist es besser als die Kontrolle. Der Mindest-Stop wurde allerdings nachträglich festgelegt, und 6 Punkte entsprechen bei den niedrigeren CFD-Kursen 2016–2022 relativ mehr Risiko als bei NQ 2023–2025.
+* Erste Reaktion am Cluster 4–4.5 war in beiden Datensätzen positiv (NQ +0,24 R, CFD +0,72 R), aber nur bei 25 bzw. 29 Trades. Erste Reaktion an der Box-Kante (der häufigste Fall) ist in beiden negativ.
