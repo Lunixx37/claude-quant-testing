@@ -84,3 +84,64 @@ Mit Ziel 1R oder Ziel VWAP sieht das Bild gleich aus (siehe `results/confluence_
 * Das „Momentum“ ist hier eine einfache, mechanische Regel (Rückschluss durch das Level plus Bruch des Lows bzw. Highs der Vorkerze). Ein diskretionärer Trader filtert anders, etwa über Volumen-Delta, SMT mit ES oder die Marktstruktur.
 * Welche VWAP-Linien im Screenshot genau verwendet werden (gelb/grün/blau), ist aus dem Bild nicht eindeutig. Getestet wurden ETH-, RTH- und eine ab 08:30 verankerte VWAP sowie die ETH-σ-Bänder.
 * Das CFD-Volumen ist Tick-Volumen, die VWAP dort also nur angenähert.
+
+## Teil 3 – Box-Filter, aggressive Entries, Box-Richtung, erste Reaktion, alte Level (`followup.py`)
+
+Ergebnisse liegen in `results/followup/`. NQ 2023–2025 dient zur Suche, CFD 2016–2022 zur Gegenprobe.
+
+**Box-Filter.** Gemessen wird die Boxhöhe im Verhältnis zur ATR14 (Durchschnitt der täglichen ETH-Range der letzten 14 Tage). Der Median liegt bei 0,14 ATR. Filterstufen: ≥ 0,1 (≈ 60 % der Tage), ≥ 0,2 (≈ 35 %), ≥ 0,3 (≈ 20 %).
+
+**Entries.** Limit direkt am Level mit Stop 0,25 h oder 0,5 h dahinter (aggressiv), oder Momentum-Entry wie in Teil 2. Ziele: 2R, 3R, 5R, 8R, Box-Mitte oder Box-Kante. Kosten: 0,5 Punkte (Limit) bzw. 1 Punkt (Momentum).
+
+### Box-Filter (Ø R über alle 18 Entry/Ziel-Kombinationen)
+
+| Box ≥ ATR × | 0 | 0,1 | 0,2 | 0,3 |
+|---|---|---|---|---|
+| NQ 2023–2025 | −0,164 | −0,076 | −0,063 | **+0,006** |
+| CFD 2016–2022 | −0,305 | −0,172 | −0,124 | **−0,087** |
+
+Der Filter wirkt in beiden Datensätzen deutlich und gleichmäßig. Der Hauptgrund: Bei winzigen Boxen sind die Stops so eng, dass Kosten und Rauschen jeden Trade auffressen.
+
+### Aggressive Entries und hohes Chance-Risiko-Verhältnis (nur Box ≥ 0,3 ATR)
+
+| Entry → Ziel | NQ Winrate | NQ Ø R | CFD Winrate | CFD Ø R |
+|---|---|---|---|---|
+| Limit, Stop 0,25 h → **Box-Mitte** (≈ 6–9R) | 13,3 % | **+0,123** | 14,4 % | **+0,063** |
+| Limit, Stop 0,25 h → 8R | 13,7 % | +0,003 | 15,5 % | +0,038 |
+| Limit, Stop 0,5 h → 8R | 20,8 % | +0,045 | 20,2 % | +0,034 |
+| Momentum → Box-Mitte | 21,6 % | +0,203 | 19,0 % | −0,138 |
+| Momentum → 2R | 35,2 % | −0,010 | 32,2 % | −0,161 |
+
+Nur 3 von 72 Kombinationen sind in beiden Datensätzen positiv, und keine ist statistisch signifikant (|t| < 1). Bei 72 Versuchen sind drei positive Treffer auch durch Zufall zu erwarten. Der beste Kandidat ist „große Box, Limit am Level, enger Stop, Ziel Mitte“: Winrate 13–14 % bei ca. +0,06 bis +0,12 R. Das ist ein Lead für Forward-Tests, aber noch kein belastbares Edge.
+
+### Box-Richtung (bearish = 00:00-Open über 08:30-Open)
+
+Die Winrate unterscheidet sich je Richtung nur um 1–5 Prozentpunkte. Auf NQ liefen Trades in Box-Richtung meist etwas besser (z. B. Momentum 3R, Box ≥ 0,2: +0,105 R in Box-Richtung gegenüber −0,105 R dagegen). Im CFD-Datensatz ist es gleich oder umgekehrt (−0,162 gegenüber −0,142). → **Kein stabiler Effekt.**
+
+### Erste Reaktion als Tages-Bias
+
+Das erste Level-Ereignis nach 08:30 ist entweder der Touch der gegenüberliegenden Box-Kante (00:00-Open) oder das 2.0-Level hinter der 08:30-Kante, je nachdem, was zuerst kommt. Als Rejection zählt, wenn der Preis 0,5 h zurückläuft, bevor er 0,5 h durchbricht. Ein Break ist das Gegenteil.
+
+* Auf NQ folgte auf eine Rejection am 2.0-Level meist **keine** Fortsetzung: Nur 42 % der Tage schlossen in Rejection-Richtung, und Gegen-Setups waren klar positiv (+0,79 R, t = 2,3).
+* Im CFD-Datensatz kehrt sich das komplett um: Gegen-Setups −0,45 R (t = −3,4), und die Schlusskurse liegen bei 52 % in Rejection-Richtung, also beim Münzwurf.
+* Der Beispielfall „Box-Kante von innen rejected → danach Longs besser“ ist in beiden Datensätzen nicht positiv (NQ −0,27 R, CFD −0,20 R mit Limit → Mitte).
+
+→ **Die erste Reaktion sagt nichts Verlässliches über den restlichen Tag aus.** Der NQ-Effekt war Zufall bzw. Regime.
+
+### Alte Box- und Stdv-Level als POI (1–3 Tage zurück)
+
+Untersucht wurde der erste Touch jedes alten Levels zwischen 08:30 und 16:00. Als Rejection zählt, wenn der Preis 0,05 ATR (bzw. 0,1 ATR) zurückläuft, bevor er dieselbe Strecke durchbricht. Zum Vergleich dienen Fake-Level: dieselben Level, um 0,03–0,08 ATR verschoben.
+
+| | NQ echt | NQ fake | CFD echt | CFD fake |
+|---|---|---|---|---|
+| Box-Kante Rejection % | 69,3 | 68,8 | 66,0 | 67,3 |
+| Mitte Rejection % | 67,3 | 65,9 | 65,7 | 67,5 |
+| Stdv-Level Rejection % | 69,1 | 68,9 | 65,6 | 65,2 |
+
+→ **Alte Level reagieren genauso wie beliebige Preise.** Die hohe Rejection-Quote von ≈ 66–69 % gilt für **jeden** Preis und ist kein Merkmal dieser Level. Ein Fade daran ist durchgehend negativ.
+
+### Gesamtfazit Teil 3
+
+1. Winzige Boxen herauszufiltern ist sinnvoll und wirkt robust.
+2. Selbst mit Filter bleibt das Edge nahe 0. Am vielversprechendsten ist „große Box (≥ 0,3 ATR), Limit am Level, Stop 0,25 h, Ziel Box-Mitte“: in beiden Datensätzen leicht positiv, aber nicht signifikant.
+3. Box-Richtung, erste Reaktion und alte Level als POI liefern keinen Mehrwert, der die Gegenprobe übersteht.

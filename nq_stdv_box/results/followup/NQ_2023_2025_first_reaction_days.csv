@@ -1,0 +1,5 @@
+event,reaction,Tage,Close in Bias-Richtung %,Ø Move bis Close (h)
+2.0 hinter 08:30-Kante,Break,110,55.5,1.03
+2.0 hinter 08:30-Kante,Rejection,177,42.4,-0.81
+Box-Kante (00:00 Open),Break,43,48.8,1.01
+Box-Kante (00:00 Open),Rejection,73,43.8,0.2

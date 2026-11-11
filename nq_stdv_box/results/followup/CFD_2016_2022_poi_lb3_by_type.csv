@@ -1,0 +1,7 @@
+type,Level,Touches,Rejection % (0.05 ATR),Rejection % (0.10 ATR),Fade 2R Ø R,Fade 3R Ø R
+Box-Kante,echt,1739.0,66.0,52.2,-0.203,-0.186
+Box-Kante,fake,8850.0,67.3,53.1,-0.148,-0.144
+Mitte,echt,893.0,65.7,53.8,-0.159,-0.15
+Mitte,fake,4442.0,67.5,53.2,-0.164,-0.163
+Stdv,echt,11454.0,65.6,52.9,-0.162,-0.157
+Stdv,fake,57119.0,65.2,52.3,-0.167,-0.172
