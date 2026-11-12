@@ -62,7 +62,9 @@ string grpV = "Darstellung"
 int maxQty = input.int(50, "Max. Kontrakte", minval = 1, group = grpV)
 color boxCol = input.color(color.new(color.blue, 80), "Box", group = grpV)
 color midCol = input.color(color.white, "Mittellinie", group = grpV)
-color lvlCol = input.color(color.new(color.gray, 40), "Level", group = grpV)
+color lvlCol = input.color(color.new(color.white, 25), "Stdv-Level", group = grpV)
+int lvlWidth = input.int(1, "Linienstärke Level", minval = 1, maxval = 4, group = grpV)
+bool showTrades = input.bool(true, "Trades einzeichnen (Entry / SL / TP)", group = grpV)
 color k2Col  = input.color(color.new(color.red, 0), "K2-Setup-Level", group = grpV)
 
 // ───────────── ATR14 der letzten 14 abgeschlossenen Handelstage (kein Repainting)
@@ -261,8 +263,8 @@ if isEnd and not na(o0) and not na(atrD)
             array.push(aS, -sg)
             array.push(aArm, (open - p) * -sg >= rearm)
             array.push(aN, 0)
-            line.new(time, p, tX, p, xloc = xloc.bar_time, color = hl ? k2Col : lvlCol, force_overlay = true)
-            label.new(tX, p, (sg == 1 ? "+" : "-") + str.tostring(k), xloc = xloc.bar_time, style = label.style_label_left, color = color.new(color.black, 100), textcolor = hl ? k2Col : lvlCol, size = size.tiny, force_overlay = true)
+            line.new(time, p, tX, p, xloc = xloc.bar_time, color = hl ? k2Col : lvlCol, width = hl ? lvlWidth + 1 : lvlWidth, force_overlay = true)
+            label.new(tX, p, (sg == 1 ? "+" : "-") + str.tostring(k), xloc = xloc.bar_time, style = label.style_label_left, color = color.new(color.black, 100), textcolor = hl ? k2Col : lvlCol, size = size.small, force_overlay = true)
     active := h > 0
     o0     := na
 
@@ -324,8 +326,6 @@ if active and time < tStop and array.size(lvP) > 0
                     curStop   := stop
                     curTgt    := tgt
                     enteredK2 := true
-                    rr = math.abs(tgt - close) / risk
-                    label.new(bar_index, sd == 1 ? low : high, id + "\nRR " + str.tostring(rr, "#.0") + " | Stop " + str.tostring(risk, "#.00") + " Pkt\n" + str.tostring(qty) + " Kontr.", style = sd == 1 ? label.style_label_up : label.style_label_down, color = sd == 1 ? color.new(color.green, 10) : color.new(color.red, 10), textcolor = color.white, size = size.small, force_overlay = true)
                     alert(id + " Entry " + str.tostring(close) + " Stop " + str.tostring(stop) + " Ziel " + str.tostring(tgt), alert.freq_once_per_bar_close)
             if sd == 1 and na(firstBull)
                 firstBull := bar_index
@@ -364,13 +364,102 @@ if active and time < tStop and array.size(aP) > 0
             if strategy.position_size == 0 and not enteredK2
                 strategy.cancel("Exit " + id)
 
-// K1-Fill erkennen -> Stop/Ziel-Linien und Alert
-if strategy.position_size != 0 and strategy.position_size[1] == 0 and strategy.opentrades > 0
-    eid = strategy.opentrades.entry_id(0)
+// ═════════════ Trades einzeichnen: Entry, Stop-Loss, Take-Profit
+var box   trTp  = na
+var box   trSl  = na
+var line  trLe  = na
+var line  trLs  = na
+var line  trLt  = na
+var label trGe  = na
+var label trGs  = na
+var label trGt  = na
+var float trEntry = na
+var float trStopP = na
+var float trTgtP  = na
+
+mkTrade(int x1, int x2, float e, float sl, float tp, string name, float qty) =>
+    risk = math.abs(e - sl)
+    b1 = box.new(x1, math.max(e, tp), x2, math.min(e, tp), bgcolor = color.new(color.green, 82), border_color = color.new(color.green, 100), force_overlay = true)
+    b2 = box.new(x1, math.max(e, sl), x2, math.min(e, sl), bgcolor = color.new(color.red, 82), border_color = color.new(color.red, 100), force_overlay = true)
+    l1 = line.new(x1, e, x2, e, color = color.white, width = 2, force_overlay = true)
+    l2 = line.new(x1, sl, x2, sl, color = color.red, width = 2, force_overlay = true)
+    l3 = line.new(x1, tp, x2, tp, color = color.green, width = 2, force_overlay = true)
+    g1 = label.new(x2, e, name + "  Entry " + str.tostring(e, format.mintick) + "  (" + str.tostring(qty) + " Kontr.)", style = label.style_label_left, color = color.new(color.gray, 10), textcolor = color.white, size = size.small, force_overlay = true)
+    g2 = label.new(x2, sl, "SL " + str.tostring(sl, format.mintick) + "  (−" + str.tostring(risk, "#.00") + " Pkt)", style = label.style_label_left, color = color.new(color.red, 10), textcolor = color.white, size = size.small, force_overlay = true)
+    g3 = label.new(x2, tp, "TP " + str.tostring(tp, format.mintick) + "  (+" + str.tostring(math.abs(tp - e), "#.00") + " Pkt, RR " + str.tostring(risk > 0 ? math.abs(tp - e) / risk : 0.0, "#.0") + ")", style = label.style_label_left, color = color.new(color.green, 10), textcolor = color.white, size = size.small, force_overlay = true)
+    [b1, b2, l1, l2, l3, g1, g2, g3]
+
+setRight(int x2) =>
+    box.set_right(trTp, x2)
+    box.set_right(trSl, x2)
+    line.set_x2(trLe, x2)
+    line.set_x2(trLs, x2)
+    line.set_x2(trLt, x2)
+    label.set_x(trGe, x2)
+    label.set_x(trGs, x2)
+    label.set_x(trGt, x2)
+
+// --- a) Trade wurde geschlossen (auch: in derselben Kerze eröffnet und geschlossen)
+if strategy.closedtrades > nz(strategy.closedtrades[1])
+    n    = strategy.closedtrades - 1
+    xb   = strategy.closedtrades.exit_bar_index(n)
+    eb   = strategy.closedtrades.entry_bar_index(n)
+    ep   = strategy.closedtrades.entry_price(n)
+    xp   = strategy.closedtrades.exit_price(n)
+    dirT = strategy.closedtrades.size(n) > 0 ? 1 : -1
+    if showTrades
+        if na(trTp)
+            trEntry := ep
+            trStopP := math.round_to_mintick(ep - dirT * k1RiskPts)
+            trTgtP  := math.round_to_mintick(mid)
+            [b1, b2, l1, l2, l3, g1, g2, g3] = mkTrade(eb, eb + 1, trEntry, trStopP, trTgtP, strategy.closedtrades.entry_id(n), math.abs(strategy.closedtrades.size(n)))
+            trTp := b1
+            trSl := b2
+            trLe := l1
+            trLs := l2
+            trLt := l3
+            trGe := g1
+            trGs := g2
+            trGt := g3
+        setRight(math.max(xb, eb + 1))
+        riskT = math.abs(trEntry - trStopP)
+        resR  = riskT > 0 ? dirT * (xp - ep) / riskT : 0.0
+        label.new(xb, xp, "Exit " + str.tostring(xp, format.mintick) + "\n" + (resR >= 0 ? "+" : "") + str.tostring(resR, "#.0") + " R", style = resR >= 0 ? label.style_label_down : label.style_label_up, color = resR >= 0 ? color.new(color.green, 0) : color.new(color.red, 0), textcolor = color.white, size = size.small, force_overlay = true)
+    trTp := na
+    trSl := na
+    trLe := na
+    trLs := na
+    trLt := na
+    trGe := na
+    trGs := na
+    trGt := na
+
+// --- b) Position wurde eröffnet
+bool openedNow = strategy.position_size != 0 and nz(strategy.position_size[1]) == 0 and strategy.opentrades > 0
+if openedNow
+    eid  = strategy.opentrades.entry_id(0)
+    dirO = strategy.position_size > 0 ? 1 : -1
+    trEntry := strategy.opentrades.entry_price(0)
     if str.startswith(eid, "K1")
-        curStop := math.round_to_mintick(strategy.position_avg_price - math.sign(strategy.position_size) * k1RiskPts)
+        curStop := math.round_to_mintick(trEntry - dirO * k1RiskPts)
         curTgt  := math.round_to_mintick(mid)
-        alert(eid + " gefüllt @ " + str.tostring(strategy.position_avg_price) + " Stop " + str.tostring(curStop) + " Ziel " + str.tostring(curTgt), alert.freq_once_per_bar_close)
+        alert(eid + " gefüllt @ " + str.tostring(trEntry) + " Stop " + str.tostring(curStop) + " Ziel " + str.tostring(curTgt), alert.freq_once_per_bar_close)
+    trStopP := curStop
+    trTgtP  := curTgt
+    if showTrades
+        [b1, b2, l1, l2, l3, g1, g2, g3] = mkTrade(strategy.opentrades.entry_bar_index(0), bar_index + 1, trEntry, trStopP, trTgtP, eid, math.abs(strategy.position_size))
+        trTp := b1
+        trSl := b2
+        trLe := l1
+        trLs := l2
+        trLt := l3
+        trGe := g1
+        trGs := g2
+        trGt := g3
+
+// --- c) Position läuft: Zeichnung bis zur aktuellen Kerze verlängern
+if not openedNow and strategy.position_size != 0 and not na(trTp)
+    setRight(bar_index + 1)
 
 // ═════════════ Tagesende
 if isLastBar
@@ -379,8 +468,6 @@ if isLastBar
         strategy.close_all(comment = "15:59")
     active := false
 
-plot(strategy.position_size != 0 ? curStop : na, "Stop", color.red, 1, plot.style_linebr, force_overlay = true)
-plot(strategy.position_size != 0 ? curTgt : na, "Ziel", color.green, 1, plot.style_linebr, force_overlay = true)
 
 if barstate.islast and not (timeframe.isminutes and timeframe.multiplier == 1)
     label.new(bar_index, high, "Dieses Skript ist für den 1-Minuten-Chart gebaut.\nBitte Timeframe auf 1m stellen.", color = color.orange, textcolor = color.black, force_overlay = true)

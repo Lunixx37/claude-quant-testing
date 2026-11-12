@@ -22,8 +22,8 @@ string lvlStr  = input.string("2, 2.25, 2.5, 3.5, 4, 4.25, 4.5", "Multiplikatore
 bool showLbl = input.bool(true, "Level beschriften", group = grpL)
 color boxCol  = input.color(color.new(color.blue, 80), "Box", group = grpL)
 color midCol  = input.color(color.white, "Mittellinie", group = grpL)
-color upCol   = input.color(color.new(color.gray, 30), "Level oben", group = grpL)
-color dnCol   = input.color(color.new(color.gray, 30), "Level unten", group = grpL)
+color upCol   = input.color(color.new(color.white, 25), "Level oben", group = grpL)
+color dnCol   = input.color(color.new(color.white, 25), "Level unten", group = grpL)
 
 string grpS     = "Signale (Touch + Konfluenz + Momentum)"
 bool showSig  = input.bool(true, "Signale anzeigen", group = grpS)

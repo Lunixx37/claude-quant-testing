@@ -53,7 +53,7 @@ int maxQty  = input.int(50, "Max. Kontrakte", minval = 1, group = grpR)
 string grpV = "Darstellung"
 color boxCol = input.color(color.new(color.blue, 80), "Box", group = grpV)
 color midCol = input.color(color.white, "Mittellinie", group = grpV)
-color lvlCol = input.color(color.new(color.gray, 40), "Level", group = grpV)
+color lvlCol = input.color(color.new(color.white, 25), "Level", group = grpV)
 
 // ───────────── ATR14 der letzten 14 abgeschlossenen Handelstage (kein Repainting)
 float atrD = request.security(syminfo.tickerid, "D", ta.sma(high - low, 14)[1], lookahead = barmerge.lookahead_on)

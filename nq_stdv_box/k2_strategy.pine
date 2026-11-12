@@ -51,7 +51,7 @@ string grpV = "Darstellung"
 bool showAll = input.bool(true, "Alle Stdv-Level zeichnen", group = grpV)
 color boxCol  = input.color(color.new(color.blue, 80), "Box", group = grpV)
 color midCol  = input.color(color.white, "Mittellinie", group = grpV)
-color lvlCol  = input.color(color.new(color.gray, 40), "Level", group = grpV)
+color lvlCol  = input.color(color.new(color.white, 25), "Level", group = grpV)
 color k2Col   = input.color(color.new(color.red, 0), "Setup-Level", group = grpV)
 
 // ───────────── ATR14 der letzten 14 abgeschlossenen Handelstage (kein Repainting)
