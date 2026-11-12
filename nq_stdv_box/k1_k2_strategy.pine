@@ -31,18 +31,18 @@ runK2 = mode != "K1"
 
 grpT = "Zeiten"
 tz   = input.string("America/New_York", "Zeitzone", group = grpT)
-sH   = input.int(0,  "Box-Start Std", minval = 0, maxval = 23, group = grpT, inline = "s")
-sM   = input.int(0,  "Min",           minval = 0, maxval = 59, group = grpT, inline = "s")
-eH   = input.int(8,  "Box-Ende Std",  minval = 0, maxval = 23, group = grpT, inline = "e")
-eM   = input.int(30, "Min",           minval = 0, maxval = 59, group = grpT, inline = "e")
+sH   = input.int(0,  "Box-Start (Std : Min)", minval = 0, maxval = 23, group = grpT, inline = "s")
+sM   = input.int(0,  "",           minval = 0, maxval = 59, group = grpT, inline = "s")
+eH   = input.int(8,  "Box-Ende (Std : Min)",  minval = 0, maxval = 23, group = grpT, inline = "e")
+eM   = input.int(30, "",           minval = 0, maxval = 59, group = grpT, inline = "e")
 xH   = input.int(16, "Handelsende (Std)", minval = 0, maxval = 23, group = grpT)
 rearmAtr = input.float(0.02, "Re-Arm-Abstand (× ATR)", minval = 0, step = 0.005, group = grpT)
 
 grp1 = "K1"
-wH1  = input.int(11, "Entry-Fenster von Std", minval = 0, maxval = 23, group = grp1, inline = "w1")
-wM1  = input.int(0,  "Min", minval = 0, maxval = 59, group = grp1, inline = "w1")
-wH2  = input.int(13, "Entry-Fenster bis Std", minval = 0, maxval = 23, group = grp1, inline = "w2")
-wM2  = input.int(30, "Min", minval = 0, maxval = 59, group = grp1, inline = "w2")
+wH1  = input.int(11, "Entry-Fenster von (Std : Min)", minval = 0, maxval = 23, group = grp1, inline = "w1")
+wM1  = input.int(0,  "", minval = 0, maxval = 59, group = grp1, inline = "w1")
+wH2  = input.int(13, "Entry-Fenster bis (Std : Min)", minval = 0, maxval = 23, group = grp1, inline = "w2")
+wM2  = input.int(30, "", minval = 0, maxval = 59, group = grp1, inline = "w2")
 k1Touches = input.int(3, "Max. Touches pro Level und Tag", minval = 1, maxval = 10, group = grp1)
 needIct   = input.bool(true, "ICT-Zone nötig (FVG / OB / RB)", group = grp1)
 zoneTol   = input.float(2.5, "Zonen-Toleranz (Punkte)", minval = 0, group = grp1)
@@ -141,11 +141,11 @@ finalize5(float o, float h, float l, float c, int tOpen) =>
                     addZone(bL.get(m), bodyLo, 1, tClose)
     true
 
-curB = int(math.floor(time / MS5))
-if na(bkt) or curB != bkt
+int bucketStart = time - time % MS5            // Öffnungszeit der laufenden 5-Minuten-Kerze (ms)
+if na(bkt) or bucketStart != bkt
     if not na(bkt) and not fin5
-        finalize5(o5, h5, l5, c5, bkt * MS5)
-    bkt  := curB
+        finalize5(o5, h5, l5, c5, bkt)
+    bkt  := bucketStart
     o5   := open
     h5   := high
     l5   := low
@@ -155,8 +155,8 @@ else
     h5 := math.max(h5, high)
     l5 := math.min(l5, low)
     c5 := close
-if not fin5 and time_close >= (bkt + 1) * MS5
-    finalize5(o5, h5, l5, c5, bkt * MS5)
+if not fin5 and time_close >= bkt + MS5
+    finalize5(o5, h5, l5, c5, bkt)
     fin5 := true
 
 inZone(float p, int sd) =>
@@ -266,7 +266,7 @@ if isEnd and not na(o0) and not na(atrD)
     active := h > 0
     o0     := na
 
-lastSessBar = active and time_close >= tStop
+bool isLastBar = active and not na(tStop) and time_close >= tStop
 lastExitBar = strategy.closedtrades > 0 ? strategy.closedtrades.exit_bar_index(strategy.closedtrades - 1) : -1
 k1RiskPts   = k1StopAtr * nz(atrDay)
 enteredK2   = false
@@ -310,7 +310,7 @@ if active and time < tStop and lvP.size() > 0
         if recl
             priorOk = not needPrior or (sd == 1 ? (not na(firstBear) and firstBear < sTouch) : (not na(firstBull) and firstBull < sTouch))
             momOk   = not needMom or (bar_index > sessBar0 and (sd == 1 ? (close > high[1] and close > open) : (close < low[1] and close < open)))
-            if runK2 and lvK2.get(i) and priorOk and momOk and not lastSessBar and not enteredK2 and strategy.position_size == 0 and lastExitBar < bar_index
+            if runK2 and lvK2.get(i) and priorOk and momOk and not isLastBar and not enteredK2 and strategy.position_size == 0 and lastExitBar < bar_index
                 sStruct = ext - sd * syminfo.mintick
                 stop    = sd == 1 ? math.min(sStruct, close - minStopAtr * atrDay) : math.max(sStruct, close + minStopAtr * atrDay)
                 stop    := math.round_to_mintick(stop)
@@ -352,7 +352,7 @@ if active and time < tStop and aP.size() > 0
         p  = aP.get(i)
         sd = aS.get(i)
         id = (sd == 1 ? "K1 Long " : "K1 Short ") + str.tostring(i)
-        ok = runK1 and flat and inWindow and not lastSessBar and aArm.get(i) and aN.get(i) < k1Touches and (mid - p) * sd > 0 and k1RiskPts > 0 and (not needIct or inZone(p, sd))
+        ok = runK1 and flat and inWindow and not isLastBar and aArm.get(i) and aN.get(i) < k1Touches and (mid - p) * sd > 0 and k1RiskPts > 0 and (not needIct or inZone(p, sd))
         if ok
             lim  = math.round_to_mintick(p)
             stop = math.round_to_mintick(p - sd * k1RiskPts)
@@ -373,7 +373,7 @@ if strategy.position_size != 0 and strategy.position_size[1] == 0 and strategy.o
         alert(eid + " gefüllt @ " + str.tostring(strategy.position_avg_price) + " Stop " + str.tostring(curStop) + " Ziel " + str.tostring(curTgt), alert.freq_once_per_bar_close)
 
 // ═════════════ Tagesende
-if lastSessBar
+if isLastBar
     strategy.cancel_all()
     if strategy.position_size != 0
         strategy.close_all(comment = "15:59")

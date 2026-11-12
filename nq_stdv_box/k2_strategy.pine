@@ -28,10 +28,10 @@ strategy("NQ Stdv Box – K2", overlay = true, process_orders_on_close = true, i
 // ───────────── Inputs
 grpT = "Zeiten"
 tz   = input.string("America/New_York", "Zeitzone", group = grpT)
-sH   = input.int(0,  "Box-Start Std", minval = 0, maxval = 23, group = grpT, inline = "s")
-sM   = input.int(0,  "Min",           minval = 0, maxval = 59, group = grpT, inline = "s")
-eH   = input.int(8,  "Box-Ende Std",  minval = 0, maxval = 23, group = grpT, inline = "e")
-eM   = input.int(30, "Min",           minval = 0, maxval = 59, group = grpT, inline = "e")
+sH   = input.int(0,  "Box-Start (Std : Min)", minval = 0, maxval = 23, group = grpT, inline = "s")
+sM   = input.int(0,  "",           minval = 0, maxval = 59, group = grpT, inline = "s")
+eH   = input.int(8,  "Box-Ende (Std : Min)",  minval = 0, maxval = 23, group = grpT, inline = "e")
+eM   = input.int(30, "",           minval = 0, maxval = 59, group = grpT, inline = "e")
 xH   = input.int(16, "Handelsende (Std)", minval = 0, maxval = 23, group = grpT)
 
 grpK = "K2-Regeln"
@@ -138,7 +138,7 @@ if isEnd and not na(o0) and not na(atrD)
     active := h > 0
     o0     := na
 
-lastSessBar = active and time_close >= tStop
+bool isLastBar = active and not na(tStop) and time_close >= tStop
 lastExitBar = strategy.closedtrades > 0 ? strategy.closedtrades.exit_bar_index(strategy.closedtrades - 1) : -1
 
 // ───────────── Level-Logik + Signale
@@ -182,7 +182,7 @@ if active and time < tStop and lvP.size() > 0
             // --- K2-Signal prüfen (vorherige Gegenreaktion muss VOR dem Touch abgeschlossen sein)
             priorOk = not needPrior or (sd == 1 ? (not na(firstBear) and firstBear < sTouch) : (not na(firstBull) and firstBull < sTouch))
             momOk   = not needMom or (bar_index > sessBar0 and (sd == 1 ? (close > high[1] and close > open) : (close < low[1] and close < open)))
-            if lvK2.get(i) and priorOk and momOk and not lastSessBar and not entered and strategy.position_size == 0 and lastExitBar < bar_index
+            if lvK2.get(i) and priorOk and momOk and not isLastBar and not entered and strategy.position_size == 0 and lastExitBar < bar_index
                 sStruct = ext - sd * syminfo.mintick
                 stop    = sd == 1 ? math.min(sStruct, close - minStopAtr * atrDay) : math.max(sStruct, close + minStopAtr * atrDay)
                 stop    := math.round_to_mintick(stop)
@@ -206,7 +206,7 @@ if active and time < tStop and lvP.size() > 0
                 firstBear := bar_index
 
 // ───────────── Tagesende
-if lastSessBar
+if isLastBar
     if strategy.position_size != 0
         strategy.close_all(comment = "15:59")
     active := false

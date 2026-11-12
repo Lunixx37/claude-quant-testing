@@ -29,15 +29,15 @@ strategy("NQ Stdv Box – K1", overlay = true, process_orders_on_close = true, i
 // ───────────── Inputs
 grpT = "Zeiten"
 tz   = input.string("America/New_York", "Zeitzone", group = grpT)
-sH   = input.int(0,  "Box-Start Std", minval = 0, maxval = 23, group = grpT, inline = "s")
-sM   = input.int(0,  "Min",           minval = 0, maxval = 59, group = grpT, inline = "s")
-eH   = input.int(8,  "Box-Ende Std",  minval = 0, maxval = 23, group = grpT, inline = "e")
-eM   = input.int(30, "Min",           minval = 0, maxval = 59, group = grpT, inline = "e")
+sH   = input.int(0,  "Box-Start (Std : Min)", minval = 0, maxval = 23, group = grpT, inline = "s")
+sM   = input.int(0,  "",           minval = 0, maxval = 59, group = grpT, inline = "s")
+eH   = input.int(8,  "Box-Ende (Std : Min)",  minval = 0, maxval = 23, group = grpT, inline = "e")
+eM   = input.int(30, "",           minval = 0, maxval = 59, group = grpT, inline = "e")
 xH   = input.int(16, "Handelsende (Std)", minval = 0, maxval = 23, group = grpT)
-wH1  = input.int(11, "Entry-Fenster von Std", minval = 0, maxval = 23, group = grpT, inline = "w1")
-wM1  = input.int(0,  "Min", minval = 0, maxval = 59, group = grpT, inline = "w1")
-wH2  = input.int(13, "Entry-Fenster bis Std", minval = 0, maxval = 23, group = grpT, inline = "w2")
-wM2  = input.int(30, "Min", minval = 0, maxval = 59, group = grpT, inline = "w2")
+wH1  = input.int(11, "Entry-Fenster von (Std : Min)", minval = 0, maxval = 23, group = grpT, inline = "w1")
+wM1  = input.int(0,  "", minval = 0, maxval = 59, group = grpT, inline = "w1")
+wH2  = input.int(13, "Entry-Fenster bis (Std : Min)", minval = 0, maxval = 23, group = grpT, inline = "w2")
+wM2  = input.int(30, "", minval = 0, maxval = 59, group = grpT, inline = "w2")
 
 grpK = "K1-Regeln"
 maxTouches = input.int(3, "Max. Touches pro Level und Tag", minval = 1, maxval = 10, group = grpK)
@@ -135,11 +135,11 @@ finalize5(float o, float h, float l, float c, int tOpen) =>
                     addZone(bL.get(m), bodyLo, 1, tClose)
     true
 
-curB = int(math.floor(time / MS5))
-if na(bkt) or curB != bkt
+int bucketStart = time - time % MS5            // Öffnungszeit der laufenden 5-Minuten-Kerze (ms)
+if na(bkt) or bucketStart != bkt
     if not na(bkt) and not fin5
-        finalize5(o5, h5, l5, c5, bkt * MS5)
-    bkt  := curB
+        finalize5(o5, h5, l5, c5, bkt)
+    bkt  := bucketStart
     o5   := open
     h5   := high
     l5   := low
@@ -149,8 +149,8 @@ else
     h5 := math.max(h5, high)
     l5 := math.min(l5, low)
     c5 := close
-if not fin5 and time_close >= (bkt + 1) * MS5
-    finalize5(o5, h5, l5, c5, bkt * MS5)
+if not fin5 and time_close >= bkt + MS5
+    finalize5(o5, h5, l5, c5, bkt)
     fin5 := true
 
 inZone(float p, int sd) =>
@@ -219,7 +219,7 @@ if isEnd and not na(o0) and not na(atrD)
     active := h > 0
     o0     := na
 
-lastSessBar = active and time_close >= tStop
+bool isLastBar = active and not na(tStop) and time_close >= tStop
 riskPts     = stopAtr * nz(atrDay)
 
 // ───────────── Touch-Zähler aktualisieren, dann Limit-Orders für die NÄCHSTE Kerze setzen
@@ -244,7 +244,7 @@ if active and time < tStop and lvP.size() > 0
         p  = lvP.get(i)
         sd = lvS.get(i)
         id = (sd == 1 ? "K1 Long " : "K1 Short ") + str.tostring(i)
-        ok = flat and inWindow and not lastSessBar and lvArm.get(i) and lvN.get(i) < maxTouches and (mid - p) * sd > 0 and riskPts > 0 and (not needIct or inZone(p, sd))
+        ok = flat and inWindow and not isLastBar and lvArm.get(i) and lvN.get(i) < maxTouches and (mid - p) * sd > 0 and riskPts > 0 and (not needIct or inZone(p, sd))
         if ok
             lim  = math.round_to_mintick(p)
             stop = math.round_to_mintick(p - sd * riskPts)
@@ -255,7 +255,7 @@ if active and time < tStop and lvP.size() > 0
             strategy.cancel(id)
 
 // ───────────── Tagesende
-if lastSessBar
+if isLastBar
     strategy.cancel_all()
     if strategy.position_size != 0
         strategy.close_all(comment = "15:59")

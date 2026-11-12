@@ -11,10 +11,10 @@ indicator("NQ Stdv Box", overlay = true, max_lines_count = 500, max_boxes_count 
 // ───────────── Inputs
 grpT   = "Zeiten"
 tz     = input.string("America/New_York", "Zeitzone", group = grpT)
-sH     = input.int(0,  "Box-Start Std",  minval = 0, maxval = 23, group = grpT, inline = "s")
-sM     = input.int(0,  "Min",            minval = 0, maxval = 59, group = grpT, inline = "s")
-eH     = input.int(8,  "Box-Ende Std",   minval = 0, maxval = 23, group = grpT, inline = "e")
-eM     = input.int(30, "Min",            minval = 0, maxval = 59, group = grpT, inline = "e")
+sH     = input.int(0,  "Box-Start (Std : Min)",  minval = 0, maxval = 23, group = grpT, inline = "s")
+sM     = input.int(0,  "",            minval = 0, maxval = 59, group = grpT, inline = "s")
+eH     = input.int(8,  "Box-Ende (Std : Min)",   minval = 0, maxval = 23, group = grpT, inline = "e")
+eM     = input.int(30, "",            minval = 0, maxval = 59, group = grpT, inline = "e")
 xH     = input.int(16, "Linien enden um (Std)", minval = 0, maxval = 23, group = grpT)
 
 grpL    = "Stdv-Level"
