@@ -21,6 +21,7 @@
 strategy("NQ Stdv Box – K1 / K2", overlay = true, process_orders_on_close = true, initial_capital = 50000,
      default_qty_type = strategy.fixed, default_qty_value = 1, pyramiding = 0,
      backtest_fill_limits_assumption = 1,
+     margin_long = 0, margin_short = 0,
      commission_type = strategy.commission.cash_per_contract, commission_value = 0.6, slippage = 1,
      max_lines_count = 500, max_boxes_count = 200, max_labels_count = 500)
 
