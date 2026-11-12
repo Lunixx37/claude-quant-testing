@@ -26,46 +26,46 @@ strategy("NQ Stdv Box – K2", overlay = true, process_orders_on_close = true, i
      max_lines_count = 500, max_boxes_count = 200, max_labels_count = 500)
 
 // ───────────── Inputs
-grpT = "Zeiten"
-tz   = input.string("America/New_York", "Zeitzone", group = grpT)
-sH   = input.int(0,  "Box-Start (Std : Min)", minval = 0, maxval = 23, group = grpT, inline = "s")
-sM   = input.int(0,  "",           minval = 0, maxval = 59, group = grpT, inline = "s")
-eH   = input.int(8,  "Box-Ende (Std : Min)",  minval = 0, maxval = 23, group = grpT, inline = "e")
-eM   = input.int(30, "",           minval = 0, maxval = 59, group = grpT, inline = "e")
-xH   = input.int(16, "Handelsende (Std)", minval = 0, maxval = 23, group = grpT)
+string grpT = "Zeiten"
+string tz   = input.string("America/New_York", "Zeitzone", group = grpT)
+int sH   = input.int(0,  "Box-Start (Std : Min)", minval = 0, maxval = 23, group = grpT, inline = "s")
+int sM   = input.int(0,  "",           minval = 0, maxval = 59, group = grpT, inline = "s")
+int eH   = input.int(8,  "Box-Ende (Std : Min)",  minval = 0, maxval = 23, group = grpT, inline = "e")
+int eM   = input.int(30, "",           minval = 0, maxval = 59, group = grpT, inline = "e")
+int xH   = input.int(16, "Handelsende (Std)", minval = 0, maxval = 23, group = grpT)
 
-grpK = "K2-Regeln"
-k2Level     = input.float(3.5, "Setup-Level (Stdv)", group = grpK)
-maxTouches  = input.int(3, "Max. Touches pro Level und Tag (Basis 3, gelockert 6)", minval = 1, maxval = 10, group = grpK)
-reclaimBars = input.int(10, "Reclaim-Fenster in Kerzen (Basis 10)", minval = 0, maxval = 60, group = grpK)
-needPrior   = input.bool(true, "Vorherige Gegenreaktion nötig", group = grpK)
-needMom     = input.bool(true, "Momentum-Kerze nötig", group = grpK)
-minStopAtr  = input.float(0.02, "Mindest-Stop (× ATR)", minval = 0, step = 0.005, group = grpK)
-rearmAtr    = input.float(0.02, "Re-Arm-Abstand (× ATR)", minval = 0, step = 0.005, group = grpK)
+string grpK = "K2-Regeln"
+float k2Level     = input.float(3.5, "Setup-Level (Stdv)", group = grpK)
+int maxTouches  = input.int(3, "Max. Touches pro Level und Tag (Basis 3, gelockert 6)", minval = 1, maxval = 10, group = grpK)
+int reclaimBars = input.int(10, "Reclaim-Fenster in Kerzen (Basis 10)", minval = 0, maxval = 60, group = grpK)
+bool needPrior   = input.bool(true, "Vorherige Gegenreaktion nötig", group = grpK)
+bool needMom     = input.bool(true, "Momentum-Kerze nötig", group = grpK)
+float minStopAtr  = input.float(0.02, "Mindest-Stop (× ATR)", minval = 0, step = 0.005, group = grpK)
+float rearmAtr    = input.float(0.02, "Re-Arm-Abstand (× ATR)", minval = 0, step = 0.005, group = grpK)
 
-grpR = "Positionsgröße"
-riskUsd = input.float(200, "Risiko pro Trade ($)", minval = 1, group = grpR)
-maxQty  = input.int(50, "Max. Kontrakte", minval = 1, group = grpR)
+string grpR = "Positionsgröße"
+float riskUsd = input.float(200, "Risiko pro Trade ($)", minval = 1, group = grpR)
+int maxQty  = input.int(50, "Max. Kontrakte", minval = 1, group = grpR)
 
-grpV = "Darstellung"
-showAll = input.bool(true, "Alle Stdv-Level zeichnen", group = grpV)
-boxCol  = input.color(color.new(color.blue, 80), "Box", group = grpV)
-midCol  = input.color(color.white, "Mittellinie", group = grpV)
-lvlCol  = input.color(color.new(color.gray, 40), "Level", group = grpV)
-k2Col   = input.color(color.new(color.red, 0), "Setup-Level", group = grpV)
+string grpV = "Darstellung"
+bool showAll = input.bool(true, "Alle Stdv-Level zeichnen", group = grpV)
+color boxCol  = input.color(color.new(color.blue, 80), "Box", group = grpV)
+color midCol  = input.color(color.white, "Mittellinie", group = grpV)
+color lvlCol  = input.color(color.new(color.gray, 40), "Level", group = grpV)
+color k2Col   = input.color(color.new(color.red, 0), "Setup-Level", group = grpV)
 
 // ───────────── ATR14 der letzten 14 abgeschlossenen Handelstage (kein Repainting)
-atrD = request.security(syminfo.tickerid, "D", ta.sma(high - low, 14)[1], lookahead = barmerge.lookahead_on)
+float atrD = request.security(syminfo.tickerid, "D", ta.sma(high - low, 14)[1], lookahead = barmerge.lookahead_on)
 
 // ───────────── Zeiten
-y  = year(time, tz)
-mo = month(time, tz)
-d  = dayofmonth(time, tz)
-tS = timestamp(tz, y, mo, d, sH, sM)
-tE = timestamp(tz, y, mo, d, eH, eM)
-tX = timestamp(tz, y, mo, d, xH, 0)
-isStart = time >= tS and (na(time[1]) or time[1] < tS)
-isEnd   = time >= tE and (na(time[1]) or time[1] < tE)
+int y  = year(time, tz)
+int mo = month(time, tz)
+int d  = dayofmonth(time, tz)
+int tS = timestamp(tz, y, mo, d, sH, sM)
+int tE = timestamp(tz, y, mo, d, eH, eM)
+int tX = timestamp(tz, y, mo, d, xH, 0)
+bool isStart = time >= tS and (na(time[1]) or time[1] < tS)
+bool isEnd   = time >= tE and (na(time[1]) or time[1] < tE)
 
 // ───────────── State
 var float o0       = na
@@ -80,24 +80,24 @@ var int   firstBear = na
 var float curStop  = na
 var float curTgt   = na
 
-var array<float> mults  = array.from(2.0, 2.25, 2.5, 3.5, 4.0, 4.25, 4.5)
-var array<float> lvP    = array.new<float>()   // Level-Preis
-var array<int>   lvS    = array.new<int>()     // +1 = Support (Long), −1 = Resistance (Short)
-var array<bool>  lvK2   = array.new<bool>()    // Setup-Level?
-var array<bool>  lvArm  = array.new<bool>()
-var array<int>   lvPend = array.new<int>()     // Touch-Bar eines offenen Reclaim-Fensters, −1 = keins
-var array<float> lvExt  = array.new<float>()   // Sweep-Extrem
-var array<int>   lvN    = array.new<int>()     // Anzahl Touches heute
+var float[] mults  = array.from(2.0, 2.25, 2.5, 3.5, 4.0, 4.25, 4.5)
+var float[] lvP    = array.new_float()   // Level-Preis
+var int[]   lvS    = array.new_int()     // +1 = Support (Long), −1 = Resistance (Short)
+var bool[]  lvK2   = array.new_bool()    // Setup-Level?
+var bool[]  lvArm  = array.new_bool()
+var int[]   lvPend = array.new_int()     // Touch-Bar eines offenen Reclaim-Fensters, −1 = keins
+var float[] lvExt  = array.new_float()   // Sweep-Extrem
+var int[]   lvN    = array.new_int()     // Anzahl Touches heute
 
 addLevel(float p, bool isK2, float rearm) =>
     for sd in array.from(1, -1)
-        lvP.push(p)
-        lvS.push(sd)
-        lvK2.push(isK2)
-        lvArm.push((open - p) * sd >= rearm)
-        lvPend.push(-1)
-        lvExt.push(na)
-        lvN.push(0)
+        array.push(lvP, p)
+        array.push(lvS, sd)
+        array.push(lvK2, isK2)
+        array.push(lvArm, (open - p) * sd >= rearm)
+        array.push(lvPend, -1)
+        array.push(lvExt, na)
+        array.push(lvN, 0)
 
 if isStart
     o0     := open
@@ -115,13 +115,13 @@ if isEnd and not na(o0) and not na(atrD)
     sessBar0 := bar_index
     firstBull := na
     firstBear := na
-    lvP.clear()
-    lvS.clear()
-    lvK2.clear()
-    lvArm.clear()
-    lvPend.clear()
-    lvExt.clear()
-    lvN.clear()
+    array.clear(lvP)
+    array.clear(lvS)
+    array.clear(lvK2)
+    array.clear(lvArm)
+    array.clear(lvPend)
+    array.clear(lvExt)
+    array.clear(lvN)
     rearm = rearmAtr * atrDay
     box.new(t0, top, tX, bot, xloc = xloc.bar_time, bgcolor = boxCol, border_color = color.new(color.blue, 40))
     line.new(t0, mid, tX, mid, xloc = xloc.bar_time, color = midCol)
@@ -139,50 +139,50 @@ if isEnd and not na(o0) and not na(atrD)
     o0     := na
 
 bool isLastBar = active and not na(tStop) and time_close >= tStop
-lastExitBar = strategy.closedtrades > 0 ? strategy.closedtrades.exit_bar_index(strategy.closedtrades - 1) : -1
+int lastExitBar = strategy.closedtrades > 0 ? strategy.closedtrades.exit_bar_index(strategy.closedtrades - 1) : -1
 
 // ───────────── Level-Logik + Signale
-if active and time < tStop and lvP.size() > 0
+if active and time < tStop and array.size(lvP) > 0
     rearm   = rearmAtr * atrDay
     entered = false
-    for i = 0 to lvP.size() - 1
-        p  = lvP.get(i)
-        sd = lvS.get(i)
+    for i = 0 to array.size(lvP) - 1
+        p  = array.get(lvP, i)
+        sd = array.get(lvS, i)
         bool  recl   = false
         int   sTouch = na
         float ext    = na
-        pend = lvPend.get(i)
+        pend = array.get(lvPend, i)
         if pend >= 0
-            e = sd == 1 ? math.min(lvExt.get(i), low) : math.max(lvExt.get(i), high)
-            lvExt.set(i, e)
+            e = sd == 1 ? math.min(array.get(lvExt, i), low) : math.max(array.get(lvExt, i), high)
+            array.set(lvExt, i, e)
             if (sd == 1 ? close > p : close < p)
                 recl   := true
                 sTouch := pend
                 ext    := e
-                lvPend.set(i, -1)
+                array.set(lvPend, i, -1)
             else if bar_index - pend >= reclaimBars
-                lvPend.set(i, -1)
-        else if lvArm.get(i) and lvN.get(i) < maxTouches
+                array.set(lvPend, i, -1)
+        else if array.get(lvArm, i) and array.get(lvN, i) < maxTouches
             touched = sd == 1 ? low <= p - syminfo.mintick : high >= p + syminfo.mintick
             if touched
-                lvN.set(i, lvN.get(i) + 1)
-                lvArm.set(i, false)
+                array.set(lvN, i, array.get(lvN, i) + 1)
+                array.set(lvArm, i, false)
                 e = sd == 1 ? low : high
-                lvExt.set(i, e)
+                array.set(lvExt, i, e)
                 if (sd == 1 ? close > p : close < p)
                     recl   := true
                     sTouch := bar_index
                     ext    := e
                 else
-                    lvPend.set(i, bar_index)
-        if not lvArm.get(i) and (close - p) * sd >= rearm
-            lvArm.set(i, true)
+                    array.set(lvPend, i, bar_index)
+        if not array.get(lvArm, i) and (close - p) * sd >= rearm
+            array.set(lvArm, i, true)
 
         if recl
             // --- K2-Signal prüfen (vorherige Gegenreaktion muss VOR dem Touch abgeschlossen sein)
             priorOk = not needPrior or (sd == 1 ? (not na(firstBear) and firstBear < sTouch) : (not na(firstBull) and firstBull < sTouch))
             momOk   = not needMom or (bar_index > sessBar0 and (sd == 1 ? (close > high[1] and close > open) : (close < low[1] and close < open)))
-            if lvK2.get(i) and priorOk and momOk and not isLastBar and not entered and strategy.position_size == 0 and lastExitBar < bar_index
+            if array.get(lvK2, i) and priorOk and momOk and not isLastBar and not entered and strategy.position_size == 0 and lastExitBar < bar_index
                 sStruct = ext - sd * syminfo.mintick
                 stop    = sd == 1 ? math.min(sStruct, close - minStopAtr * atrDay) : math.max(sStruct, close + minStopAtr * atrDay)
                 stop    := math.round_to_mintick(stop)

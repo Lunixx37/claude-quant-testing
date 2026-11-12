@@ -9,31 +9,31 @@
 indicator("NQ Stdv Box", overlay = true, max_lines_count = 500, max_boxes_count = 200, max_labels_count = 500)
 
 // ───────────── Inputs
-grpT   = "Zeiten"
-tz     = input.string("America/New_York", "Zeitzone", group = grpT)
-sH     = input.int(0,  "Box-Start (Std : Min)",  minval = 0, maxval = 23, group = grpT, inline = "s")
-sM     = input.int(0,  "",            minval = 0, maxval = 59, group = grpT, inline = "s")
-eH     = input.int(8,  "Box-Ende (Std : Min)",   minval = 0, maxval = 23, group = grpT, inline = "e")
-eM     = input.int(30, "",            minval = 0, maxval = 59, group = grpT, inline = "e")
-xH     = input.int(16, "Linien enden um (Std)", minval = 0, maxval = 23, group = grpT)
+string grpT   = "Zeiten"
+string tz     = input.string("America/New_York", "Zeitzone", group = grpT)
+int sH     = input.int(0,  "Box-Start (Std : Min)",  minval = 0, maxval = 23, group = grpT, inline = "s")
+int sM     = input.int(0,  "",            minval = 0, maxval = 59, group = grpT, inline = "s")
+int eH     = input.int(8,  "Box-Ende (Std : Min)",   minval = 0, maxval = 23, group = grpT, inline = "e")
+int eM     = input.int(30, "",            minval = 0, maxval = 59, group = grpT, inline = "e")
+int xH     = input.int(16, "Linien enden um (Std)", minval = 0, maxval = 23, group = grpT)
 
-grpL    = "Stdv-Level"
-lvlStr  = input.string("2, 2.25, 2.5, 3.5, 4, 4.25, 4.5", "Multiplikatoren", group = grpL)
-showLbl = input.bool(true, "Level beschriften", group = grpL)
-boxCol  = input.color(color.new(color.blue, 80), "Box", group = grpL)
-midCol  = input.color(color.white, "Mittellinie", group = grpL)
-upCol   = input.color(color.new(color.gray, 30), "Level oben", group = grpL)
-dnCol   = input.color(color.new(color.gray, 30), "Level unten", group = grpL)
+string grpL    = "Stdv-Level"
+string lvlStr  = input.string("2, 2.25, 2.5, 3.5, 4, 4.25, 4.5", "Multiplikatoren", group = grpL)
+bool showLbl = input.bool(true, "Level beschriften", group = grpL)
+color boxCol  = input.color(color.new(color.blue, 80), "Box", group = grpL)
+color midCol  = input.color(color.white, "Mittellinie", group = grpL)
+color upCol   = input.color(color.new(color.gray, 30), "Level oben", group = grpL)
+color dnCol   = input.color(color.new(color.gray, 30), "Level unten", group = grpL)
 
-grpS     = "Signale (Touch + Konfluenz + Momentum)"
-showSig  = input.bool(true, "Signale anzeigen", group = grpS)
-confMode = input.string("VWAP", "Konfluenz", options = ["Keine", "VWAP", "Psych 100", "Psych 50"], group = grpS)
-tol      = input.float(5.0, "Toleranz (Punkte)", minval = 0, group = grpS)
-momBars  = input.int(15, "Momentum-Fenster (Bars nach Touch)", minval = 0, group = grpS)
-showVw   = input.bool(false, "ETH-VWAP ±1σ/±2σ plotten", group = grpS)
+string grpS     = "Signale (Touch + Konfluenz + Momentum)"
+bool showSig  = input.bool(true, "Signale anzeigen", group = grpS)
+string confMode = input.string("VWAP", "Konfluenz", options = ["Keine", "VWAP", "Psych 100", "Psych 50"], group = grpS)
+float tol      = input.float(5.0, "Toleranz (Punkte)", minval = 0, group = grpS)
+int momBars  = input.int(15, "Momentum-Fenster (Bars nach Touch)", minval = 0, group = grpS)
+bool showVw   = input.bool(false, "ETH-VWAP ±1σ/±2σ plotten", group = grpS)
 
 // ───────────── VWAP (Anker = Handelstag, bei CME-Futures 18:00 ET = ETH-VWAP)
-newDay = timeframe.change("D")
+bool newDay = timeframe.change("D")
 [vw, up1, dn1] = ta.vwap(hlc3, newDay, 1.0)
 [vw2, up2, dn2] = ta.vwap(hlc3, newDay, 2.0)
 plot(showVw ? vw : na, "ETH-VWAP", color.orange)
@@ -43,36 +43,36 @@ plot(showVw ? up2 : na, "+2σ", color.new(color.orange, 70))
 plot(showVw ? dn2 : na, "-2σ", color.new(color.orange, 70))
 
 // ───────────── Level-Multiplikatoren parsen
-var array<float> mults = array.new<float>()
+var float[] mults = array.new_float()
 if barstate.isfirst
     for s in str.split(lvlStr, ",")
         v = str.tonumber(str.replace_all(s, " ", ""))
         if not na(v)
-            mults.push(v)
+            array.push(mults, v)
 
 // ───────────── Zeiten (erste Kerze mit Zeit >= Zielzeit, funktioniert auf allen Intraday-TFs)
-y  = year(time, tz)
-mo = month(time, tz)
-d  = dayofmonth(time, tz)
-tS = timestamp(tz, y, mo, d, sH, sM)
-tE = timestamp(tz, y, mo, d, eH, eM)
-tX = timestamp(tz, y, mo, d, xH, 0)
-isStart = time >= tS and (na(time[1]) or time[1] < tS)
-isEnd   = time >= tE and (na(time[1]) or time[1] < tE)
-isStop  = time >= tX and (na(time[1]) or time[1] < tX)
+int y  = year(time, tz)
+int mo = month(time, tz)
+int d  = dayofmonth(time, tz)
+int tS = timestamp(tz, y, mo, d, sH, sM)
+int tE = timestamp(tz, y, mo, d, eH, eM)
+int tX = timestamp(tz, y, mo, d, xH, 0)
+bool isStart = time >= tS and (na(time[1]) or time[1] < tS)
+bool isEnd   = time >= tE and (na(time[1]) or time[1] < tE)
+bool isStop  = time >= tX and (na(time[1]) or time[1] < tX)
 
 // ───────────── State
 var float o0     = na
 var int   t0     = na
 var int   tStop  = na
 var bool  active = false
-var array<float> lp = array.new<float>()   // Level-Preis
-var array<int>   ls = array.new<int>()     // -1 = oben (Short-Fade), +1 = unten (Long-Fade)
-var array<float> lk = array.new<float>()   // Multiplikator
-var array<int>   lt = array.new<int>()     // bar_index des ersten Touches, -1 = noch nicht
-var array<float> le = array.new<float>()   // Extrem seit Touch (für Stop)
-var array<bool>  lc = array.new<bool>()    // Konfluenz beim Touch
-var array<bool>  ld = array.new<bool>()    // erledigt
+var float[] lp = array.new_float()   // Level-Preis
+var int[]   ls = array.new_int()     // -1 = oben (Short-Fade), +1 = unten (Long-Fade)
+var float[] lk = array.new_float()   // Multiplikator
+var int[]   lt = array.new_int()     // bar_index des ersten Touches, -1 = noch nicht
+var float[] le = array.new_float()   // Extrem seit Touch (für Stop)
+var bool[]  lc = array.new_bool()    // Konfluenz beim Touch
+var bool[]  ld = array.new_bool()    // erledigt
 
 if isStart
     o0     := open
@@ -88,26 +88,26 @@ if isEnd and not na(o0)
     tStop := tX
     box.new(t0, top, tX, bot, xloc = xloc.bar_time, bgcolor = boxCol, border_color = color.new(color.blue, 40))
     line.new(t0, mid, tX, mid, xloc = xloc.bar_time, color = midCol)
-    lp.clear()
-    ls.clear()
-    lk.clear()
-    lt.clear()
-    le.clear()
-    lc.clear()
-    ld.clear()
+    array.clear(lp)
+    array.clear(ls)
+    array.clear(lk)
+    array.clear(lt)
+    array.clear(le)
+    array.clear(lc)
+    array.clear(ld)
     for k in mults
         for sd in array.from(-1, 1)
             p = mid - sd * k * h
             line.new(time, p, tX, p, xloc = xloc.bar_time, color = sd == -1 ? upCol : dnCol)
             if showLbl
                 label.new(tX, p, str.tostring(k), xloc = xloc.bar_time, style = label.style_label_left, color = color.new(color.black, 100), textcolor = sd == -1 ? upCol : dnCol, size = size.tiny)
-            lp.push(p)
-            ls.push(sd)
-            lk.push(k)
-            lt.push(-1)
-            le.push(na)
-            lc.push(false)
-            ld.push(false)
+            array.push(lp, p)
+            array.push(ls, sd)
+            array.push(lk, k)
+            array.push(lt, -1)
+            array.push(le, na)
+            array.push(lc, false)
+            array.push(ld, false)
     active := h > 0
     o0     := na
 
@@ -115,32 +115,32 @@ if isStop
     active := false
 
 // ───────────── Signale
-if active and showSig and time < tStop and lp.size() > 0
-    for i = 0 to lp.size() - 1
-        if ld.get(i)
+if active and showSig and time < tStop and array.size(lp) > 0
+    for i = 0 to array.size(lp) - 1
+        if array.get(ld, i)
             continue
-        p  = lp.get(i)
-        sd = ls.get(i)
-        if lt.get(i) < 0
+        p  = array.get(lp, i)
+        sd = array.get(ls, i)
+        if array.get(lt, i) < 0
             touched = sd == -1 ? high >= p : low <= p
             if touched
-                lt.set(i, bar_index)
-                le.set(i, sd == -1 ? high : low)
+                array.set(lt, i, bar_index)
+                array.set(le, i, sd == -1 ? high : low)
                 float dist = switch confMode
                     "VWAP"      => math.min(math.abs(p - vw), math.abs(p - up1), math.abs(p - dn1), math.abs(p - up2), math.abs(p - dn2))
                     "Psych 100" => math.abs(p - math.round(p / 100) * 100)
                     "Psych 50"  => math.abs(p - math.round(p / 50) * 50)
                     => 0.0
-                lc.set(i, dist <= tol)
-        if lt.get(i) >= 0
-            le.set(i, sd == -1 ? math.max(le.get(i), high) : math.min(le.get(i), low))
+                array.set(lc, i, dist <= tol)
+        if array.get(lt, i) >= 0
+            array.set(le, i, sd == -1 ? math.max(array.get(le, i), high) : math.min(array.get(le, i), low))
             trig = sd == -1 ? (close < p and close < low[1] and close < open) : (close > p and close > high[1] and close > open)
-            if trig and lc.get(i)
-                stop = sd == -1 ? le.get(i) + syminfo.mintick : le.get(i) - syminfo.mintick
+            if trig and array.get(lc, i)
+                stop = sd == -1 ? array.get(le, i) + syminfo.mintick : array.get(le, i) - syminfo.mintick
                 risk = math.abs(close - stop)
-                tip  = "Level " + str.tostring(lk.get(i)) + "\nEntry " + str.tostring(close) + "\nStop " + str.tostring(stop) + "\n2R " + str.tostring(close + sd * 2 * risk)
+                tip  = "Level " + str.tostring(array.get(lk, i)) + "\nEntry " + str.tostring(close) + "\nStop " + str.tostring(stop) + "\n2R " + str.tostring(close + sd * 2 * risk)
                 label.new(bar_index, sd == -1 ? high : low, sd == -1 ? "S" : "L", style = sd == -1 ? label.style_label_down : label.style_label_up, color = sd == -1 ? color.red : color.green, textcolor = color.white, size = size.small, tooltip = tip)
                 alert("NQ Stdv Box " + (sd == -1 ? "SHORT" : "LONG") + " @ " + str.tostring(close) + " | " + tip, alert.freq_once_per_bar_close)
-                ld.set(i, true)
-            else if trig or bar_index - lt.get(i) >= momBars
-                ld.set(i, true)
+                array.set(ld, i, true)
+            else if trig or bar_index - array.get(lt, i) >= momBars
+                array.set(ld, i, true)
