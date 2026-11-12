@@ -478,3 +478,9 @@ Bestehenswahrscheinlichkeit (in Klammern: mittlere Dauer in Handelstagen):
 ### `k1_strategy.pine`
 
 Pine-v6-Strategie für den 1-Minuten-Chart. Sie baut die 5-Minuten-ICT-Zonen selbst aus den 1-Minuten-Kerzen und legt Limit-Orders an die qualifizierten Level, mit Stop und Ziel. Ein Fill gilt erst, wenn der Preis einen Tick durchhandelt (`backtest_fill_limits_assumption = 1`). Entry-Fenster, Touch-Anzahl, ICT-Filter, Stop und Risiko sind einstellbar.
+
+## Teil 9 – Gemeinsames Skript `k1_k2_strategy.pine`
+
+Eine Pine-v6-**Strategie** für den 1-Minuten-Chart. Ein Skript ist entweder Indikator oder Strategie; Order-Simulation und Strategy Tester gibt es nur als Strategie. Über die Einstellung **„Strategie“** wählst du `K1`, `K2` oder `K1 + K2`. Jede hat eigene Einstellungen für Risiko, Touches und Filter.
+
+Im Modus `K1 + K2` ist immer nur **eine** Position gleichzeitig offen, weil TradingView pro Strategie nur eine Netto-Position führt. Die Eval-Simulation in Teil 8 hat beide dagegen unabhängig voneinander gerechnet. Die Einzelskripte `k1_strategy.pine` und `k2_strategy.pine` bleiben erhalten.
