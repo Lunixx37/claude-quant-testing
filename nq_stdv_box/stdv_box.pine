@@ -36,11 +36,11 @@ bool showVw   = input.bool(false, "ETH-VWAP ±1σ/±2σ plotten", group = grpS)
 bool newDay = timeframe.change("D")
 [vw, up1, dn1] = ta.vwap(hlc3, newDay, 1.0)
 [vw2, up2, dn2] = ta.vwap(hlc3, newDay, 2.0)
-plot(showVw ? vw : na, "ETH-VWAP", color.orange)
-plot(showVw ? up1 : na, "+1σ", color.new(color.orange, 50))
-plot(showVw ? dn1 : na, "-1σ", color.new(color.orange, 50))
-plot(showVw ? up2 : na, "+2σ", color.new(color.orange, 70))
-plot(showVw ? dn2 : na, "-2σ", color.new(color.orange, 70))
+plot(showVw ? vw : na, "ETH-VWAP", color.orange, force_overlay = true)
+plot(showVw ? up1 : na, "+1σ", color.new(color.orange, 50), force_overlay = true)
+plot(showVw ? dn1 : na, "-1σ", color.new(color.orange, 50), force_overlay = true)
+plot(showVw ? up2 : na, "+2σ", color.new(color.orange, 70), force_overlay = true)
+plot(showVw ? dn2 : na, "-2σ", color.new(color.orange, 70), force_overlay = true)
 
 // ───────────── Level-Multiplikatoren parsen
 var float[] mults = array.new_float()
@@ -86,8 +86,8 @@ if isEnd and not na(o0)
     mid   = (top + bot) / 2
     h     = (top - bot) / 2
     tStop := tX
-    box.new(t0, top, tX, bot, xloc = xloc.bar_time, bgcolor = boxCol, border_color = color.new(color.blue, 40))
-    line.new(t0, mid, tX, mid, xloc = xloc.bar_time, color = midCol)
+    box.new(t0, top, tX, bot, xloc = xloc.bar_time, bgcolor = boxCol, border_color = color.new(color.blue, 40), force_overlay = true)
+    line.new(t0, mid, tX, mid, xloc = xloc.bar_time, color = midCol, force_overlay = true)
     array.clear(lp)
     array.clear(ls)
     array.clear(lk)
@@ -98,9 +98,9 @@ if isEnd and not na(o0)
     for k in mults
         for sd in array.from(-1, 1)
             p = mid - sd * k * h
-            line.new(time, p, tX, p, xloc = xloc.bar_time, color = sd == -1 ? upCol : dnCol)
+            line.new(time, p, tX, p, xloc = xloc.bar_time, color = sd == -1 ? upCol : dnCol, force_overlay = true)
             if showLbl
-                label.new(tX, p, str.tostring(k), xloc = xloc.bar_time, style = label.style_label_left, color = color.new(color.black, 100), textcolor = sd == -1 ? upCol : dnCol, size = size.tiny)
+                label.new(tX, p, str.tostring(k), xloc = xloc.bar_time, style = label.style_label_left, color = color.new(color.black, 100), textcolor = sd == -1 ? upCol : dnCol, size = size.tiny, force_overlay = true)
             array.push(lp, p)
             array.push(ls, sd)
             array.push(lk, k)
@@ -139,7 +139,7 @@ if active and showSig and time < tStop and array.size(lp) > 0
                 stop = sd == -1 ? array.get(le, i) + syminfo.mintick : array.get(le, i) - syminfo.mintick
                 risk = math.abs(close - stop)
                 tip  = "Level " + str.tostring(array.get(lk, i)) + "\nEntry " + str.tostring(close) + "\nStop " + str.tostring(stop) + "\n2R " + str.tostring(close + sd * 2 * risk)
-                label.new(bar_index, sd == -1 ? high : low, sd == -1 ? "S" : "L", style = sd == -1 ? label.style_label_down : label.style_label_up, color = sd == -1 ? color.red : color.green, textcolor = color.white, size = size.small, tooltip = tip)
+                label.new(bar_index, sd == -1 ? high : low, sd == -1 ? "S" : "L", style = sd == -1 ? label.style_label_down : label.style_label_up, color = sd == -1 ? color.red : color.green, textcolor = color.white, size = size.small, tooltip = tip, force_overlay = true)
                 alert("NQ Stdv Box " + (sd == -1 ? "SHORT" : "LONG") + " @ " + str.tostring(close) + " | " + tip, alert.freq_once_per_bar_close)
                 array.set(ld, i, true)
             else if trig or bar_index - array.get(lt, i) >= momBars

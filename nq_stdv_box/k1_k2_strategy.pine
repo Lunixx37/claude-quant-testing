@@ -247,8 +247,8 @@ if isEnd and not na(o0) and not na(atrD)
     array.clear(lvExt)
     array.clear(lvN)
     rearm = rearmAtr * atrDay
-    box.new(t0, top, tX, bot, xloc = xloc.bar_time, bgcolor = boxCol, border_color = color.new(color.blue, 40))
-    line.new(t0, mid, tX, mid, xloc = xloc.bar_time, color = midCol)
+    box.new(t0, top, tX, bot, xloc = xloc.bar_time, bgcolor = boxCol, border_color = color.new(color.blue, 40), force_overlay = true)
+    line.new(t0, mid, tX, mid, xloc = xloc.bar_time, color = midCol, force_overlay = true)
     addLevel2(o0, false, rearm)
     addLevel2(o830, false, rearm)
     for k in mults
@@ -261,8 +261,8 @@ if isEnd and not na(o0) and not na(atrD)
             array.push(aS, -sg)
             array.push(aArm, (open - p) * -sg >= rearm)
             array.push(aN, 0)
-            line.new(time, p, tX, p, xloc = xloc.bar_time, color = hl ? k2Col : lvlCol)
-            label.new(tX, p, (sg == 1 ? "+" : "-") + str.tostring(k), xloc = xloc.bar_time, style = label.style_label_left, color = color.new(color.black, 100), textcolor = hl ? k2Col : lvlCol, size = size.tiny)
+            line.new(time, p, tX, p, xloc = xloc.bar_time, color = hl ? k2Col : lvlCol, force_overlay = true)
+            label.new(tX, p, (sg == 1 ? "+" : "-") + str.tostring(k), xloc = xloc.bar_time, style = label.style_label_left, color = color.new(color.black, 100), textcolor = hl ? k2Col : lvlCol, size = size.tiny, force_overlay = true)
     active := h > 0
     o0     := na
 
@@ -325,7 +325,7 @@ if active and time < tStop and array.size(lvP) > 0
                     curTgt    := tgt
                     enteredK2 := true
                     rr = math.abs(tgt - close) / risk
-                    label.new(bar_index, sd == 1 ? low : high, id + "\nRR " + str.tostring(rr, "#.0") + " | Stop " + str.tostring(risk, "#.00") + " Pkt\n" + str.tostring(qty) + " Kontr.", style = sd == 1 ? label.style_label_up : label.style_label_down, color = sd == 1 ? color.new(color.green, 10) : color.new(color.red, 10), textcolor = color.white, size = size.small)
+                    label.new(bar_index, sd == 1 ? low : high, id + "\nRR " + str.tostring(rr, "#.0") + " | Stop " + str.tostring(risk, "#.00") + " Pkt\n" + str.tostring(qty) + " Kontr.", style = sd == 1 ? label.style_label_up : label.style_label_down, color = sd == 1 ? color.new(color.green, 10) : color.new(color.red, 10), textcolor = color.white, size = size.small, force_overlay = true)
                     alert(id + " Entry " + str.tostring(close) + " Stop " + str.tostring(stop) + " Ziel " + str.tostring(tgt), alert.freq_once_per_bar_close)
             if sd == 1 and na(firstBull)
                 firstBull := bar_index
@@ -379,8 +379,8 @@ if isLastBar
         strategy.close_all(comment = "15:59")
     active := false
 
-plot(strategy.position_size != 0 ? curStop : na, "Stop", color.red, 1, plot.style_linebr)
-plot(strategy.position_size != 0 ? curTgt : na, "Ziel", color.green, 1, plot.style_linebr)
+plot(strategy.position_size != 0 ? curStop : na, "Stop", color.red, 1, plot.style_linebr, force_overlay = true)
+plot(strategy.position_size != 0 ? curTgt : na, "Ziel", color.green, 1, plot.style_linebr, force_overlay = true)
 
 if barstate.islast and not (timeframe.isminutes and timeframe.multiplier == 1)
-    label.new(bar_index, high, "Dieses Skript ist für den 1-Minuten-Chart gebaut.\nBitte Timeframe auf 1m stellen.", color = color.orange, textcolor = color.black)
+    label.new(bar_index, high, "Dieses Skript ist für den 1-Minuten-Chart gebaut.\nBitte Timeframe auf 1m stellen.", color = color.orange, textcolor = color.black, force_overlay = true)
