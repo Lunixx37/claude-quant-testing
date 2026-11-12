@@ -484,3 +484,88 @@ Pine-v6-Strategie für den 1-Minuten-Chart. Sie baut die 5-Minuten-ICT-Zonen sel
 Eine Pine-v6-**Strategie** für den 1-Minuten-Chart. Ein Skript ist entweder Indikator oder Strategie; Order-Simulation und Strategy Tester gibt es nur als Strategie. Über die Einstellung **„Strategie“** wählst du `K1`, `K2` oder `K1 + K2`. Jede hat eigene Einstellungen für Risiko, Touches und Filter.
 
 Im Modus `K1 + K2` ist immer nur **eine** Position gleichzeitig offen, weil TradingView pro Strategie nur eine Netto-Position führt. Die Eval-Simulation in Teil 8 hat beide dagegen unabhängig voneinander gerechnet. Die Einzelskripte `k1_strategy.pine` und `k2_strategy.pine` bleiben erhalten.
+
+## Teil 10 – K2 optimieren: größere Ziele, engere Stops, rettende Kriterien (`k2_optimize.py`, `k2_grid.py`, `k2_filters.py`, `k2_select.py`, `k2_variants.py`)
+
+Ergebnisse liegen in `results/k2_opt/`. Grundlage sind alle K2-Einstiege mit bis zu 6 Touches pro Level (CFD 1.220, NQ 583).
+
+**Methode:** Stop- und Zielraster wurden auf beiden Datensätzen gerechnet. Die Zusatzkriterien wurden **nur auf CFD 2016–2022** ausgewählt und danach einmal auf NQ 2023–2025 und auf Fake-Leveln geprüft. K2 selbst ist weiterhin eine im Nachhinein gewählte Strategie, daher ist alles hier Optimierung auf bekannten Daten.
+
+### 1. Größere Ziele (Stop unverändert: hinter dem Sweep, mindestens 0,02 ATR)
+
+Ø R pro Trade, K2 mit 6 Touches:
+
+| Ziel | CFD Ø R | NQ Ø R | NQ Winrate |
+|---|---|---|---|
+| Box-Mitte (bisher) | +0,107 | +0,139 | 41,8 % |
+| gegenüberliegende Box-Kante | +0,152 | +0,126 | 38,0 % |
+| **gegenüberliegendes 2.0-Level** | **+0,194** | **+0,161** | 35,0 % |
+| gegenüberliegendes 3.5-Level | +0,246 | +0,165 | 31,1 % |
+| kein Ziel, bis 15:59 halten | +0,261 | +0,056 | 19,6 % |
+| feste Ziele 5R / 8R / 12R | +0,13 / +0,18 / +0,20 | +0,19 / +0,14 / +0,08 | 25 / 22 / 20 % |
+
+* Weiter entfernte Level als Ziel sind in beiden Datensätzen besser oder gleich gut. Der Zugewinn kommt aber hauptsächlich aus dem CFD-Datensatz; auf NQ ist er klein.
+* Ganz ohne Ziel (bis Handelsende halten) ist inkonsistent.
+* **Break-even nach Erreichen der Mitte** und **Teilgewinn an der Mitte** verschlechtern das Ergebnis in beiden Datensätzen.
+
+### 2. Engere Stops
+
+| Stop (Ziel: 2.0-Level gegenüber) | Stop NQ (Median) | CFD Ø R | NQ Ø R | NQ Winrate |
+|---|---|---|---|---|
+| Struktur, mind. 0,02 ATR (bisher) | 22,5 Pkt | +0,194 | +0,161 | 35,0 % |
+| halbe Struktur | ≈ 11 Pkt | +0,199 | +0,190 | 22,2 % |
+| Extrem der Reclaim-Kerze | – | +0,181 | +0,113 | 26,0 % |
+| fix 0,03 ATR | ≈ 8,5 Pkt | +0,171 | +0,258 | 19,5 % |
+| fix 0,02 ATR | ≈ 5,7 Pkt | +0,027 | +0,059 | 13,2 % |
+| fix 0,015 ATR | – | −0,045 | +0,107 | 10,6 % |
+| fix 0,01 ATR | – | +0,104 | −0,346 | 6,7 % |
+
+Bis etwa zur halben Struktur bzw. 0,03 ATR bleibt der Ertrag pro Trade erhalten oder steigt, aber die Winrate halbiert sich. Noch engere Stops (≤ 0,02 ATR, also ≈ 6 NQ-Punkte) brechen ein.
+
+### 3. Kriterien, die enge Stops tragen
+
+Die Terzile wurden auf CFD gebildet und unverändert auf NQ angewendet. Beispiel: halber Struktur-Stop, Ziel 2.0-Level gegenüber.
+
+| Kriterium | günstiger Bereich: CFD / NQ Ø R | ungünstiger Bereich: CFD / NQ Ø R |
+|---|---|---|
+| Boxhöhe | > 0,156 ATR: **+0,57 / +0,50** | ≤ 0,073 ATR: −0,17 / −0,02 |
+| Tageszeit | nach 11:28: +0,42 / +0,40 | vor 09:57: −0,09 / −0,03 |
+| Touch-Nummer | 1.–2. Touch: +0,29 / +0,30 | ab 5. Touch: +0,08 / +0,02 |
+| Dauer bis Reclaim | 3–4 Kerzen: +0,45 / +0,34 | ≤ 2 Kerzen: −0,01 / +0,06 |
+| Abstand zur VWAP | mind. 1 σ gedehnt: +0,13…+0,41 / +0,09…+0,61 | weniger gedehnt: −0,03 / −0,07 |
+| Sweep-Tiefe | ≤ 0,065 ATR: +0,23…+0,24 / +0,11…+0,35 | tiefer: +0,03 / +0,04 |
+
+Diese sechs Kriterien wirken in beiden Datensätzen in dieselbe Richtung. Relatives Volumen, Kerzenkörper und Box-Richtung sind dagegen uneinheitlich.
+
+### 4. Varianten im Vergleich (Filter per Vorwärtsauswahl auf CFD gewählt)
+
+| | Variante | Trades/Wo | Winrate | Ø Gewinner | CFD Ø R (t) | NQ Ø R (t) | NQ R/Woche | Max. DD (CFD / NQ) | Längste Verlustserie | Fake-Level Ø R (CFD / NQ) |
+|---|---|---|---|---|---|---|---|---|---|---|
+| V0 | K2 Basis: Struktur-Stop, Ziel Mitte, 3 Touches | 2,4 | 41–44 % | 1,6–1,9 R | +0,136 (2,0) | +0,190 (1,8) | 0,45 | −21 / −24 R | 10–12 | – |
+| V1 | Struktur-Stop, Ziel Mitte, **4 Touches** | 2,9 | 42–44 % | 1,7–1,9 R | +0,152 (2,4) | +0,191 (2,1) | 0,54 | −20 / −23 R | 10–17 | −0,06 / −0,06 |
+| **V2** | Struktur-Stop, **Ziel 2.0-Level gegenüber**, 4 Touches | 2,8 | 35–37 % | 2,5 R | **+0,270 (3,2)** | +0,196 (1,8) | 0,55 | −27 / −23 R | 12–20 | −0,03 / 0,00 |
+| **V3** | Struktur-Stop, **Ziel 3.5-Level gegenüber**, 4 Touches | 2,8 | 31–34 % | 2,9–3,1 R | **+0,342 (3,5)** | +0,196 (1,6) | 0,55 | −24 / −22 R | 12–20 | −0,06 / 0,00 |
+| V4 | halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 ATR | 2,6 | 16 % | 7,6–8,2 R | +0,378 (2,3) | +0,311 (1,5) | 0,79 | **−81 / −42 R** | **36–41** | −0,17 / +0,09 |
+| V5 | Stop fix 0,03 ATR, Ziel 2.0 gegenüber, Entry nach 09:57 | 2,6 | 18–19 % | 6,1–6,6 R | +0,304 (2,1) | +0,277 (1,5) | 0,73 | −42 / −68 R | 20–28 | −0,16 / +0,05 |
+| V6 | wie V4, zusätzlich Reclaim erst nach > 2 Kerzen | 1,5 | 18–19 % | 7,9 R | +0,638 (2,7) | +0,534 (1,8) | 0,80 | −35 / −31 R | 22–23 | −0,12 / +0,25 |
+
+### 5. Bestehensquote 50k-Eval (Risiko je Variante optimiert, Annahmen wie in Teil 7)
+
+| | Regel A: wie Backtest | A: halbe Kante | A: keine Kante | Regel B: wie Backtest | B: halbe Kante | B: keine Kante | bestes Risiko pro Trade |
+|---|---|---|---|---|---|---|---|
+| V0 | 48 % | 32 % | 20 % | 60 % | 45 % | 32 % | 0,4 % |
+| V1 | 54 % | 36 % | 21 % | 64 % | 47 % | 33 % | 0,3 % |
+| **V2** | **61 %** | 38 % | 21 % | **71 %** | 50 % | 32 % | 0,25–0,3 % |
+| **V3** | **64 %** | 40 % | 20 % | **74 %** | 51 % | 32 % | 0,2–0,25 % |
+| V4 | 46 % | 29 % | 17 % | 60 % | 45 % | 32 % | 0,15–0,2 % |
+| V5 | 47 % | 32 % | 20 % | 59 % | 44 % | 33 % | 0,15–0,2 % |
+| V6 | 48 % | 26 % | 13 % | 68 % | 48 % | 31 % | 0,2–0,25 % |
+
+### Fazit
+
+* **Größere Ziele bei unverändertem Stop (V2 / V3) sind die sinnvollste Verbesserung.** Sie liefern mehr R pro Trade und die höchste Eval-Quote, bei einer Winrate von 31–37 % und einem ähnlichen Drawdown wie bisher. Auf NQ allein ist der Vorteil gegenüber „Ziel Mitte“ allerdings gering (+0,196 gegenüber +0,191 R); er stammt vor allem aus dem CFD-Datensatz.
+* **Enge Stops (V4–V6) erhöhen den Ertrag pro Trade und pro Woche**, aber bei 16–19 % Winrate, Verlustserien von 20–40 Trades und Drawdowns bis −81 R. Für eine Eval sind sie deshalb **nicht besser**, trotz höherem Erwartungswert. Auf NQ sind auch die Fake-Level leicht positiv, die Evidenz ist dort also schwächer.
+* Das Muster der Zusatzkriterien (große Box, nicht zu früh, erste Touches, Reclaim nicht sofort, von der VWAP gedehnt, flacher Sweep) ist konsistent, jeder Filter kostet aber Trades.
+* Alle Varianten sind im Nachhinein auf bekannten Daten gewählt.
+
+**Pine:** In `k1_k2_strategy.pine` und `k2_strategy.pine` gibt es neue K2-Einstellungen: Ziel in Stdv jenseits der Mitte (0 = Mitte, 2 = 2.0-Level gegenüber, 3.5 = 3.5-Level gegenüber), Stop-Modell (Struktur / Halbe Struktur / Fix × ATR), Mindest-Boxhöhe, frühester Entry und Mindestdauer bis zum Reclaim. Die Voreinstellung ist V2 (4 Touches, Ziel 2.0-Level gegenüber, Struktur-Stop).

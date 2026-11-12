@@ -37,12 +37,18 @@ int xH   = input.int(16, "Handelsende (Std)", minval = 0, maxval = 23, group = g
 
 string grpK = "K2-Regeln"
 float k2Level     = input.float(3.5, "Setup-Level (Stdv)", group = grpK)
-int maxTouches  = input.int(3, "Max. Touches pro Level und Tag (Basis 3, gelockert 6)", minval = 1, maxval = 10, group = grpK)
+int maxTouches  = input.int(4, "Max. Touches pro Level und Tag (Basis 3, empfohlen 4)", minval = 1, maxval = 10, group = grpK)
 int reclaimBars = input.int(10, "Reclaim-Fenster in Kerzen (Basis 10)", minval = 0, maxval = 60, group = grpK)
 bool needPrior   = input.bool(true, "Vorherige Gegenreaktion nötig", group = grpK)
 bool needMom     = input.bool(true, "Momentum-Kerze nötig", group = grpK)
 float minStopAtr  = input.float(0.02, "Mindest-Stop (× ATR)", minval = 0, step = 0.005, group = grpK)
 float rearmAtr    = input.float(0.02, "Re-Arm-Abstand (× ATR)", minval = 0, step = 0.005, group = grpK)
+float k2TgtK    = input.float(2.0, "Ziel: Stdv jenseits der Mitte (0 = Mitte, 2 = 2.0-Level gegenüber, 3.5 = 3.5-Level gegenüber)", minval = 0, step = 0.5, group = grpK)
+string k2StopMode = input.string("Struktur", "Stop-Modell", options = ["Struktur", "Halbe Struktur", "Fix (× ATR)"], group = grpK)
+float k2FixStop = input.float(0.03, "Fix-Stop (× ATR)", minval = 0.005, step = 0.005, group = grpK)
+float k2MinBox  = input.float(0.0, "Mindest-Boxhöhe (× ATR)", minval = 0, step = 0.01, group = grpK)
+int k2MinBars   = input.int(0, "Frühester Entry: Kerzen nach 08:30", minval = 0, group = grpK)
+int k2MinRecl   = input.int(0, "Reclaim frühestens nach N Kerzen", minval = 0, group = grpK)
 
 string grpR = "Positionsgröße"
 float riskUsd = input.float(200, "Risiko pro Trade ($)", minval = 1, group = grpR)
@@ -74,6 +80,7 @@ var int   t0       = na
 var int   tStop    = na
 var bool  active   = false
 var float mid      = na
+var float hBox     = na
 var float atrDay   = na
 var int   sessBar0 = na
 var int   firstBull = na     // frühester bullischer Reclaim des Tages (bar_index)
@@ -111,6 +118,7 @@ if isEnd and not na(o0) and not na(atrD)
     bot    = math.min(o0, o830)
     h      = (top - bot) / 2
     mid      := (top + bot) / 2
+    hBox     := h
     atrDay   := atrD
     tStop    := tX
     sessBar0 := bar_index
@@ -186,10 +194,15 @@ if active and time < tStop and array.size(lvP) > 0
             if array.get(lvK2, i) and priorOk and momOk and not isLastBar and not entered and strategy.position_size == 0 and lastExitBar < bar_index
                 sStruct = ext - sd * syminfo.mintick
                 stop    = sd == 1 ? math.min(sStruct, close - minStopAtr * atrDay) : math.max(sStruct, close + minStopAtr * atrDay)
+                if k2StopMode == "Halbe Struktur"
+                    stop := close - 0.5 * (close - sStruct)
+                if k2StopMode == "Fix (× ATR)"
+                    stop := close - sd * k2FixStop * atrDay
                 stop    := math.round_to_mintick(stop)
-                tgt     = math.round_to_mintick(mid)
+                tgt     = math.round_to_mintick(mid + sd * k2TgtK * hBox)
                 risk    = math.abs(close - stop)
-                if (tgt - close) * sd > 0 and risk > 0
+                filtOk  = 2 * hBox / atrDay > k2MinBox and bar_index - sessBar0 >= k2MinBars and bar_index - sTouch >= k2MinRecl
+                if (tgt - close) * sd > 0 and risk > 0 and filtOk
                     qty = math.max(1, math.min(maxQty, math.floor(riskUsd / (risk * syminfo.pointvalue))))
                     id  = sd == 1 ? "K2 Long" : "K2 Short"
                     strategy.entry(id, sd == 1 ? strategy.long : strategy.short, qty = qty)

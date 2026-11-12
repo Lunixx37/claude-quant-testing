@@ -161,7 +161,7 @@ def prepare(kind, start, end, first_day):
             continue
         days.append({"day": day, "b": b, "O": s.open.values, "H": s.high.values, "L": s.low.values,
                      "C": s.close.values, "T": s.index.values.astype("datetime64[m]").astype(np.int64),
-                     "vw": s.vw_eth.values, "sd": s.sd_eth.values})
+                     "vw": s.vw_eth.values, "sd": s.sd_eth.values, "V": s.volume.values.astype(float)})
     zones = ict.detect_zones(bars[["open", "high", "low", "close"]])
     return days, zones
 
