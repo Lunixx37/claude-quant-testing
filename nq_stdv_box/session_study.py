@@ -49,6 +49,8 @@ def first_passage(H, L, s, lvl, side, x):
             rej, brk = H[i] >= lvl + x, L[i] <= lvl - x
         else:
             rej, brk = L[i] <= lvl - x, H[i] >= lvl + x
+        if i == s:
+            rej = False      # the touch bar's opposite extreme may stem from before the touch
         if rej and brk:
             return -1
         if rej:
@@ -209,6 +211,7 @@ def report(d):
                 r[f"{ds} Rejection %"] = round(dec.react.mean() * 100, 1) if len(dec) else np.nan
                 r[f"{ds} Rejection % Fake"] = round(decf.react.mean() * 100, 1) if len(decf) else np.nan
                 r[f"{ds} Reclaim %"] = round(t.reclaimed.mean() * 100, 1) if len(t) else np.nan
+                r[f"{ds} Reclaim % Fake"] = round(tf.reclaimed.mean() * 100, 1) if len(tf) else np.nan
                 r[f"{ds} n"] = len(t)
             rows.append(r)
     R1 = pd.DataFrame(rows)

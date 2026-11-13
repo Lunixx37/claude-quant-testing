@@ -569,3 +569,69 @@ Diese sechs Kriterien wirken in beiden Datensätzen in dieselbe Richtung. Relati
 * Alle Varianten sind im Nachhinein auf bekannten Daten gewählt.
 
 **Pine:** In `k1_k2_strategy.pine` und `k2_strategy.pine` gibt es neue K2-Einstellungen: Ziel in Stdv jenseits der Mitte (0 = Mitte, 2 = 2.0-Level gegenüber, 3.5 = 3.5-Level gegenüber), Stop-Modell (Struktur / Halbe Struktur / Fix × ATR), Mindest-Boxhöhe, frühester Entry und Mindestdauer bis zum Reclaim. Die Voreinstellung ist V2 (4 Touches, Ziel 2.0-Level gegenüber, Struktur-Stop).
+
+## Teil 11 – Wirken die Level auch außerhalb der New-York-Sitzung? (`session_study.py`)
+
+Ergebnisse liegen in `results/sessions/`.
+
+Die Box von Tag D steht erst um 08:30 ET fest. Ihre Level gelten deshalb weiter, bis die nächste Box fertig ist. Ausgewertet werden vier Sitzungen (New-York-Zeit), jeweils mit frischer Zählung der Touches und immer gegen Fake-Level (um ± 0,07 ATR verschoben):
+
+| Sitzung | Zeit (ET) | Level stammen von |
+|---|---|---|
+| RTH | 08:30–16:00 | Box desselben Tages (Referenz, wie bisher) |
+| Nachbörse | 16:00–17:00 | Box desselben Tages |
+| Asien | 18:00–02:00 | Box des Vortages |
+| London | 02:00–08:30 | Box des Vortages |
+
+### 1. Wie oft werden die Level überhaupt erreicht? (Anteil der Tage mit mindestens einem Touch, CFD / NQ)
+
+| Level | RTH | Nachbörse | Asien | London |
+|---|---|---|---|---|
+| Box-Kante 00:00 | 70 % / 69 % | 7 % / 8 % | 21 % / 19 % | 21 % / 21 % |
+| Box-Kante 08:30 | 89 % / 87 % | 8 % / 8 % | 21 % / 19 % | 22 % / 25 % |
+| Cluster 2–2.5 | 92 % / 93 % | 19 % / 19 % | 38 % / 36 % | 38 % / 39 % |
+| 3.5 | 78 % / 79 % | 13 % / 13 % | 31 % / 28 % | 32 % / 33 % |
+| Cluster 4–4.5 | 74 % / 74 % | 15 % / 16 % | 34 % / 30 % | 34 % / 35 % |
+
+Außerhalb der RTH werden die Level deutlich seltener erreicht: über Nacht an etwa jedem dritten Tag (Stdv-Level) bzw. jedem fünften (Box-Kanten), in der Nachbörse fast nie.
+
+### 2. Reagiert der Preis an den Leveln? (erster Touch: läuft er 0,03 ATR zurück, bevor er 0,03 ATR durchbricht?)
+
+| Sitzung | echte Level | Fake-Level |
+|---|---|---|
+| RTH | 42–43 % | 41–44 % |
+| Nachbörse | 33–46 % | 36–43 % |
+| Asien | 43–54 % | 42–48 % |
+| London | 46–50 % | 46–51 % |
+
+* **In keiner Sitzung reagiert der Preis an den echten Leveln messbar anders als an verschobenen Fake-Leveln.**
+* Einzige kleine Auffälligkeit: Die **Box-Kanten in der Asien-Sitzung** werden in beiden Datensätzen etwas häufiger zurückgewiesen als Fake-Level (NQ 51–54 % gegenüber 44 %, CFD 44–46 % gegenüber 42–44 %). Die Fallzahlen sind klein, und ein einfacher Fade dort ist trotzdem negativ.
+* **Reclaims passieren an jedem Preis:** Nach einem Durchhandeln schließt in rund 80 % der Fälle innerhalb von 10 Minuten wieder eine 1-Minuten-Kerze auf der Ausgangsseite, an echten Leveln (76–91 %) genauso wie an Fake-Leveln (76–86 %). Ein Sweep mit Reclaim allein sagt also nichts aus.
+* Einfache Fades (Limit oder Reclaim → Mitte) sind in allen Sitzungen und an allen Level-Gruppen ungefähr null bis negativ und nicht besser als an Fake-Leveln.
+
+### 3. K1–K5 je Sitzung (ohne Tageszeit-Filter; Ø R pro Trade CFD / NQ, in Klammern Trades pro Woche)
+
+| | RTH | Nachbörse | Asien | London |
+|---|---|---|---|---|
+| K1 | −0,04 / −0,04 (17) | −0,17 / −0,11 (1,2) | −0,07 / −0,13 (4) | −0,04 / −0,07 (5) |
+| **K2** | **+0,14 / +0,19 (2,3)** | −0,64 / +0,02 (0,1) | +0,30 / +0,09 (0,5) | +0,13 / +0,01 (0,6) |
+| K3 | −0,01 / +0,02 (11) | +0,04 / +0,03 (1,3) | +0,05 / −0,14 (3,4) | −0,04 / −0,03 (3,8) |
+| K4 | +0,11 / +0,15 (2,5) | −0,26 / −0,22 (0,3) | +0,07 / −0,14 (1,6) | +0,04 / −0,08 (2,2) |
+| K5 | +0,04 / +0,01 (19) | −0,03 / +0,02 (1,8) | +0,02 / +0,01 (5) | −0,06 / +0,02 (6) |
+
+* **K1, K3 und K5 sind ohne das Zeitfenster 11:00–13:30 in jeder Sitzung ungefähr null** und so gut oder schlecht wie Fake-Level. Ihr „Vorteil“ hing allein an diesem Zeitfenster.
+* **K2 ist die einzige Strategie mit durchgehend gleichem Vorzeichen.** In Asien und London ist es in beiden Datensätzen leicht positiv und besser als auf Fake-Leveln (dort −0,06 bis −0,26 R). Es sind aber nur 0,4–0,6 Trades pro Woche, die Winrate liegt bei 23–29 %, und kein Wert ist signifikant (t ≤ 1,1).
+* **K4** ist nur in der RTH positiv. Über Nacht ist es uneinheitlich, in der Nachbörse negativ.
+* **Nachbörse (16:00–17:00)** hat zu wenige Trades und ist überwiegend negativ. Sie lässt sich vernachlässigen.
+
+### 4. Zieht der Preis über Nacht zur Box zurück?
+
+Nein. Vom Schluss um 16:00 bis 08:29 am nächsten Tag bewegt sich der Preis an 46–51 % der Tage in Richtung Box-Mitte, egal wie weit er entfernt schloss. Die durchschnittliche Bewegung ist statistisch null (|t| ≤ 1,5).
+
+### Was das für neue Ideen bedeutet (Hypothesen, keine Ergebnisse)
+
+1. Die Level sind ein RTH-Phänomen in dem Sinne, dass sie nur dort regelmäßig erreicht werden. Eine Reaktion, die über Zufall hinausgeht, ist in keiner Sitzung messbar.
+2. K2 lässt sich auf **Asien und London ausdehnen** (zusammen ≈ +1 Trade pro Woche). Das Vorzeichen stimmt in allen vier Feldern, es ist aber schwach belegt. Geeignet wäre das als eigener Demo-Test.
+3. Weil Reclaims überall zu 80 % passieren, kommt der K2-Vorteil, falls er echt ist, eher aus **Momentum-Kerze + vorheriger Gegenreaktion + Lage weit außerhalb der Box** als aus dem Level selbst. Dieselbe Kombination ließe sich an anderen Marken testen, etwa am Vortageshoch und -tief oder am Hoch und Tief der Nacht.
+4. Die Box taugt eher als **Tagesfilter** denn als Level-Lieferant: An Tagen mit großer Box (> 0,15 ATR) waren die Ergebnisse durchweg besser (Teil 3 und 10).
+5. Die **Tageszeit** wirkt stärker als die Sitzung: vor ca. 10:00 ET schwach, am besten um die Mittagszeit (Teil 10).
