@@ -635,3 +635,66 @@ Nein. Vom Schluss um 16:00 bis 08:29 am nächsten Tag bewegt sich der Preis an 4
 3. Weil Reclaims überall zu 80 % passieren, kommt der K2-Vorteil, falls er echt ist, eher aus **Momentum-Kerze + vorheriger Gegenreaktion + Lage weit außerhalb der Box** als aus dem Level selbst. Dieselbe Kombination ließe sich an anderen Marken testen, etwa am Vortageshoch und -tief oder am Hoch und Tief der Nacht.
 4. Die Box taugt eher als **Tagesfilter** denn als Level-Lieferant: An Tagen mit großer Box (> 0,15 ATR) waren die Ergebnisse durchweg besser (Teil 3 und 10).
 5. Die **Tageszeit** wirkt stärker als die Sitzung: vor ca. 10:00 ET schwach, am besten um die Mittagszeit (Teil 10).
+
+## Teil 12 – Andere Box-Definitionen: Box über einzelne Sitzungen (`box_windows.py`)
+
+Ergebnisse liegen in `results/box_windows/`.
+
+Die Box wird wie bisher zwischen dem **Open am Anfang** und dem **Open am Ende** eines Zeitfensters gezogen, mit Mitte und Stdv-Leveln wie gehabt.
+
+**Angenommene Sitzungszeiten (New-York-Zeit, ohne Überlappung):** Asien 20:00–00:00, London 02:00–05:00, New York 09:30–16:00. Im Skript sind sie einstellbar.
+
+Jede Box wird in zwei Handelsfenstern ausgewertet:
+* **„danach“:** die 7,5 Stunden direkt nach Fertigstellung der Box.
+* **„NY“:** die nächste New-York-Sitzung 09:30–16:00. Das Fenster ist für alle Boxen gleich, sodass nur die Box-Definition variiert.
+
+Getestet werden die Reaktion am ersten Touch gegen Fake-Level, K2 (Reclaim am 3.5-Level mit Momentum-Kerze und vorheriger Gegenreaktion, Ziel Mitte, 3 Touches) und V2 (Ziel 2.0-Level gegenüber, 4 Touches).
+
+### Boxgröße und Erreichbarkeit
+
+| Box | Boxhöhe Median (× ATR), CFD / NQ | 3.5-Level in den 7,5 h danach erreicht, CFD / NQ |
+|---|---|---|
+| Original 00:00→08:30 | 0,155 / 0,145 | 81 % / 81 % |
+| Asien 20:00→00:00 | 0,093 / 0,067 | 72 % / 78 % |
+| Asien→London 00:00→02:00 | 0,051 / 0,046 | 92 % / 93 % |
+| London 02:00→05:00 | 0,103 / 0,096 | 87 % / 91 % |
+| London→NY 05:00→09:30 | 0,133 / 0,129 | 84 % / 88 % |
+| New York 09:30→16:00 | 0,346 / 0,352 | 21 % / 19 % |
+| NY→Asien 16:00→20:00 | 0,090 / 0,085 | 65 % / 63 % |
+
+### Reaktion am ersten Touch (alle Level, Rejection-Quote echt / Fake)
+
+In allen 7 Boxen und beiden Fenstern liegen echte und Fake-Level innerhalb von ± 2 Prozentpunkten (40–48 %). Keine Box-Definition erzeugt Level, an denen der Preis messbar reagiert.
+
+### K2 und V2 je Box-Definition (Ø R pro Trade, CFD / NQ; in Klammern Fake-Level)
+
+**Handelsfenster „danach“ (7,5 h nach Box-Ende)**
+
+| Box | K2 | V2 | Trades/Woche (K2) |
+|---|---|---|---|
+| **Original 00:00→08:30** | **+0,14 / +0,18** (−0,04 / −0,06) | **+0,26 / +0,19** (−0,03 / −0,01) | 2,3 |
+| Asien 20:00→00:00 | +0,03 / −0,20 (−0,02 / −0,12) | −0,01 / −0,14 (−0,10 / −0,05) | 1,9–2,1 |
+| Asien→London 00:00→02:00 | −0,07 / −0,07 (−0,01 / −0,14) | −0,04 / −0,13 (−0,04 / −0,17) | 2,6–2,8 |
+| London 02:00→05:00 | −0,01 / −0,08 (+0,01 / −0,07) | +0,03 / −0,03 (+0,07 / −0,06) | 2,7–2,9 |
+| London→NY 05:00→09:30 | −0,02 / −0,10 (0,00 / −0,01) | +0,08 / −0,06 (0,00 / −0,03) | 2,5–2,7 |
+| New York 09:30→16:00 | +0,14 / +0,03 (−0,15 / −0,29) | +0,19 / −0,01 (−0,03 / −0,15) | 0,3 |
+| NY→Asien 16:00→20:00 | +0,04 / −0,33 (−0,05 / −0,17) | −0,03 / −0,35 (+0,02 / −0,17) | 0,9–1,1 |
+
+**Handelsfenster „NY“ (nächste Sitzung 09:30–16:00)**
+
+| Box | K2 | V2 |
+|---|---|---|
+| **Original 00:00→08:30** | **+0,09 / +0,12** (−0,02 / −0,11) | **+0,22 / +0,19** (−0,01 / −0,08) |
+| Asien 20:00→00:00 | +0,02 / −0,12 (+0,03 / +0,05) | +0,01 / −0,15 (+0,07 / +0,05) |
+| Asien→London 00:00→02:00 | −0,07 / −0,03 (−0,07 / −0,03) | −0,01 / +0,06 (−0,05 / −0,07) |
+| London 02:00→05:00 | −0,02 / −0,09 (−0,04 / −0,03) | +0,02 / 0,00 (−0,01 / −0,04) |
+| London→NY 05:00→09:30 | −0,02 / −0,08 (−0,02 / +0,01) | +0,09 / −0,05 (−0,02 / −0,02) |
+| New York 09:30→16:00 | −0,02 / −0,08 (+0,12 / −0,14) | −0,07 / −0,11 (+0,04 / −0,17) |
+| NY→Asien 16:00→20:00 | −0,01 / −0,04 (+0,06 / +0,16) | −0,01 / −0,02 (+0,02 / +0,19) |
+
+### Fazit
+
+* **Keine der sechs Sitzungs-Boxen funktioniert.** K2 und V2 liegen dort in beiden Datensätzen bei null bis negativ und sind nicht besser als auf Fake-Leveln. Auch die Reaktion am Level entspricht überall dem Zufall.
+* Positiv bleibt **nur die ursprüngliche Box 00:00→08:30**, auch wenn man sie erst ab 09:30 handelt.
+* Das hat zwei mögliche Lesarten: (a) Die beiden Zeitpunkte 00:00 und 08:30 sind besonders. (b) K2 wurde auf genau dieser Box aus sehr vielen Kombinationen ausgesucht und ist dort überangepasst. Dass das Konzept auf keine einzige andere Box-Definition übertragbar ist, spricht eher für (b) und mahnt zur Vorsicht bei K2.
+* Nebenbefund: Die New-York-Box ist mit 0,35 ATR sehr groß, ihre Level werden danach selten erreicht. Die Box 00:00→02:00 ist mit 0,05 ATR winzig, ihre Level liegen im Rauschen.
