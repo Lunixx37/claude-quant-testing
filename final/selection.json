@@ -1,11 +1,109 @@
 {
  "hinweis": "Vor dem NQ-Endtest eingefroren. Auswahl nur anhand CFD 2016-2022 (Stufe A 2016-2020, Stufe B 2021-2022). Auswahl nach Plateau (ganze Nachbarschaft positiv), nicht nach Spitzenwert.",
  "kandidaten": [
-  {"name": "S1 Ausbruch 0.3 ATR von der Eroeffnung", "grp": ["fo0.3"], "fo_min": null, "flags": [], "stop": 0.15, "rr": 0.5, "max_pro_tag": 1},
-  {"name": "S2 wie S1, keine Gegen-FVG am Einstieg", "grp": ["fo0.3"], "fo_min": null, "flags": ["keine_gegen_fvg"], "stop": 0.15, "rr": 0.5, "max_pro_tag": 1},
-  {"name": "S3 Psych-Level-Reclaim mit der Bewegung (>= 0.3 ATR von der Eroeffnung)", "grp": ["ps100", "ps50"], "fo_min": 0.3, "flags": [], "stop": 0.22, "rr": 0.75, "max_pro_tag": 1},
-  {"name": "S4 Reclaim an beliebigem Level mit Momentum-Kerze, mit der Bewegung", "grp": "RECLAIM", "fo_min": 0.3, "flags": ["mom"], "stop": 0.22, "rr": 0.75, "max_pro_tag": 1},
-  {"name": "S5 Kombi S1 + S3, bis zu 2 Trades pro Tag, eine Position", "grp": ["fo0.3", "ps100", "ps50"], "fo_min": 0.3, "flags": [], "stop": 0.22, "rr": 0.75, "max_pro_tag": 2}
+  {
+   "name": "S1 Ausbruch 0.3 ATR von der Eroeffnung",
+   "grp": [
+    "fo0.3"
+   ],
+   "fo_min": null,
+   "flags": [],
+   "stop": 0.15,
+   "rr": 0.5,
+   "max_pro_tag": 1
+  },
+  {
+   "name": "S2 wie S1, keine Gegen-FVG am Einstieg",
+   "grp": [
+    "fo0.3"
+   ],
+   "fo_min": null,
+   "flags": [
+    "keine_gegen_fvg"
+   ],
+   "stop": 0.15,
+   "rr": 0.5,
+   "max_pro_tag": 1
+  },
+  {
+   "name": "S3 Psych-Level-Reclaim mit der Bewegung (>= 0.3 ATR von der Eroeffnung)",
+   "grp": [
+    "ps100",
+    "ps50"
+   ],
+   "fo_min": 0.3,
+   "flags": [],
+   "stop": 0.22,
+   "rr": 0.75,
+   "max_pro_tag": 1
+  },
+  {
+   "name": "S4 Reclaim an beliebigem Level mit Momentum-Kerze, mit der Bewegung",
+   "grp": "RECLAIM",
+   "fo_min": 0.3,
+   "flags": [
+    "mom"
+   ],
+   "stop": 0.22,
+   "rr": 0.75,
+   "max_pro_tag": 1
+  },
+  {
+   "name": "S5 Kombi S1 + S3, bis zu 2 Trades pro Tag, eine Position",
+   "grp": [
+    "fo0.3",
+    "ps100",
+    "ps50"
+   ],
+   "fo_min": 0.3,
+   "flags": [],
+   "stop": 0.22,
+   "rr": 0.75,
+   "max_pro_tag": 2
+  },
+  {
+   "name": "R1 S1 + Tagesspanne bisher <= 0.5 ATR",
+   "grp": [
+    "fo0.3"
+   ],
+   "fo_min": null,
+   "flags": [
+    "spanne<=0.5"
+   ],
+   "stop": 0.15,
+   "rr": 0.5,
+   "max_pro_tag": 1
+  },
+  {
+   "name": "R2 S1 + Tagesspanne <= 0.5 ATR + keine Gegen-FVG",
+   "grp": [
+    "fo0.3"
+   ],
+   "fo_min": null,
+   "flags": [
+    "spanne<=0.5",
+    "keine_gegen_fvg"
+   ],
+   "stop": 0.15,
+   "rr": 0.5,
+   "max_pro_tag": 1
+  },
+  {
+   "name": "R3 wie R2, Einstieg nur bis 13:00",
+   "grp": [
+    "fo0.3"
+   ],
+   "fo_min": null,
+   "flags": [
+    "spanne<=0.5",
+    "keine_gegen_fvg"
+   ],
+   "bar_max": 270,
+   "stop": 0.15,
+   "rr": 0.5,
+   "max_pro_tag": 1
+  }
  ],
- "kriterien_endtest": "NQ 2023-2025: Trefferquote >= 60 %, Erwartungswert > 0, >= 2 Trades/Woche. Bestanden nur, wenn alle drei erfuellt."
+ "kriterien_endtest": "NQ 2023-2025: Trefferquote >= 60 %, Erwartungswert > 0, >= 2 Trades/Woche. Bestanden nur, wenn alle drei erfuellt.",
+ "verfeinerung_hinweis": "Zweite Runde, NACH dem ersten NQ-Endtest: Zusatzbedingungen fuer S1, ausgewaehlt nur anhand CFD 2016-2022 (in Stufe A und B gleichgerichtet). NQ wird damit ein zweites Mal verwendet."
 }
