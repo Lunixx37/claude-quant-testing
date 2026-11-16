@@ -1,0 +1,310 @@
+//@version=6
+// ─────────────────────────────────────────────────────────────────────────────────────────────
+// NQ Stdv Box – K2 Best                 nur auf dem 1-MINUTEN-Chart, am besten MNQ
+//
+// Profil "Prop-Eval" : Ziel Box-Mitte,              Risiko 0,4 % vom Startkapital (fester Betrag)
+// Profil "Privat"    : Ziel 3.5-Level gegenüber,    Risiko 0,5 % vom aktuellen Kontostand
+// Profil "Eigene Einstellungen": Ziel und Risiko aus dem Block "Eigene Einstellungen"
+//
+// Gemeinsame Regeln (08:30–16:00 New-York-Zeit):
+//   Box    : Open der 00:00-Kerze bis Open der 08:30-Kerze, Mitte = 50 %, h = halbe Boxhöhe
+//   Level  : Mitte ± k·h (k = 2, 2.25, 2.5, 3.5, 4, 4.25, 4.5) und beide Box-Kanten
+//   Setup  : Preis handelt mind. 1 Tick durch das 3.5-Level (höchstens der 4. Touch des Tages),
+//            innerhalb von 10 Kerzen schließt eine 1-Min-Kerze zurück – über dem Hoch (Short: unter dem
+//            Tief) der Vorkerze und in Trade-Richtung. Vorher gab es heute schon einen Reclaim in die
+//            Gegenrichtung an irgendeinem Level.
+//   Filter : Der Preis ist heute auf dieser Seite 3,75 bis 5,0 Stdv von der Mitte weggelaufen
+//            (in den 4er-Cluster hinein, aber nicht weit darüber hinaus).
+//   Entry  : Schlusskurs der Reclaim-Kerze. Stop: hinter dem Sweep-Extrem, mind. 0,02 × ATR.
+//   Exit   : Ziel laut Profil, sonst 15:59 flat. Nur eine Position gleichzeitig.
+//   ATR    : Durchschnitt der Tagesrange (High−Low) der letzten 14 abgeschlossenen Handelstage.
+//
+// Backtest (nach Kosten, CFD 2016–2022 / NQ 2023–2025):
+//   Prop-Eval : ≈ 1,3 Trades/Woche, Trefferquote ≈ 38 %, Ø +0,34 / +0,55 R, max. Drawdown ≈ −13 R
+//   Privat    : ≈ 1,3 Trades/Woche, Trefferquote ≈ 30 %, Ø +0,61 / +0,54 R, max. Drawdown ≈ −19 / −23 R
+// Im Nachhinein auf diesen Daten ausgewählt, nicht unabhängig bestätigt. Erst auf Demo laufen lassen.
+// ─────────────────────────────────────────────────────────────────────────────────────────────
+strategy("NQ Stdv Box – K2 Best", overlay = true, process_orders_on_close = true, initial_capital = 50000,
+     default_qty_type = strategy.fixed, default_qty_value = 1, pyramiding = 0,
+     margin_long = 0, margin_short = 0,
+     commission_type = strategy.commission.cash_per_contract, commission_value = 0.6, slippage = 1,
+     max_lines_count = 500, max_boxes_count = 300, max_labels_count = 500)
+
+// ───────────── Inputs
+string profile = input.string("Prop-Eval", "Profil", options = ["Prop-Eval", "Privat", "Eigene Einstellungen"])
+float acct     = input.float(50000, "Startkapital für festes Risiko ($)", minval = 100)
+bool skipBig   = input.bool(true, "Trade auslassen, wenn schon 1 Kontrakt mehr als das Risiko kostet")
+int maxQty     = input.int(50, "Max. Kontrakte", minval = 1)
+
+string grpC = "Eigene Einstellungen (nur beim Profil 'Eigene Einstellungen')"
+float cTgtK    = input.float(2.0, "Ziel: Stdv jenseits der Mitte (0 = Mitte, 2 = 2.0-Level gegenüber, 3.5 = 3.5-Level gegenüber)", minval = 0, step = 0.5, group = grpC)
+float cRiskPct = input.float(0.3, "Risiko pro Trade (%)", minval = 0.01, step = 0.05, group = grpC)
+string cRiskOn = input.string("Startkapital (fester Betrag)", "Risiko bezogen auf", options = ["Startkapital (fester Betrag)", "aktuellen Kontostand"], group = grpC)
+
+string grpK = "Setup-Regeln"
+int maxTouches   = input.int(4, "Setup höchstens beim N-ten Touch des Tages", minval = 1, maxval = 6, group = grpK)
+int reclaimBars  = input.int(10, "Reclaim-Fenster in Kerzen", minval = 0, maxval = 60, group = grpK)
+bool needPrior   = input.bool(true, "Vorherige Gegenreaktion nötig", group = grpK)
+bool needMom     = input.bool(true, "Momentum-Kerze nötig", group = grpK)
+float minStopAtr = input.float(0.02, "Mindest-Stop (× ATR)", minval = 0, step = 0.005, group = grpK)
+float extMin     = input.float(3.75, "Auslauf vor Entry mindestens (Stdv, 0 = aus)", minval = 0, step = 0.25, group = grpK)
+float extMax     = input.float(5.0, "Auslauf vor Entry höchstens (Stdv, 0 = aus)", minval = 0, step = 0.25, group = grpK)
+int maxPerDay    = input.int(0, "Max. Trades pro Tag (0 = unbegrenzt)", minval = 0, maxval = 20, group = grpK)
+
+string grpT = "Zeiten"
+string tz = input.string("America/New_York", "Zeitzone", group = grpT)
+int sH = input.int(0,  "Box-Start (Std : Min)", minval = 0, maxval = 23, group = grpT, inline = "s")
+int sM = input.int(0,  "", minval = 0, maxval = 59, group = grpT, inline = "s")
+int eH = input.int(8,  "Box-Ende (Std : Min)", minval = 0, maxval = 23, group = grpT, inline = "e")
+int eM = input.int(30, "", minval = 0, maxval = 59, group = grpT, inline = "e")
+int xH = input.int(16, "Handelsende (Std)", minval = 0, maxval = 23, group = grpT)
+
+string grpV = "Darstellung"
+bool showAll = input.bool(true, "Alle Stdv-Level zeichnen", group = grpV)
+color boxCol = input.color(color.new(color.blue, 80), "Box", group = grpV)
+color midCol = input.color(color.white, "Mittellinie", group = grpV)
+color lvlCol = input.color(color.new(color.white, 25), "Level", group = grpV)
+color k2Col  = input.color(color.new(color.red, 0), "Setup-Level 3.5", group = grpV)
+
+// ───────────── Profil -> wirksame Werte
+bool isProp  = profile == "Prop-Eval"
+bool isPriv  = profile == "Privat"
+float tgtK    = isProp ? 0.0 : isPriv ? 3.5 : cTgtK
+float riskPct = isProp ? 0.4 : isPriv ? 0.5 : cRiskPct
+bool compound = isProp ? false : isPriv ? true : cRiskOn == "aktuellen Kontostand"
+
+// feste Bausteine
+float K2_LEVEL  = 3.5
+float REARM_ATR = 0.02
+int   TRACK_MAX = 6          // Touches je Level, die für die "vorherige Reaktion" mitgezählt werden
+
+// ───────────── ATR14 der letzten 14 abgeschlossenen Handelstage (kein Repainting)
+float atrD = request.security(syminfo.tickerid, "D", ta.sma(high - low, 14)[1], lookahead = barmerge.lookahead_on)
+
+// ───────────── Zeiten
+int y  = year(time, tz)
+int mo = month(time, tz)
+int d  = dayofmonth(time, tz)
+int tS = timestamp(tz, y, mo, d, sH, sM)
+int tE = timestamp(tz, y, mo, d, eH, eM)
+int tX = timestamp(tz, y, mo, d, xH, 0)
+bool isStart = time >= tS and (na(time[1]) or time[1] < tS)
+bool isEnd   = time >= tE and (na(time[1]) or time[1] < tE)
+
+// ───────────── State
+var float o0        = na
+var int   t0        = na
+var int   tStop     = na
+var bool  active    = false
+var float mid       = na
+var float hBox      = na
+var float atrDay    = na
+var float dayHi     = na
+var float dayLo     = na
+var int   tradesDay = 0
+var int   sessBar0  = na
+var int   firstBull = na      // frühester bullischer Reclaim des Tages (bar_index)
+var int   firstBear = na
+
+var float[] mults  = array.from(2.0, 2.25, 2.5, 3.5, 4.0, 4.25, 4.5)
+var float[] lvP    = array.new_float()   // Level-Preis
+var int[]   lvS    = array.new_int()     // +1 = Support (Long), −1 = Resistance (Short)
+var bool[]  lvK2   = array.new_bool()    // Setup-Level?
+var bool[]  lvArm  = array.new_bool()
+var int[]   lvPend = array.new_int()     // Touch-Bar eines offenen Reclaim-Fensters, −1 = keins
+var float[] lvExt  = array.new_float()   // Sweep-Extrem
+var int[]   lvN    = array.new_int()     // Touches heute
+var int[]   lvOrd  = array.new_int()     // Nummer des laufenden Touches (1 = erster)
+
+// Trade-Zeichnung
+var box   trTp = na
+var box   trSl = na
+var line  trLe = na
+var line  trLs = na
+var line  trLt = na
+var label trGe = na
+var label trGs = na
+var label trGt = na
+var float trEntry = na
+var float trStop  = na
+
+addLevel(float p, bool isK2, float rearm) =>
+    for sd in array.from(1, -1)
+        array.push(lvP, p)
+        array.push(lvS, sd)
+        array.push(lvK2, isK2)
+        array.push(lvArm, (open - p) * sd >= rearm)
+        array.push(lvPend, -1)
+        array.push(lvExt, na)
+        array.push(lvN, 0)
+        array.push(lvOrd, 0)
+
+setRight(int x2) =>
+    box.set_right(trTp, x2)
+    box.set_right(trSl, x2)
+    line.set_x2(trLe, x2)
+    line.set_x2(trLs, x2)
+    line.set_x2(trLt, x2)
+    label.set_x(trGe, x2)
+    label.set_x(trGs, x2)
+    label.set_x(trGt, x2)
+
+if isStart
+    o0     := open
+    t0     := time
+    active := false
+
+if isEnd and not na(o0) and not na(atrD)
+    o830 = open
+    top  = math.max(o0, o830)
+    bot  = math.min(o0, o830)
+    h    = (top - bot) / 2
+    mid       := (top + bot) / 2
+    hBox      := h
+    atrDay    := atrD
+    dayHi     := high
+    dayLo     := low
+    tradesDay := 0
+    tStop     := tX
+    sessBar0  := bar_index
+    firstBull := na
+    firstBear := na
+    array.clear(lvP)
+    array.clear(lvS)
+    array.clear(lvK2)
+    array.clear(lvArm)
+    array.clear(lvPend)
+    array.clear(lvExt)
+    array.clear(lvN)
+    array.clear(lvOrd)
+    rearm0 = REARM_ATR * atrDay
+    box.new(t0, top, tX, bot, xloc = xloc.bar_time, bgcolor = boxCol, border_color = color.new(color.blue, 40), force_overlay = true)
+    line.new(t0, mid, tX, mid, xloc = xloc.bar_time, color = midCol, force_overlay = true)
+    addLevel(o0, false, rearm0)
+    addLevel(o830, false, rearm0)
+    for k in mults
+        isK2 = math.abs(k - K2_LEVEL) < 0.0001
+        for sg in array.from(1, -1)
+            p = mid + sg * k * h
+            addLevel(p, isK2, rearm0)
+            if showAll or isK2
+                line.new(time, p, tX, p, xloc = xloc.bar_time, color = isK2 ? k2Col : lvlCol, width = isK2 ? 2 : 1, force_overlay = true)
+                label.new(tX, p, (sg == 1 ? "+" : "-") + str.tostring(k), xloc = xloc.bar_time, style = label.style_label_left, color = color.new(color.black, 100), textcolor = isK2 ? k2Col : lvlCol, size = size.small, force_overlay = true)
+    active := h > 0
+    o0     := na
+
+bool isLastBar  = active and not na(tStop) and time_close >= tStop
+int lastExitBar = strategy.closedtrades > 0 ? strategy.closedtrades.exit_bar_index(strategy.closedtrades - 1) : -1
+
+// ───────────── Level-Logik und Signal
+if active and time < tStop and array.size(lvP) > 0
+    dayHi := math.max(dayHi, high)
+    dayLo := math.min(dayLo, low)
+    rearm   = REARM_ATR * atrDay
+    entered = false
+    for i = 0 to array.size(lvP) - 1
+        p  = array.get(lvP, i)
+        sd = array.get(lvS, i)
+        bool  recl   = false
+        int   sTouch = na
+        float ext    = na
+        pend = array.get(lvPend, i)
+        if pend >= 0
+            e = sd == 1 ? math.min(array.get(lvExt, i), low) : math.max(array.get(lvExt, i), high)
+            array.set(lvExt, i, e)
+            if (sd == 1 ? close > p : close < p)
+                recl   := true
+                sTouch := pend
+                ext    := e
+                array.set(lvPend, i, -1)
+            else if bar_index - pend >= reclaimBars
+                array.set(lvPend, i, -1)
+        else if array.get(lvArm, i) and array.get(lvN, i) < TRACK_MAX
+            touched = sd == 1 ? low <= p - syminfo.mintick : high >= p + syminfo.mintick
+            if touched
+                array.set(lvN, i, array.get(lvN, i) + 1)
+                array.set(lvOrd, i, array.get(lvN, i))
+                array.set(lvArm, i, false)
+                e = sd == 1 ? low : high
+                array.set(lvExt, i, e)
+                if (sd == 1 ? close > p : close < p)
+                    recl   := true
+                    sTouch := bar_index
+                    ext    := e
+                else
+                    array.set(lvPend, i, bar_index)
+        if not array.get(lvArm, i) and (close - p) * sd >= rearm
+            array.set(lvArm, i, true)
+
+        if recl
+            // vorherige Gegenreaktion muss VOR dem Touch abgeschlossen sein
+            priorOk = not needPrior or (sd == 1 ? (not na(firstBear) and firstBear < sTouch) : (not na(firstBull) and firstBull < sTouch))
+            momOk   = not needMom or (bar_index > sessBar0 and (sd == 1 ? (close > high[1] and close > open) : (close < low[1] and close < open)))
+            ordOk   = array.get(lvOrd, i) <= maxTouches
+            if array.get(lvK2, i) and ordOk and priorOk and momOk and not isLastBar and not entered and strategy.position_size == 0 and lastExitBar < bar_index
+                sStruct = ext - sd * syminfo.mintick
+                stop    = sd == 1 ? math.min(sStruct, close - minStopAtr * atrDay) : math.max(sStruct, close + minStopAtr * atrDay)
+                stop    := math.round_to_mintick(stop)
+                tgt     = math.round_to_mintick(mid + sd * tgtK * hBox)
+                risk    = math.abs(close - stop)
+                extK    = (sd == 1 ? mid - dayLo : dayHi - mid) / hBox
+                filtOk  = (extMin <= 0 or extK >= extMin) and (extMax <= 0 or extK <= extMax) and (maxPerDay <= 0 or tradesDay < maxPerDay)
+                if (tgt - close) * sd > 0 and risk > 0 and filtOk
+                    riskUsd = (compound ? strategy.equity : acct) * riskPct / 100
+                    qty     = math.min(maxQty, math.floor(riskUsd / (risk * syminfo.pointvalue)))
+                    if qty < 1 and not skipBig
+                        qty := 1
+                    if qty >= 1
+                        id = sd == 1 ? "K2 Long" : "K2 Short"
+                        strategy.entry(id, sd == 1 ? strategy.long : strategy.short, qty = qty)
+                        strategy.exit("Exit " + id, id, stop = stop, limit = tgt)
+                        tradesDay := tradesDay + 1
+                        entered   := true
+                        trEntry   := close
+                        trStop    := stop
+                        x2 = bar_index + 1
+                        trTp := box.new(bar_index, math.max(close, tgt), x2, math.min(close, tgt), bgcolor = color.new(color.green, 82), border_color = color.new(color.green, 100), force_overlay = true)
+                        trSl := box.new(bar_index, math.max(close, stop), x2, math.min(close, stop), bgcolor = color.new(color.red, 82), border_color = color.new(color.red, 100), force_overlay = true)
+                        trLe := line.new(bar_index, close, x2, close, color = color.white, width = 2, force_overlay = true)
+                        trLs := line.new(bar_index, stop, x2, stop, color = color.red, width = 2, force_overlay = true)
+                        trLt := line.new(bar_index, tgt, x2, tgt, color = color.green, width = 2, force_overlay = true)
+                        trGe := label.new(x2, close, id + "  Entry " + str.tostring(close, format.mintick) + "  (" + str.tostring(qty) + " Kontr., " + str.tostring(qty * risk * syminfo.pointvalue, "#") + " $ Risiko)", style = label.style_label_left, color = color.new(color.gray, 10), textcolor = color.white, size = size.small, force_overlay = true)
+                        trGs := label.new(x2, stop, "SL " + str.tostring(stop, format.mintick) + "  (−" + str.tostring(risk, "#.00") + " Pkt)", style = label.style_label_left, color = color.new(color.red, 10), textcolor = color.white, size = size.small, force_overlay = true)
+                        trGt := label.new(x2, tgt, "TP " + str.tostring(tgt, format.mintick) + "  (+" + str.tostring(math.abs(tgt - close), "#.00") + " Pkt, RR " + str.tostring(math.abs(tgt - close) / risk, "#.0") + ")", style = label.style_label_left, color = color.new(color.green, 10), textcolor = color.white, size = size.small, force_overlay = true)
+                        alert(id + " Entry " + str.tostring(close) + " Stop " + str.tostring(stop) + " Ziel " + str.tostring(tgt) + " Kontrakte " + str.tostring(qty), alert.freq_once_per_bar_close)
+            // Reclaim für die "vorherige Reaktion" merken (frühester je Richtung)
+            if sd == 1 and na(firstBull)
+                firstBull := bar_index
+            if sd == -1 and na(firstBear)
+                firstBear := bar_index
+
+// ───────────── Trade-Zeichnung fortführen und abschließen
+bool closedNow = strategy.closedtrades > nz(strategy.closedtrades[1])
+if closedNow and not na(trTp)
+    n    = strategy.closedtrades - 1
+    xb   = strategy.closedtrades.exit_bar_index(n)
+    xp   = strategy.closedtrades.exit_price(n)
+    dirT = strategy.closedtrades.size(n) > 0 ? 1 : -1
+    setRight(math.max(xb, strategy.closedtrades.entry_bar_index(n) + 1))
+    riskT = math.abs(trEntry - trStop)
+    resR  = riskT > 0 ? dirT * (xp - trEntry) / riskT : 0.0
+    label.new(xb, xp, "Exit " + str.tostring(xp, format.mintick) + "\n" + (resR >= 0 ? "+" : "") + str.tostring(resR, "#.0") + " R", style = resR >= 0 ? label.style_label_down : label.style_label_up, color = resR >= 0 ? color.new(color.green, 0) : color.new(color.red, 0), textcolor = color.white, size = size.small, force_overlay = true)
+    trTp := na
+    trSl := na
+    trLe := na
+    trLs := na
+    trLt := na
+    trGe := na
+    trGs := na
+    trGt := na
+if not closedNow and strategy.position_size != 0 and not na(trTp)
+    setRight(bar_index + 1)
+
+// ───────────── Tagesende
+if isLastBar
+    if strategy.position_size != 0
+        strategy.close_all(comment = "15:59")
+    active := false
+
+if barstate.islast and not (timeframe.isminutes and timeframe.multiplier == 1)
+    label.new(bar_index, high, "Dieses Skript ist für den 1-Minuten-Chart gebaut.\nBitte Timeframe auf 1m stellen.", color = color.orange, textcolor = color.black, force_overlay = true)
