@@ -1,0 +1,22 @@
+{
+ "hinweis": "Optimierung von R1. Alle Entscheidungen nur anhand CFD 2016-2022 (Stufe A 2016-2020, Stufe B 2021-2022). Vor dem NQ-Lauf eingefroren und committet. NQ 2023-2025 wird damit zum dritten Mal als Gegenprobe benutzt.",
+ "befunde_cfd": {
+  "ausstieg": "Teilverkauf 50 % bei 0,5 x Stop, Rest laeuft bis Tagesende, Stop nach dem Teilverkauf auf Einstand: E +0,145 (A) / +0,147 (B) statt +0,074 / +0,085; Trefferquote unveraendert 73-74 %. Engere Stops, Zeit-Stops, Trailing und Struktur-Stops bringen nichts Stabiles.",
+  "einstieg": "Stop-Order am Level, zwei Schlusskurse, Bestaetigung ueber der Signalkerze, Ruecksetzer-Limit, andere Schwellen: keine Variante ist in A und B besser als der bisherige Einstieg.",
+  "filter": "Von 38 Merkmalen ist nur die Lage zur Overnight-Spanne in A und B gleichgerichtet und deutlich (rho +0,10 bis +0,13, p <= 0,001): Trades, bei denen die 09:30-Eroeffnung in Trade-Richtung in der Overnight-Spanne liegt (onpos), tragen fast den ganzen Vorteil.",
+  "wochentag": "Kein Wochentag ist in A und B verlaesslich schlecht (ANOVA p = 0,2 bis 0,6). Montag ist in beiden Stufen am besten, aber nicht gesichert."
+ },
+ "definition_onpos": "Long: (Open 09:30 - Overnight-Tief) / (Overnight-Hoch - Overnight-Tief); Short gespiegelt. Overnight = 18:00 Vortag bis 09:29.",
+ "kandidaten": [
+  {"name": "R1", "ausstieg": "basis", "onpos_min": null},
+  {"name": "V2a R1 + Teilverkauf und Runner", "ausstieg": "hybrid", "onpos_min": null},
+  {"name": "V2b V2a + onpos >= 0.3", "ausstieg": "hybrid", "onpos_min": 0.3},
+  {"name": "V2c V2a + onpos >= 0.5", "ausstieg": "hybrid", "onpos_min": 0.5},
+  {"name": "V2d V2a, Risiko 1.5x bei onpos >= 0.5, sonst 0.5x", "ausstieg": "hybrid", "onpos_min": null, "gewicht": [0.5, 1.5, 0.5]}
+ ],
+ "hypothesen_nq": [
+  "H1: Der Hybrid-Ausstieg hat auf NQ einen hoeheren Erwartungswert als der Basis-Ausstieg, bei Trefferquote >= 60 %.",
+  "H2: Auf NQ sind Trades mit onpos >= 0.5 besser als Trades mit onpos < 0.5 (Hybrid-Ausstieg).",
+  "H3 (nur beobachtend): Montag und Freitag sind innerhalb onpos >= 0.3 besser als Dienstag bis Donnerstag."
+ ]
+}
