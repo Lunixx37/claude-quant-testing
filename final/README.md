@@ -2,11 +2,69 @@
 
 Ziel: Trefferquote über 60 %, mehr als 2 Trades pro Woche, positiver Erwartungswert, stabil über beide Datensätze.
 
-## Stand nach der Optimierung
+## Empfohlene Variante: Trend-Modus
 
-Der Einstieg bleibt, wie er war. Verbessert hat sich nur der Ausstieg: einen Teil der Position laufen lassen. Filter, Wochentage und veränderte Einstiege haben die Gegenprobe nicht bestanden.
+Gleicher Einstieg wie bisher, Stop 0,08 ATR, kein Ziel, Position bis 15:59 halten. Das ist die Standard-Einstellung in `R1_OpenDrive.pine`.
 
-**Einstieg (unverändert, „R1“)**
+Nach den Daten ist das die beste Variante: höchster Ertrag je Trade und je Jahr, bestes Verhältnis von Ertrag zu Drawdown, und die einzige, die auch von Juli 2024 bis Dezember 2025 verdient hat. Der Preis ist eine Trefferquote von rund 22 %. Eine Variante mit über 60 % Trefferquote, die zuletzt noch funktioniert hat, gibt es in diesen Daten nicht.
+
+| Kennzahl | CFD 2016–2022 | NQ 2023–2025 | zusammen |
+|---|---|---|---|
+| Handelstage | 1.494 | 722 | 2.216 |
+| Trades | 949 | 485 | 1.434 |
+| Trades pro Woche | 3,18 | 3,36 | 3,24 |
+| Long / Short | 480 / 469 | 242 / 243 | 722 / 712 |
+| Trefferquote | 22,8 % | 20,2 % | 21,9 % |
+| Ø Gewinn | +5,14 R | +5,56 R | +5,27 R |
+| Ø Verlust | −1,03 R | −1,04 R | −1,03 R |
+| Realisiertes Chance-Risiko-Verhältnis | 4,97 zu 1 | 5,37 zu 1 | 5,10 zu 1 |
+| Median-Gewinn | +4,29 R | +4,94 R | +4,51 R |
+| Größter Gewinn | +28,5 R | +21,8 R | +28,5 R |
+| Ergebnis je Trade | +0,372 R | +0,298 R | +0,347 R |
+| R gesamt | +353,0 R | +144,5 R | +497,5 R |
+| R pro Jahr | +59,5 R | +50,4 R | +56,6 R |
+| R pro Woche | +1,18 R | +1,00 R | +1,12 R |
+| Profitfaktor | 1,47 | 1,36 | 1,43 |
+| t-Wert | 3,50 | 2,00 | 4,01 |
+| Größter Drawdown | −33,8 R | −25,2 R | −33,8 R |
+| Längste Verlustserie | 18 | 24 | 24 |
+| Längste Durststrecke (Trades ohne neues Hoch) | 139 | 112 | 139 |
+| Positive Monate | 46 von 73 | 21 von 36 | 67 von 109 |
+| Ø Haltedauer Gewinner / Verlierer | 313 / 39 Min | 318 / 39 Min | 315 / 39 Min |
+| Ø Stop | 15,6 Punkte | 25,1 Punkte | 18,8 Punkte |
+| Ausgang | 725 Stop, 224 Tagesende | 381 Stop, 104 Tagesende | 1.106 Stop, 328 Tagesende |
+
+R = Vielfaches des Risikos je Trade (Abstand Einstieg bis Stop). Kosten: 1 Punkt je Kontrakt und Trade; mit 2 Punkten bleiben auf NQ +0,254 R, mit 3 Punkten +0,209 R je Trade.
+
+**Worauf du dich einstellen musst**
+
+- Rund vier von fünf Trades werden ausgestoppt, im Schnitt nach 39 Minuten. Der Gewinn kommt aus dem Fünftel, das bis zum Schluss läuft.
+- Serien von 18 bis 24 Verlusten in Folge sind im Backtest vorgekommen, ebenso Strecken von über 130 Trades (rund neun Monate) ohne neues Hoch.
+- Die 10 besten von 1.434 Trades liefern 39 % des Gesamtgewinns. Wer an den wenigen starken Tagen nicht dabei ist, hat ein deutlich schlechteres Ergebnis.
+- Das Risiko je Trade sollte klein sein: Bei 0,5 % Risiko entspricht der größte Drawdown des Backtests rund 17 % des Kontos.
+- Die Wahl dieses Modus ist im Nachhinein auf bekannten Daten gefallen. Erst der Forward-Test zeigt, ob er hält.
+
+**Option Kerzen-Nachzug** (Schalter im Skript, standardmäßig aus): Sobald der Trade 1 × Stop im Gewinn schließt, wandert der Stop nach jeder 1-Min-Kerze in Trade-Richtung auf deren Open. Das macht das Profil ruhiger und kostet rund zwei Drittel des Ertrags:
+
+| | Trend | Trend + Nachzug |
+|---|---|---|
+| Trefferquote (CFD / NQ) | 22,8 % / 20,2 % | 48,8 % / 49,7 % |
+| Ø Gewinn / Ø Verlust | +5,27 / −1,03 R | +1,30 / −1,03 R |
+| Ergebnis je Trade (CFD / NQ) | +0,372 / +0,298 R | +0,110 / +0,116 R |
+| R gesamt | +497,5 R | +160,7 R |
+| R pro Jahr | +56,6 R | +18,3 R |
+| Größter Drawdown | −33,8 R | −25,7 R |
+| Längste Verlustserie | 24 | 7 |
+| Ø Haltedauer Gewinner / Verlierer | 315 / 39 Min | 18 / 12 Min |
+| NQ mit 2 / 3 Punkten Kosten | +0,254 / +0,209 R | +0,071 / +0,027 R |
+
+Der Nachzug ist deutlich kostenempfindlicher, weil die Gewinne klein sind und fast jeder Ausstieg eine Stop-Order ist.
+
+## Alle Modi im Vergleich
+
+Der Einstieg ist in allen Modi derselbe. Filter, Wochentage und veränderte Einstiege haben die Gegenprobe nicht bestanden.
+
+**Einstieg („R1“)**
 
 | Regel | Wert |
 |---|---|
@@ -19,20 +77,22 @@ Der Einstieg bleibt, wie er war. Verbessert hat sich nur der Ausstieg: einen Tei
 
 | Modus | Datensatz | Trefferquote | Ø Gewinn / Ø Verlust | E je Trade | R pro Jahr | Max. Drawdown | Längste Verlustserie |
 |---|---|---|---|---|---|---|---|
-| **R1**: Stop 0,15 ATR, alles bei 0,5 × Stop | CFD 2016–22 | 73,2 % | +0,48 / −1,01 R | +0,078 R | +12,5 | −10,1 R | 6 |
-| | NQ 2023–25 | 70,5 % | +0,48 / −1,00 R | +0,041 R | +6,9 | −10,3 R | 5 |
-| **V2a**: halbe Position bei 0,5 × Stop, danach Stop auf Einstand, Rest bis 15:59 | CFD 2016–22 | 73,1 % | +0,57 / −1,01 R | +0,145 R | +23,3 | −15,4 R | 6 |
+| **Trend**: Stop 0,08 ATR, kein Ziel, bis 15:59 halten | CFD 2016–22 | 22,8 % | +5,14 / −1,03 R | +0,372 R | +59,5 | −33,8 R | 18 |
+| | NQ 2023–25 | 20,2 % | +5,56 / −1,04 R | +0,298 R | +50,4 | −25,2 R | 24 |
+| **Trend + Nachzug**: 1-Min-Kerzen ab 1 R | CFD 2016–22 | 48,8 % | +1,31 / −1,03 R | +0,110 R | +17,6 | −18,5 R | 7 |
+| | NQ 2023–25 | 49,7 % | +1,28 / −1,03 R | +0,116 R | +19,6 | −21,6 R | 7 |
+| **V2a**: Stop 0,15 ATR, halbe Position bei 0,5 × Stop, danach Stop auf Einstand, Rest bis 15:59 | CFD 2016–22 | 73,1 % | +0,57 / −1,01 R | +0,145 R | +23,3 | −15,4 R | 6 |
 | | NQ 2023–25 | 70,5 % | +0,51 / −1,00 R | +0,064 R | +10,8 | −10,8 R | 5 |
 | **V2a-75**: wie V2a, Teilverkauf bei 0,75 × Stop | CFD 2016–22 | 62,4 % | +0,85 / −1,00 R | +0,152 R | +24,3 | −19,1 R | 7 |
 | | NQ 2023–25 | 60,4 % | +0,78 / −1,00 R | +0,077 R | +13,1 | −14,7 R | 6 |
-| **Trend**: Stop 0,08 ATR, kein Ziel, bis 15:59 halten | CFD 2016–22 | 22,8 % | +5,14 / −1,03 R | +0,372 R | +59,5 | −33,8 R | 18 |
-| | NQ 2023–25 | 20,2 % | +5,56 / −1,04 R | +0,298 R | +50,4 | −25,2 R | 24 |
+| **R1**: Stop 0,15 ATR, alles bei 0,5 × Stop | CFD 2016–22 | 73,2 % | +0,48 / −1,01 R | +0,078 R | +12,5 | −10,1 R | 6 |
+| | NQ 2023–25 | 70,5 % | +0,48 / −1,00 R | +0,041 R | +6,9 | −10,3 R | 5 |
 
 ![Kapitalkurven](modes_equity.png)
 
 ### Wichtigste Einschränkung
 
-**Die Modi mit hoher Trefferquote haben seit Juli 2024 nichts mehr verdient.** Über die letzten 244 Trades auf NQ: R1 +1,3 R, V2a −1,2 R, V2a-75 +1,1 R. R1 und V2a trafen dabei 68 %; nötig sind 67,8 %. Der Trend-Modus kam im selben Zeitraum auf +64 R; sein zweites Halbjahr 2025 war mit −2,7 R ebenfalls flach.
+**Die Modi mit hoher Trefferquote haben seit Juli 2024 nichts mehr verdient.** Über die letzten 244 Trades auf NQ: R1 +1,3 R, V2a −1,2 R, V2a-75 +1,1 R. R1 und V2a trafen dabei 68 %; nötig sind 67,8 %. Der Trend-Modus kam im selben Zeitraum auf +64 R, mit Nachzug auf +41 R; ohne Nachzug war sein zweites Halbjahr 2025 mit −2,7 R ebenfalls flach.
 
 Der Vorteil sitzt also in den wenigen Tagen, an denen der Kurs nach dem Ausbruch bis zum Schluss weiterläuft, nicht in den ersten 20 bis 25 Punkten.
 
@@ -44,14 +104,15 @@ Der Vorteil sitzt also in den wenigen Tagen, an denen der Kurs nach dem Ausbruch
 | V2a | +0,07 | +0,26 | +0,17 | +0,06 | +0,13 | +0,16 | +0,11 | +0,08 | 0,00 |
 | V2a-75 | +0,06 | +0,26 | +0,17 | 0,00 | +0,24 | +0,18 | +0,11 | +0,14 | −0,02 |
 | Trend | +0,34 | +0,67 | +0,44 | −0,08 | +0,40 | +0,36 | +0,31 | +0,40 | +0,18 |
+| Trend + Nachzug | +0,11 | +0,01 | +0,25 | −0,02 | +0,16 | +0,10 | −0,08 | +0,26 | +0,16 |
 
 ### Kosten (NQ 2023–25, E je Trade)
 
-| Kosten je Trade | V2a | Trend |
-|---|---|---|
-| 1 Punkt | +0,064 R | +0,298 R |
-| 2 Punkte | +0,040 R | +0,254 R |
-| 3 Punkte | +0,016 R | +0,209 R |
+| Kosten je Trade | Trend | Trend + Nachzug | V2a |
+|---|---|---|---|
+| 1 Punkt | +0,298 R | +0,116 R | +0,064 R |
+| 2 Punkte | +0,254 R | +0,071 R | +0,040 R |
+| 3 Punkte | +0,209 R | +0,027 R | +0,016 R |
 
 Auf NQ lag der Stop bei V2a im Schnitt bei 47 Punkten (Teilziel 23,5 Punkte), im Trend-Modus bei 25 Punkten.
 
@@ -160,16 +221,16 @@ Fast alle 371 Treffer folgen einem Prinzip: mit der Bewegung handeln, wenn der K
 
 ## Forward-Test
 
-1. `R1_OpenDrive.pine` auf dem 1-Minuten-Chart von NQ oder MNQ laden, Chart mit vollständiger Handelszeit (sonst stimmt die ATR nicht).
-2. Zwei Instanzen parallel laufen lassen: Modus „Teilverkauf + Runner“ (Stop 0,15) und Modus „Nur Runner“ (Stop 0,08). Der Einstieg ist derselbe; so zeigt sich, welcher Ausstieg trägt.
-3. Im Strategy Tester die letzten Wochen mit `results/v2a_trades_NQ.csv` bzw. `results/r1_trades_NQ.csv` vergleichen.
-4. „Nur ab Startdatum handeln“ einschalten und mindestens 150 Trades sammeln (etwa ein Jahr). Bei 70 % erwarteter Quote schwankt die Trefferquote über 150 Trades um etwa ±7 Prozentpunkte.
+1. `R1_OpenDrive.pine` auf dem 1-Minuten-Chart von NQ oder MNQ laden, Chart mit vollständiger Handelszeit (sonst stimmt die ATR nicht). Die Standard-Einstellung ist der Trend-Modus.
+2. Zum Vergleich eine zweite Instanz mit eingeschaltetem Kerzen-Nachzug oder im Modus „Teilverkauf + Runner“ laufen lassen. Der Einstieg ist derselbe; so zeigt sich, welcher Ausstieg trägt.
+3. Im Strategy Tester die letzten Wochen mit den Trade-Listen in `results/` vergleichen: `trend_trades_NQ.csv`, `trend_nachzug_trades_NQ.csv`, `v2a_trades_NQ.csv`, `r1_trades_NQ.csv`.
+4. „Nur ab Startdatum handeln“ einschalten. Im Trend-Modus sagt die Trefferquote wenig; entscheidend ist die Summe in R über mindestens 150 Trades (etwa ein Jahr). Eine Verlustserie von 20 Trades ist dabei kein Zeichen, dass die Strategie nicht mehr funktioniert.
 
 ## Dateien
 
 | Datei | Inhalt |
 |---|---|
-| `R1_OpenDrive.pine` | TradingView-Strategie mit den drei Ausstiegs-Modi |
+| `R1_OpenDrive.pine` | TradingView-Strategie: Trend-Modus als Standard, Kerzen-Nachzug als Schalter, V2a und R1 wählbar |
 | `r1_strategy.py` | eigenständige Nachrechnung Kerze für Kerze, Kennzahlen aller Modi, Trade-Listen |
 | `plot_modes.py` | Kapitalkurven |
 | `opt_data.py`, `opt_lib.py` | Daten-Cache und Werkzeuge der Optimierung |

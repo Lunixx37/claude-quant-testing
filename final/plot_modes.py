@@ -13,13 +13,14 @@ import pandas as pd
 from r1_strategy import MODES, run
 
 INK, MUTE, SURF = "#0b0b0b", "#52514e", "#fcfcfb"
-COL = {"R1": "#2a78d6", "V2a": "#eb6834", "Trend": "#1baf7a"}
-SHOW = {"R1": "R1: alles bei 0,5 R", "V2a": "V2a: 50 % bei 0,5 R, Rest bis Tagesende", "Trend": "Trend: kein Ziel, Stop 0,08 ATR"}
+COL = {"Trend": "#1baf7a", "Trend + Nachzug": "#eda100", "V2a": "#eb6834", "R1": "#2a78d6"}
+SHOW = {"Trend": "Trend: Stop 0,08 ATR, kein Ziel", "Trend + Nachzug": "Trend + Nachzug: 1-Min-Kerzen ab 1 R",
+        "V2a": "V2a: 50 % bei 0,5 R, Rest bis Tagesende", "R1": "R1: alles bei 0,5 R"}
 
 if __name__ == "__main__":
     plt.rcParams.update({"font.size": 10, "axes.edgecolor": "#d9d8d2", "axes.labelcolor": MUTE,
                          "xtick.color": MUTE, "ytick.color": MUTE, "text.color": INK})
-    fig, ax = plt.subplots(3, 1, figsize=(9, 9), facecolor=SURF, sharex=True)
+    fig, ax = plt.subplots(4, 1, figsize=(9, 11.5), facecolor=SURF, sharex=True)
     for a, (short, name) in zip(ax, SHOW.items()):
         t = pd.concat([run(k, **MODES[name])[0] for k in ("CFD", "NQ")])
         x = pd.to_datetime(t.tag)
