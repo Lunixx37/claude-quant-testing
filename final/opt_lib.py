@@ -39,6 +39,12 @@ def load_cache(path):
         S[k] = pd.DataFrame(S[k]).ffill(axis=1).values
     S["Cf"] = pd.DataFrame(S["C"]).ffill(axis=1).values
     S["ndays"] = D[D.tradable].groupby("seg").size().to_dict()
+    mv = np.abs(S["Cf"] - D.do.values[:, None]) / D.do.values[:, None]
+    sg = np.full_like(mv, np.nan)
+    for kind in D.kind.unique():                      # je Datensatz getrennt rollen
+        m = (D.kind == kind).values
+        sg[m] = pd.DataFrame(mv[m]).rolling(14).mean().shift(1).values
+    S["sig_t"] = sg
     return S
 
 
@@ -74,6 +80,33 @@ def signals(S, trig=0.3, mode="close", i_min=1, i_max=359, ref="do"):
     sig = pd.DataFrame({"di": rows[ok], "i": i[ok], "known": known[ok], "side": side[ok], "entry": entry[ok],
                         "level": np.where(side == 1, up[:, 0], dn[:, 0])[ok]})
     sig["same_bar"] = mode == "stop"
+    for c in ("day", "kind", "seg", "year", "dow", "atr"):
+        sig[c] = D[c].values[sig.di.values]
+    return sig
+
+
+def signals_noise(S, k=1.0, i_min=1, i_max=359, gap=True):
+    """Erster Schlusskurs ausserhalb der Rausch-Zone: Eroeffnung x (1 +- k x mittlere Bewegung der letzten
+    14 Tage zur selben Uhrzeit); mit gap=True wird die Zone um die Luecke zum Vortagesschluss erweitert."""
+    D = S["D"]
+    C, o, pc = S["C"], D.do.values, D.pdc.values
+    hi0 = np.fmax(o, pc) if gap else o
+    lo0 = np.fmin(o, pc) if gap else o
+    up = hi0[:, None] * (1 + k * S["sig_t"])
+    dn = lo0[:, None] * (1 - k * S["sig_t"])
+    S["band_up"], S["band_dn"] = up, dn
+    rows = np.arange(len(D))
+    with np.errstate(invalid="ignore"):
+        hu, hd = C > up, C < dn
+    hit = hu | hd
+    hit[:, :i_min] = False
+    ok = hit.any(1)
+    i = hit.argmax(1)
+    side = np.where(hu[rows, i], 1, -1)
+    ok &= (i <= i_max) & D.tradable.values & ~np.isnan(D.atr.values) & ~np.isnan(S["sig_t"][:, -1])
+    sig = pd.DataFrame({"di": rows[ok], "i": i[ok], "known": i[ok], "side": side[ok], "entry": C[rows, i][ok],
+                        "level": np.where(side == 1, up[rows, i], dn[rows, i])[ok]})
+    sig["same_bar"] = False
     for c in ("day", "kind", "seg", "year", "dow", "atr"):
         sig[c] = D[c].values[sig.di.values]
     return sig
@@ -136,7 +169,7 @@ def add_features(S, sig):
 # ------------------------------------------------------------------ Ausstiege
 @njit(cache=True)
 def _sim(O, H, L, C, di, i0, side, entry, stop_d, tgt_d, be_trig, be_off, tr_act, tr_d, tmax, part_f, part_d,
-         part_be, same_bar, cost):
+         part_be, same_bar, cost, ref_l, ref_s, ref_mode):
     n = len(di)
     nb = C.shape[1]
     R = np.full(n, np.nan)
@@ -208,6 +241,13 @@ def _sim(O, H, L, C, di, i0, side, entry, stop_d, tgt_d, be_trig, be_off, tr_act
                 rem, done = 0.0, True
                 X[k], why[k] = i, 3
                 break
+            if ref_mode > 0 and i > i0[k] and (ref_mode == 1 or rem < 1.0):
+                rf = ref_l[d, i] if s == 1 else ref_s[d, i]       # Schlusskurs jenseits der Referenzlinie
+                if not np.isnan(rf) and (c - rf) * s < 0:
+                    real += rem * (c - e) * s
+                    rem, done = 0.0, True
+                    X[k], why[k] = i, 5
+                    break
         if not done:
             if last < 0:
                 continue
@@ -239,7 +279,7 @@ def stop_dist(S, sig, stop):
 
 
 def run_exit(S, sig, stop=0.15, rr=0.5, tgt_atr=None, be=None, be_off=0.0, trail=None, tmax=-1,
-             part=0.0, part_rr=None, part_be=True, cost_mult=1.0):
+             part=0.0, part_rr=None, part_be=True, cost_mult=1.0, ref=None, ref_mode=1):
     """Liefert R je Trade. be = Ausloeser in R; trail = (Ausloeser in R, Abstand in R); part = Anteil,
     der bei part_rr x Stop glattgestellt wird."""
     a = sig.atr.values
@@ -252,9 +292,15 @@ def run_exit(S, sig, stop=0.15, rr=0.5, tgt_atr=None, be=None, be_off=0.0, trail
     ta, td = (trail[0] * sd, trail[1] * sd) if trail is not None else (nanv, nanv)
     pd_ = part_rr * sd if part > 0 else nanv
     cost = np.where(sig.kind.values == "NQ", 1.0, 0.0032 * a) * cost_mult
+    if ref == "vwap":                       # Rest/Position schliessen, wenn ein Schlusskurs hinter der VWAP liegt
+        rl = rs = S["vwr"]
+    elif ref == "band":                     # ... hinter max(Zonenrand, VWAP) bzw. min(...)
+        rl, rs = np.fmax(S["band_up"], S["vwr"]), np.fmin(S["band_dn"], S["vwr"])
+    else:
+        rl = rs = S["vwr"]
     R, X, why, mae, mfe = _sim(S["O"], S["H"], S["L"], S["C"], sig.di.values, sig.i.values, sig.side.values,
                                sig.entry.values, sd, tgt, bt, bo, ta, td, tmax, part, pd_, part_be,
-                               sig.same_bar.values, cost)
+                               sig.same_bar.values, cost, rl, rs, ref_mode if ref else 0)
     return R, dict(X=X, why=why, mae=mae / a, mfe=mfe / a, stop_pts=sd)
 
 

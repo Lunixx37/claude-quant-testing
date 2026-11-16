@@ -1,10 +1,12 @@
-# Abschluss-Suche: Strategie mit hoher Trefferquote für NQ
+# NQ Open-Drive: Strategie, Optimierung und Forward-Test
 
 Ziel: Trefferquote über 60 %, mehr als 2 Trades pro Woche, positiver Erwartungswert, stabil über beide Datensätze.
 
-## Ergebnis
+## Stand nach der Optimierung
 
-Eine Strategie besteht alle Stufen: **R1 „Open-Drive-Fortsetzung“** (`R1_OpenDrive.pine`, Referenz `r1_strategy.py`).
+Der Einstieg bleibt, wie er war. Verbessert hat sich nur der Ausstieg: einen Teil der Position laufen lassen. Filter, Wochentage und veränderte Einstiege haben die Gegenprobe nicht bestanden.
+
+**Einstieg (unverändert, „R1“)**
 
 | Regel | Wert |
 |---|---|
@@ -12,116 +14,137 @@ Eine Strategie besteht alle Stufen: **R1 „Open-Drive-Fortsetzung“** (`R1_Ope
 | Signal | erste 1-Min-Kerze ab 09:31 New York, die 0,3 ATR über (Long) oder unter (Short) dem 09:30-Eröffnungskurs schließt |
 | Filter | Tagesspanne seit 09:30 beim Signal höchstens 0,5 ATR; Signal bis 15:29 |
 | Einstieg | Schlusskurs der Signalkerze, höchstens 1 Trade pro Tag |
-| Stop / Ziel | 0,15 ATR / 0,5 × Stop; spätestens 15:59 glatt |
 
-| | CFD 2016–2022 | NQ 2023–2025 |
+**Ausstiegs-Modi** (alle im Pine-Skript wählbar; 3,2 bis 3,4 Trades pro Woche; Kosten 1 Punkt je Kontrakt und Trade)
+
+| Modus | Datensatz | Trefferquote | Ø Gewinn / Ø Verlust | E je Trade | R pro Jahr | Max. Drawdown | Längste Verlustserie |
+|---|---|---|---|---|---|---|---|
+| **R1**: Stop 0,15 ATR, alles bei 0,5 × Stop | CFD 2016–22 | 73,2 % | +0,48 / −1,01 R | +0,078 R | +12,5 | −10,1 R | 6 |
+| | NQ 2023–25 | 70,5 % | +0,48 / −1,00 R | +0,041 R | +6,9 | −10,3 R | 5 |
+| **V2a**: halbe Position bei 0,5 × Stop, danach Stop auf Einstand, Rest bis 15:59 | CFD 2016–22 | 73,1 % | +0,57 / −1,01 R | +0,145 R | +23,3 | −15,4 R | 6 |
+| | NQ 2023–25 | 70,5 % | +0,51 / −1,00 R | +0,064 R | +10,8 | −10,8 R | 5 |
+| **V2a-75**: wie V2a, Teilverkauf bei 0,75 × Stop | CFD 2016–22 | 62,4 % | +0,85 / −1,00 R | +0,152 R | +24,3 | −19,1 R | 7 |
+| | NQ 2023–25 | 60,4 % | +0,78 / −1,00 R | +0,077 R | +13,1 | −14,7 R | 6 |
+| **Trend**: Stop 0,08 ATR, kein Ziel, bis 15:59 halten | CFD 2016–22 | 22,8 % | +5,14 / −1,03 R | +0,372 R | +59,5 | −33,8 R | 18 |
+| | NQ 2023–25 | 20,2 % | +5,56 / −1,04 R | +0,298 R | +50,4 | −25,2 R | 24 |
+
+![Kapitalkurven](modes_equity.png)
+
+### Wichtigste Einschränkung
+
+**Die Modi mit hoher Trefferquote haben seit Juli 2024 nichts mehr verdient.** Über die letzten 244 Trades auf NQ: R1 +1,3 R, V2a −1,2 R, V2a-75 +1,1 R, bei 68 % Treffern (nötig sind 67,8 %). Der Trend-Modus kam im selben Zeitraum auf +64 R; sein zweites Halbjahr 2025 war mit −2,7 R ebenfalls flach.
+
+Der Vorteil sitzt also in den wenigen Tagen, an denen der Kurs nach dem Ausbruch bis zum Schluss weiterläuft, nicht in den ersten 20 bis 25 Punkten.
+
+### Jahr für Jahr (E je Trade in R)
+
+| Modus | 2017 | 2018 | 2019 | 2020 | 2021 | 2022 | 2023 | 2024 | 2025 |
+|---|---|---|---|---|---|---|---|---|---|
+| R1 | 0,00 | +0,09 | +0,16 | +0,05 | +0,09 | +0,08 | +0,02 | +0,09 | +0,01 |
+| V2a | +0,07 | +0,26 | +0,17 | +0,06 | +0,13 | +0,16 | +0,11 | +0,08 | 0,00 |
+| V2a-75 | +0,06 | +0,26 | +0,17 | 0,00 | +0,24 | +0,18 | +0,11 | +0,14 | −0,02 |
+| Trend | +0,34 | +0,67 | +0,44 | −0,08 | +0,40 | +0,36 | +0,31 | +0,40 | +0,18 |
+
+### Kosten (NQ 2023–25, E je Trade)
+
+| Kosten je Trade | V2a | Trend |
 |---|---|---|
-| Trades (pro Woche) | 949 (3,2) | 485 (3,4) |
-| Trefferquote | 73,2 % | 70,5 % |
-| Ø Gewinn / Ø Verlust | +0,48 R / −1,01 R | +0,48 R / −1,00 R |
-| Erwartungswert je Trade | +0,078 R (t = 3,6) | +0,041 R (t = 1,3) |
-| Profitfaktor | 1,29 | 1,14 |
-| Ertrag pro Jahr | +12,5 R | +6,9 R |
-| Größter Drawdown | −10,1 R | −10,3 R |
-| Längste Verlustserie | 6 | 5 |
+| 1 Punkt | +0,064 R | +0,298 R |
+| 2 Punkte | +0,040 R | +0,254 R |
+| 3 Punkte | +0,016 R | +0,209 R |
 
-Kosten: 1 NQ-Punkt je Trade (CFD: derselbe Anteil der ATR). Auf NQ lag der Stop im Schnitt bei 47 Punkten, das Ziel bei 23,5 Punkten.
+Auf NQ lag der Stop bei V2a im Schnitt bei 47 Punkten (Teilziel 23,5 Punkte), im Trend-Modus bei 25 Punkten.
 
-**Der Vorteil ist klein.** Mit 2 Punkten Kosten bleiben auf NQ +0,017 R je Trade, mit 3 Punkten ist er aufgebraucht. Ein Verlust kostet rund zwei Gewinne.
+## Was die Optimierung ergeben hat
 
-### Jahr für Jahr (Erwartungswert je Trade in R)
+Vorgehen: Alles wurde nur auf CFD 2016–2022 ausgewählt (Stufe A 2016–2020, Stufe B 2021–2022), dann eingefroren und committet (`opt_selection.json`) und erst danach auf NQ 2023–2025 geprüft.
 
-| 2017 | 2018 | 2019 | 2020 | 2021 | 2022 | 2023 | 2024 | 2025 |
-|---|---|---|---|---|---|---|---|---|
-| 0,00 | +0,09 | +0,16 | +0,05 | +0,09 | +0,08 | +0,02 | +0,09 | +0,01 |
+### Ausstiege
 
-Kein Jahr ist klar negativ; 2017, 2023 und 2025 sind praktisch null.
+- **Teil laufen lassen** ist die einzige bestätigte Verbesserung. Gegenüber R1 bringt V2a je Trade +0,071 R (CFD A), +0,061 R (CFD B) und +0,023 R (NQ); über alle 1.434 Trades +0,052 R (t = 2,8). Die Trefferquote bleibt gleich.
+- **Engere Stops** bringen bei kleinem Ziel nichts: Ein Viertel der späteren Gewinner läuft vorher mehr als 0,10 ATR gegen den Einstieg. Stops unter 0,10 ATR sind mit Zielen bis 1 × Stop auf CFD A negativ.
+- **Zeit-Stops** (Ausstieg nach 10 bis 180 Minuten) verschlechtern das Ergebnis.
+- **Nachgezogene Stops** (Trailing, VWAP-Nachzug) sind schlechter als der Rest ohne Ziel mit Stop auf Einstand.
+- **Struktur-Stops** (hinter Signalkerze, hinter dem Tief der letzten 5 bis 20 Kerzen, hinter dem Ausbruchs-Level) sind schlechter als der feste Stop.
+- Alle 27 geprüften Nachbarn von V2a (Stop 0,10 bis 0,22 ATR, Teilverkauf 33 bis 67 %, Teilziel 0,4 bis 1,0 × Stop, Signal 0,25 und 0,35 ATR, mit und ohne Spannen-Filter) sind in allen drei Datensätzen positiv.
 
-### Nachbarschaft (Trefferquote, Erwartungswert in R)
+### Einstiege (CFD, E je Trade mit V2a-Ausstieg: Stufe A / Stufe B)
 
-| Variante | NQ | CFD |
-|---|---|---|
-| Basis | 70,5 %, +0,041 | 73,2 %, +0,078 |
-| Signal bei 0,25 ATR | 68,9 %, +0,016 | 69,0 %, +0,017 |
-| Signal bei 0,35 ATR | 68,5 %, +0,005 | 70,0 %, +0,034 |
-| ohne Spannen-Filter | 69,9 %, +0,033 | 71,5 %, +0,055 |
-| Stop 0,12 ATR | 73,0 %, +0,070 | 72,4 %, +0,059 |
-| Stop 0,18 ATR | 70,1 %, +0,040 | 72,4 %, +0,072 |
-| Ziel 0,75 × Stop | 60,4 %, +0,043 | 62,4 %, +0,071 |
-| Ziel 1 × Stop | 53,2 %, +0,052 | 54,8 %, +0,076 |
-| Stop 0,1 ATR, Ziel 1 × Stop | 56,5 %, +0,100 | 55,5 %, +0,075 |
-| Ziel 2 × Stop | 40,4 %, +0,135 | 40,6 %, +0,117 |
-
-Alle 14 geprüften Nachbarn sind in beiden Datensätzen positiv. Die Signal-Schwelle ist die empfindlichste Stelle: bei 0,25 und 0,35 ATR bleibt mit dem kleinen Ziel wenig übrig. Größere Ziele bringen mehr Ertrag je Trade, aber eine Trefferquote unter 60 %.
-
-## Vorgehen
-
-1. **Ereignistabelle** (`build_events.py`): alle möglichen Einstiege je Tag, rund 205.000 auf dem CFD und 107.000 auf NQ.
-   - Reclaims an Leveln: Stdv-Box (Kanten, Mitte, 2 bis 4,5), Psych 100/50, Vortageshoch/-tief/-schluss, Overnight-Hoch/-Tief, Eröffnung, Opening Range, VWAP, Kanten von FVG, iFVG, Order Block und Rejection Block (5 Minuten).
-   - Ausbrüche: Abstand zur Eröffnung 0,2 bis 0,5 ATR, Opening Range, neues Tagesextrem, Vortages- und Overnight-Extreme, Indecision-Box.
-   - Je Ereignis 25 Ausstiege (4 feste Stops und Struktur-Stop × 5 Ziele) und 26 Zusatzbedingungen (Trend, VWAP-Lage, Konfluenz-Flags am Einstiegskurs, Box, Uhrzeit …).
-2. **Suche** (`search.py`): Einstiegsgruppe × Trendbedingung × Zeitfenster × bis zu 2 Zusatzbedingungen × Ausstieg, nur das erste passende Ereignis pro Tag.
-   - Stufe A: CFD 2016–2020. Stufe B: CFD 2021–2022.
-3. **Endtest** (`final_test.py`): fünf Kandidaten, vor dem Test eingefroren und committet (`selection.json`), einmal auf NQ 2023–2025.
-4. **Verfeinerung**: drei Zusatzbedingungen für den Sieger, nur anhand der CFD-Daten gewählt, ebenfalls vor dem Test committet. NQ wurde dafür ein zweites Mal verwendet.
-
-## Was die Suche gezeigt hat
-
-| Schritt | Anzahl |
+| Variante | Ergebnis |
 |---|---|
-| Konfigurationen mit mindestens 2 Trades pro Woche | 919.025 |
-| Trefferquote ≥ 60 % in Stufe A | 194.615 |
-| … und Erwartungswert > 0 mit t ≥ 2,5 | 717 |
-| … und in Stufe B bestätigt | 371 |
+| bisheriger Einstieg | +0,145 / +0,147 |
+| Stop-Order direkt am Level (ohne Schlusskurs-Bestätigung) | +0,133 / +0,047 |
+| zwei Schlusskurse in Folge jenseits des Levels | +0,074 / +0,149 |
+| Bestätigung: Stop-Order über der Signalkerze | +0,155 / +0,203, aber 10 % weniger Trades; Gesamtertrag in A niedriger |
+| Rücksetzer-Limit am Level (15 bis 120 Minuten gültig) | +0,04 / +0,09 |
+| tageszeitabhängige Schwelle (mittlere Bewegung der letzten 14 Tage zur selben Uhrzeit) | gleichwertig, nicht besser |
+| andere feste Schwellen (0,15 bis 0,5 ATR) | 0,3 ATR bleibt die beste |
 
-- Von den 717 Stufe-A-Siegern sind 83 % auch in Stufe B positiv; von den übrigen Konfigurationen mit hoher Trefferquote nur 28 %. Das Muster ist also kein reiner Zufallsfund.
-- Fast alle 371 folgen demselben Prinzip: **mit der Bewegung handeln, wenn der Kurs mindestens 0,3 ATR von der Eröffnung entfernt ist.** Der Ausbruch bei 0,3 ATR besteht in allen 234 gefundenen Varianten.
-- Reclaims **gegen** die Bewegung sind über das ganze Ausstiegsraster negativ.
-- Konfluenzen allein reichen nicht: Stdv-Level, Psych-Level, VWAP, FVG, iFVG, Order Block, Rejection Block und Tageslevel bestehen nur zusammen mit der Trendbedingung, und auch dann schlechter als der schlichte Ausbruch.
-- Die Indecision-Box besteht in keiner Variante.
-- Die einzige Zusatzbedingung mit stabilem Nutzen auf dem CFD ist „keine gegenläufige FVG am Einstieg“; auf NQ brachte sie nichts.
+Keine Variante ist in beiden Stufen besser.
 
-## Endtest auf NQ 2023–2025
+### Filter
 
-| Kandidat | Trades/Woche | Trefferquote | E je Trade | Ergebnis |
-|---|---|---|---|---|
-| S1 Ausbruch 0,3 ATR von der Eröffnung | 4,5 | 70,0 % | +0,034 R | bestanden |
-| S2 wie S1, keine Gegen-FVG | 3,4 | 69,8 % | +0,032 R | bestanden |
-| S3 Psych-Level-Reclaim mit der Bewegung | 3,7 | 55,3 % | −0,028 R | nicht bestanden |
-| S4 Reclaim an beliebigem Level mit Momentum-Kerze | 3,7 | 57,6 % | +0,007 R | nicht bestanden |
-| S5 Kombi S1 + S3, bis 2 Trades pro Tag | 7,7 | 56,9 % | −0,004 R | nicht bestanden |
-| R1 S1 + Tagesspanne ≤ 0,5 ATR | 3,4 | 70,5 % | +0,041 R | bestanden |
-| R2 R1 + keine Gegen-FVG | 2,5 | 70,5 % | +0,040 R | bestanden |
-| R3 R2, nur bis 13:00 | 2,3 | 70,4 % | +0,033 R | bestanden |
+- Geprüft wurden 38 Merkmale: Uhrzeit, Tagesspanne, Gegenbewegung, Größe und Schluss der Signalkerze, Momentum, Abstand zur VWAP, Lücke, Overnight-Richtung und -Spanne, Vorbörse, 08:30-Ausschlag, Stdv-Box (Richtung, Größe, Lage), Vortageshoch/-tief, Vortagesspanne, 1-, 5- und 20-Tage-Trend, Volatilitäts-Regime, enge und weite Vortage, Inside Days, relatives Volumen, Long gegen Short.
+- Auf dem CFD waren 7 Merkmale auffällig (p < 0,05). Am stärksten war die **Lage der Eröffnung in der Overnight-Spanne**: Trades in Richtung der Overnight-Bewegung brachten +0,27 / +0,24 R, die übrigen +0,03 / +0,04 R, in beiden Stufen gleich.
+- **Auf NQ ist davon nichts übrig:** +0,067 R gegen +0,060 R (p = 0,94). Keines der 7 Merkmale ist auf NQ signifikant.
+- Kontrolle: CFD und NQ liefern im gemeinsamen Zeitraum 2023–2025 praktisch dieselben Trades (gleiche Richtung 100 %, gleicher Ausgang 97 %). Der Unterschied liegt also am Zeitraum, nicht an der Datenquelle.
+- Kreuzvalidiert über alle neun Jahre (Modell auf acht Jahren trainiert, auf dem neunten getestet) trennt eine Kombination aller Merkmale die Trades kaum: obere gegen untere Hälfte +0,04 R (t = 0,8).
+
+### Wochentage (E je Trade mit V2a-Ausstieg)
+
+| Tag | CFD 2016–20 | CFD 2021–22 | NQ 2023–25 |
+|---|---|---|---|
+| Montag | +0,27 | +0,33 | +0,02 |
+| Dienstag | +0,09 | +0,11 | +0,10 |
+| Mittwoch | +0,13 | −0,11 | +0,04 |
+| Donnerstag | +0,09 | +0,21 | +0,03 |
+| Freitag | +0,14 | +0,19 | +0,12 |
+
+Kein Wochentag ist verlässlich besser oder schlechter (Varianzanalyse p = 0,61 / 0,16 / 0,93). Der Montags-Vorteil auf dem CFD verschwindet auf NQ. Einzelne Tage wegzulassen senkt nur die Zahl der Trades.
+
+### Long gegen Short (V2a)
+
+Longs sind in allen drei Datensätzen besser als Shorts (+0,19 / +0,19 / +0,11 R gegen +0,10 / +0,11 / +0,02 R). Beide Seiten sind positiv; in einem fallenden Markt kann sich das umkehren, deshalb bleibt beides aktiv.
+
+## Wie R1 gefunden wurde (erste Suche)
+
+1. **Ereignistabelle** (`build_events.py`): rund 205.000 mögliche Einstiege auf dem CFD und 107.000 auf NQ. Reclaims an Stdv-Box, Psych-Leveln, Tages- und Overnight-Leveln, VWAP, FVG, iFVG, Order Block und Rejection Block; Ausbrüche von der Eröffnung, aus der Opening Range, über Tagesextreme und aus der Indecision-Box.
+2. **Suche** (`search.py`): 919.025 Kombinationen aus Einstieg, Trendbedingung, Zeitfenster, bis zu 2 Zusatzbedingungen und Ausstieg. 717 bestehen CFD 2016–2020, 371 davon auch CFD 2021–2022.
+3. **Endtest** (`final_test.py`): fünf eingefrorene Kandidaten auf NQ, zwei bestehen. Danach drei Verfeinerungen, aus denen R1 stammt.
+
+Fast alle 371 Treffer folgen einem Prinzip: mit der Bewegung handeln, wenn der Kurs mindestens 0,3 ATR von der Eröffnung entfernt ist. Einstiege gegen die Bewegung sind durchgehend negativ. Stdv-Level, Psych-Level, VWAP und ICT-Zonen bestehen nur zusammen mit dieser Trendbedingung und dann schlechter als der schlichte Ausbruch; der Psych-Level-Kandidat fiel auf NQ durch. Die Indecision-Box besteht in keiner Variante.
 
 ## Einschränkungen
 
-- **GEX wurde nicht getestet.** Dafür gibt es in diesem Projekt keine Optionsdaten.
-- **Indecision-Box** ist hier so definiert: 5-Min-Kerze mit Körper höchstens 20 % der Spanne und Spanne mindestens 0,03 ATR; Ausbruch per 1-Min-Schluss binnen 30 Minuten. Eine andere Definition kann anders ausfallen.
-- **NQ 2023–2025 ist kein unberührter Testdatensatz mehr.** Er wurde in früheren Studien und hier zweimal verwendet. Der Fortsetzungs-Effekt war schon vor dieser Suche aus den NQ-Daten bekannt.
-- **Die CFD-VWAP** beruht auf Tick-Volumen.
-- **Das Pine-Skript ist nicht in TradingView kompiliert oder gegen die Trade-Liste abgeglichen.** `results/r1_trades_NQ.csv` enthält alle Backtest-Trades zum Vergleich.
-- Liegen Stop und Ziel in derselben Minutenkerze, zählt im Backtest der Stop.
+- **NQ 2023–2025 wurde dreimal als Gegenprobe benutzt** und ist kein unberührter Test mehr. Der eigentliche Test ist der Forward-Test.
+- **Die Modi wurden im Nachhinein verglichen.** Dass der Trend-Modus zuletzt besser war, ist eine Beobachtung auf bekannten Daten.
+- **Der Trend-Modus lebt von wenigen Trades:** Die 10 besten von 1.434 Trades liefern 39 % des Gesamtgewinns. Bei 25 Punkten Stop wiegt zusätzlicher Slippage schwerer als bei V2a.
+- **V2a braucht mindestens 2 Kontrakte**, damit der Teilverkauf möglich ist (praktisch: MNQ).
+- **GEX wurde nicht getestet** (keine Optionsdaten).
+- **Indecision-Box** ist hier definiert als 5-Min-Kerze mit Körper höchstens 20 % der Spanne und Spanne mindestens 0,03 ATR; Ausbruch per 1-Min-Schluss binnen 30 Minuten.
+- **Das Pine-Skript ist nicht in TradingView kompiliert oder gegen die Trade-Listen abgeglichen.**
+- Liegen Stop und Ziel in derselben Minutenkerze, zählt im Backtest der Stop. Der Stop auf Einstand gilt ab der Kerze nach dem Teilverkauf.
 
 ## Forward-Test
 
-1. `R1_OpenDrive.pine` auf dem 1-Minuten-Chart von NQ oder MNQ laden, Chart mit vollständiger Handelszeit (nicht nur reguläre Sitzung), damit die ATR stimmt.
-2. Im Strategy Tester die Trades der letzten Wochen mit `results/r1_trades_NQ.csv` vergleichen, soweit sich die Zeiträume überschneiden.
-3. „Nur ab Startdatum handeln“ einschalten und mindestens 150 Trades sammeln (etwa ein Jahr), bevor die Trefferquote beurteilt wird. Bei 70 % erwarteter Quote liegt die Schwankung über 150 Trades bei etwa ±7 Prozentpunkten.
+1. `R1_OpenDrive.pine` auf dem 1-Minuten-Chart von NQ oder MNQ laden, Chart mit vollständiger Handelszeit (sonst stimmt die ATR nicht).
+2. Zwei Instanzen parallel laufen lassen: Modus „Teilverkauf + Runner“ (Stop 0,15) und Modus „Nur Runner“ (Stop 0,08). Der Einstieg ist derselbe; so zeigt sich, welcher Ausstieg trägt.
+3. Im Strategy Tester die letzten Wochen mit `results/v2a_trades_NQ.csv` bzw. `results/r1_trades_NQ.csv` vergleichen.
+4. „Nur ab Startdatum handeln“ einschalten und mindestens 150 Trades sammeln (etwa ein Jahr). Bei 70 % erwarteter Quote schwankt die Trefferquote über 150 Trades um etwa ±7 Prozentpunkte.
 
 ## Dateien
 
 | Datei | Inhalt |
 |---|---|
-| `build_events.py` | Ereignistabelle |
-| `search.py` | Suche Stufe A und B |
-| `selection.json` | eingefrorene Kandidaten |
-| `final_test.py` | Endtest auf allen Datensätzen |
-| `r1_strategy.py` | eigenständige Nachrechnung von R1, Nachbarschaftstest |
-| `R1_OpenDrive.pine` | TradingView-Strategie |
+| `R1_OpenDrive.pine` | TradingView-Strategie mit den drei Ausstiegs-Modi |
+| `r1_strategy.py` | eigenständige Nachrechnung Kerze für Kerze, Kennzahlen aller Modi, Trade-Listen |
+| `plot_modes.py` | Kapitalkurven |
+| `opt_data.py`, `opt_lib.py` | Daten-Cache und Werkzeuge der Optimierung |
+| `opt_selection.json`, `opt_final.py` | eingefrorene Kandidaten und Gegenprobe |
+| `build_events.py`, `search.py`, `selection.json`, `final_test.py` | erste Suche |
 | `results/` | Trade-Listen |
 
 ```bash
-python final/build_events.py /tmp/ev && python final/search.py /tmp/ev && python final/final_test.py /tmp/ev
-python final/r1_strategy.py
+python final/r1_strategy.py && python final/plot_modes.py
+python final/opt_data.py /tmp/opt && python final/opt_final.py /tmp/opt
 ```
