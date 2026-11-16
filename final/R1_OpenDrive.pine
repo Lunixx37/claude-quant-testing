@@ -20,6 +20,10 @@
 //   "Nur Runner" + Kerzen-Nachzug: sobald der Trade 1 × Stop im Gewinn schließt, wandert der Stop nach
 //        jeder 1-Min-Kerze in Trade-Richtung auf deren Open.
 //        49 % Treffer, +0,11 / +0,12 R je Trade, ≈ +18 R pro Jahr, längste Verlustserie 7 Trades.
+//        Mit "Anteil der Position mit Nachzug" = 50 % folgt nur die halbe Position dem Nachzug:
+//        35 % Treffer, +0,24 / +0,21 R je Trade, Drawdown −22 R, längste Verlustserie 12.
+//   Zeit-Regel (Schalter): aussteigen, wenn der Trade 30 Minuten nach dem Einstieg mehr als 0,25 × Stop
+//        im Minus schließt. Betrifft 4 % der Trades, bringt im Trend-Modus +0,01 R je Trade.
 //   "Teilverkauf + Runner" (V2a): Stop 0,15·ATR, halbe Position bei 0,5 × Stop, danach Stop auf
 //        Einstand, Rest bis 15:59. 70–73 % Treffer, +0,15 / +0,06 R je Trade; auf NQ seit Juli 2024
 //        nur bei null. Braucht mindestens 2 Kontrakte.
@@ -63,6 +67,12 @@ string grpN = "Kerzen-Nachzug"
 bool useTrail  = input.bool(false, "Stop auf das Open der Kerzen in Trade-Richtung nachziehen", group = grpN)
 float trailAct = input.float(1.0, "Aktiv, sobald der Trade so weit im Gewinn schließt (× Stop)", minval = 0, step = 0.5, group = grpN)
 int trailK     = input.int(1, "Kerzen in Folge in Trade-Richtung (1 = jede Kerze)", minval = 1, maxval = 10, group = grpN)
+float trailPct = input.float(100, "Anteil der Position mit Nachzug (%), nur im Modus 'Nur Runner'", minval = 1, maxval = 100, step = 5, group = grpN)
+
+string grpC = "Verlustbegrenzung"
+bool useCut   = input.bool(false, "Zeit-Regel: aussteigen, wenn der Trade nach N Minuten zu weit im Minus schließt", group = grpC)
+int cutMin    = input.int(30, "N Minuten nach dem Einstieg", minval = 1, group = grpC)
+float cutR    = input.float(0.25, "Im Minus um mehr als (× Stop)", minval = 0, step = 0.05, group = grpC)
 
 string grpR = "Positionsgröße"
 float riskUsd = input.float(200, "Risiko pro Trade ($)", minval = 1, group = grpR)
@@ -116,6 +126,10 @@ var int   dirSign = 0
 var bool  beSet   = false
 var bool  trailOn = false
 var int   streak  = 0
+var int   trailQty  = 0
+var float initStop  = na
+var int   entryTime = na
+var bool  cutDone   = false
 // ───────────── Markierungen des laufenden Trades
 var line entryLn = na
 var line stopLn  = na
@@ -163,11 +177,16 @@ if openQty > 0 and dirSign != 0
         if (ns - curStop) * dirSign > 0 and (close - ns) * dirSign > 0
             curStop := ns
             stopChanged := true
+    string rid = dirSign == 1 ? "Long" : "Short"
+    bool splitTrail = exitMode == modeRun and trailQty > 0 and trailQty < posQty
     if stopChanged
-        string rid = dirSign == 1 ? "Long" : "Short"
         float runLimit = runRR > 0 ? entryPx + dirSign * distPts * runRR : na
         if exitMode == modeRun
-            strategy.exit(rid + " Rest", rid, stop = curStop)
+            if splitTrail
+                if openQty == posQty               // nur der Nachzug-Teil folgt; der Rest behält den Anfangs-Stop
+                    strategy.exit(rid + " Nachzug", rid, qty = trailQty, stop = curStop)
+            else
+                strategy.exit(rid + " Rest", rid, stop = curStop)
         else if exitMode == modeFix or posQty < 2
             strategy.exit(rid + " Ziel", rid, stop = curStop, limit = tpPx)
         else if openQty == posQty
@@ -175,6 +194,11 @@ if openQty > 0 and dirSign != 0
             strategy.exit(rid + " Rest", rid, qty = posQty - q1Qty, stop = curStop, limit = runLimit)
         else
             strategy.exit(rid + " Rest", rid, qty = openQty, stop = curStop, limit = runLimit)
+    // Zeit-Regel: einmalige Prüfung N Minuten nach dem Einstieg
+    if useCut and not cutDone and time - entryTime >= cutMin * 60000
+        cutDone := true
+        if (entryPx - close) * dirSign > cutR * distPts
+            strategy.close(rid, comment = "Zeit-Regel")
 
 // ───────────── Signal
 bool canTrade = not fwdOnly or time >= fwdStart
@@ -201,10 +225,18 @@ if upSig or dnSig
         beSet := false
         trailOn := false
         streak := 0
+        initStop := curStop
+        entryTime := time
+        cutDone := false
+        trailQty := useTrail and exitMode == modeRun ? int(math.round(qty * trailPct / 100.0)) : 0
         float runLimit0 = runRR > 0 ? close + sgn * dist * runRR : na
         strategy.entry(id, upSig ? strategy.long : strategy.short, qty = qty)
         if exitMode == modeRun
-            strategy.exit(id + " Rest", id, stop = curStop)
+            if trailQty > 0 and trailQty < qty
+                strategy.exit(id + " Nachzug", id, qty = trailQty, stop = curStop)
+                strategy.exit(id + " Rest", id, qty = qty - trailQty, stop = curStop)
+            else
+                strategy.exit(id + " Rest", id, stop = curStop)
         else if exitMode == modeFix or qty < 2
             strategy.exit(id + " Ziel", id, stop = curStop, limit = tpPx)
         else
@@ -252,7 +284,8 @@ if showTrade
                 line.set_x2(tpLn, xt)
 
 // ───────────── Stop und Ziel anzeigen
-plot(strategy.position_size != 0 ? curStop : na, "Aktueller Stop", color = color.red, style = plot.style_linebr, linewidth = 2)
+bool restOnly = exitMode == modeRun and trailQty > 0 and trailQty < posQty and openQty < posQty
+plot(strategy.position_size != 0 ? (restOnly ? initStop : curStop) : na, "Aktueller Stop", color = color.red, style = plot.style_linebr, linewidth = 2)
 plot(strategy.position_size != 0 and exitMode != modeRun ? tpPx : na, "Ziel 1", color = color.green, style = plot.style_linebr, linewidth = 1)
 
 // ───────────── Info
@@ -271,6 +304,6 @@ if showInfo and barstate.islast and not na(atrDay)
     table.cell(info, 0, 4, "Kontrakte", text_color = color.white, text_size = size.small)
     table.cell(info, 1, 4, str.tostring(qtyL), text_color = color.white, text_size = size.small)
     table.cell(info, 0, 5, "Modus", text_color = color.white, text_size = size.small)
-    table.cell(info, 1, 5, (exitMode == modePart and qtyL < 2 ? "Festes Ziel (nur 1 Kontrakt)" : exitMode) + (useTrail ? " + Nachzug" : ""), text_color = color.white, text_size = size.small)
+    table.cell(info, 1, 5, (exitMode == modePart and qtyL < 2 ? "Festes Ziel (nur 1 Kontrakt)" : exitMode) + (useTrail ? " + Nachzug" + (exitMode == modeRun and trailPct < 100 ? " " + str.tostring(trailPct, "#") + " %" : "") : "") + (useCut ? " + Zeit-Regel" : ""), text_color = color.white, text_size = size.small)
     table.cell(info, 0, 6, "Heute", text_color = color.white, text_size = size.small)
     table.cell(info, 1, 6, done ? "Signal verbraucht" : "wartet", text_color = color.white, text_size = size.small)

@@ -170,7 +170,7 @@ def add_features(S, sig):
 @njit(cache=True)
 def _sim(O, H, L, C, di, i0, side, entry, stop_d, tgt_d, be_trig, be_off, tr_act, tr_d, tmax, part_f, part_d,
          part_be, same_bar, cost, ref_l, ref_s, ref_mode, ct_mode, ct_T, ct_k, ct_act, ct_open, nb_lo, nb_hi,
-         ct_off, xbar, rt_f, rt_act):
+         ct_off, xbar, rt_f, rt_act, cl_stop, ps_n, ps_thr, adv_k, tt_n, tt_stop):
     n = len(di)
     nb = C.shape[1]
     R = np.full(n, np.nan)
@@ -188,7 +188,7 @@ def _sim(O, H, L, C, di, i0, side, entry, stop_d, tgt_d, be_trig, be_off, tr_act
         has_p = part_f > 0 and not np.isnan(part_d[k])
         tp1 = e + s * part_d[k] if has_p else 0.0
         rem, real, best, worst, done, last = 1.0, 0.0, e, e, False, -1
-        act, streak = False, 0
+        act, streak, advc = False, 0, 0
         start = i0[k] if same_bar[k] else i0[k] + 1
         for i in range(start, nb):
             c = C[d, i]
@@ -257,6 +257,24 @@ def _sim(O, H, L, C, di, i0, side, entry, stop_d, tgt_d, be_trig, be_off, tr_act
                             stop = ns
             if rt_f > 0 and run >= rt_act[k]:    # Anteil des offenen Gewinns absichern
                 ns = e + s * rt_f * run
+                if (ns - stop) * s > 0:
+                    stop = ns
+            cut = False                          # fruehe Verlustbegrenzung, Ausstieg zum Schlusskurs
+            if not np.isnan(cl_stop[k]) and (e - c) * s >= cl_stop[k]:
+                cut = True                       # Schlusskurs weiter als cl_stop im Verlust
+            if ps_n >= 0 and i - i0[k] == ps_n and (c - e) * s < ps_thr[k]:
+                cut = True                       # nach ps_n Minuten nicht mindestens ps_thr im Gewinn
+            if adv_k > 0:
+                advc = advc + 1 if (c - O[d, i]) * s < 0 else 0
+                if advc >= adv_k and (c - e) * s < 0:
+                    cut = True                   # adv_k Kerzen in Folge gegen den Trade, Trade im Verlust
+            if cut:
+                real += rem * (c - e) * s
+                rem, done = 0.0, True
+                X[k], why[k] = i, 6
+                break
+            if tt_n >= 0 and i - i0[k] >= tt_n:  # nach tt_n Minuten Stop auf tt_stop hinter den Einstieg
+                ns = e - s * tt_stop[k]
                 if (ns - stop) * s > 0:
                     stop = ns
             if (tmax >= 0 and i - i0[k] >= tmax) or i >= xbar:
@@ -331,10 +349,15 @@ def _ctrail(S, ct, sd):
 
 def run_exit(S, sig, stop=0.15, rr=0.5, tgt_atr=None, be=None, be_off=0.0, trail=None, tmax=-1,
              part=0.0, part_rr=None, part_be=True, cost_mult=1.0, ref=None, ref_mode=1, ctrail=None,
-             xbar=NB, ratchet=None):
+             xbar=NB, ratchet=None, close_stop=None, progress=None, adverse=0, tighten=None):
     """Liefert R je Trade. be = Ausloeser in R; trail = (Ausloeser in R, Abstand in R); part = Anteil,
     der bei part_rr x Stop glattgestellt wird; xbar = spaetester Ausstieg (Minuten-Index ab 09:30);
-    ratchet = (Anteil, Ausloeser in R): Stop sichert diesen Anteil des hoechsten offenen Gewinns."""
+    ratchet = (Anteil, Ausloeser in R): Stop sichert diesen Anteil des hoechsten offenen Gewinns.
+    Fruehe Verlustbegrenzung (alles in Vielfachen des Stops):
+      close_stop = x      : Ausstieg, sobald eine Minute weiter als x im Verlust schliesst
+      progress = (n, x)   : Ausstieg nach n Minuten, wenn der Trade dann nicht mindestens x im Gewinn schliesst
+      adverse = k         : Ausstieg nach k Kerzen in Folge gegen den Trade, solange er im Verlust liegt
+      tighten = (n, x)    : nach n Minuten wandert der Stop auf x hinter den Einstieg (0 = Einstand)"""
     a = sig.atr.values
     sd = stop_dist(S, sig, stop)
     tgt = np.full(len(sig), np.nan) if (rr is None and tgt_atr is None) else (
@@ -354,7 +377,10 @@ def run_exit(S, sig, stop=0.15, rr=0.5, tgt_atr=None, be=None, be_off=0.0, trail
     R, X, why, mae, mfe = _sim(S["O"], S["H"], S["L"], S["C"], sig.di.values, sig.i.values, sig.side.values,
                                sig.entry.values, sd, tgt, bt, bo, ta, td, tmax, part, pd_, part_be,
                                sig.same_bar.values, cost, rl, rs, ref_mode if ref else 0, *_ctrail(S, ctrail, sd),
-                               xbar, ratchet[0] if ratchet else 0.0, ratchet[1] * sd if ratchet else nanv)
+                               xbar, ratchet[0] if ratchet else 0.0, ratchet[1] * sd if ratchet else nanv,
+                               close_stop * sd if close_stop is not None else nanv,
+                               progress[0] if progress else -1, progress[1] * sd if progress else nanv, adverse,
+                               tighten[0] if tighten else -1, tighten[1] * sd if tighten else nanv)
     return R, dict(X=X, why=why, mae=mae / a, mfe=mfe / a, stop_pts=sd)
 
 

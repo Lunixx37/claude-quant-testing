@@ -52,11 +52,24 @@ def _days(kind):
 
 
 def run(kind, trig=TRIG, rng_max=RNG_MAX, stop=0.15, rr=0.5, cost_pts=1.0, part=0.0, runner_rr=None,
-        no_target=False, trail_act=None, trail_k=1):
+        no_target=False, trail_act=None, trail_k=1, trail_part=1.0, cut=None):
     """part = 0 und no_target = False: alles bei rr x Stop (R1).
     part > 0: Anteil `part` bei rr x Stop, Rest bis runner_rr x Stop (None = Tagesende), Stop danach auf Einstand.
     no_target: kein Ziel, nur Stop und Tagesende (Trend).
-    trail_act: Kerzen-Nachzug ab trail_act x Stop Gewinn (Schlusskurs); trail_k = Kerzen in Folge."""
+    trail_act: Kerzen-Nachzug ab trail_act x Stop Gewinn (Schlusskurs); trail_k = Kerzen in Folge;
+               trail_part < 1: nur dieser Anteil der Position folgt dem Nachzug, der Rest behaelt den Stop.
+    cut = (n, x): Zeit-Regel - Ausstieg zum Schlusskurs, wenn der Trade n Minuten nach dem Einstieg mehr als
+               x x Stop im Minus schliesst."""
+    if trail_act is not None and 0 < trail_part < 1:                       # zwei Teilpositionen, gleicher Einstieg
+        kw = dict(trig=trig, rng_max=rng_max, stop=stop, rr=rr, cost_pts=cost_pts, part=part, runner_rr=runner_rr,
+                  no_target=no_target, cut=cut)
+        a, nd = run(kind, trail_act=trail_act, trail_k=trail_k, **kw)
+        h, _ = run(kind, **kw)
+        m = h.copy()
+        m["R"] = trail_part * a.R + (1 - trail_part) * h.R
+        m["punkte"] = trail_part * a.punkte + (1 - trail_part) * h.punkte
+        m["grund"] = a.grund + " / " + h.grund
+        return m, nd
     rows = []
     days = _days(kind)
     for day, a, idx, O, H, L, C, mins in days:
@@ -107,6 +120,10 @@ def run(kind, trig=TRIG, rng_max=RNG_MAX, stop=0.15, rr=0.5, cost_pts=1.0, part=
                     ns = O[i - (trail_k - 1)]
                     if (ns - cur) * side > 0 and (C[i] - ns) * side > 0:
                         cur, kind_stop = ns, "Nachzug"
+            if cut is not None and mins[i] - mins[r] == cut[0] and (entry - C[i]) * side > cut[1] * d:
+                real += rem * (C[i] - entry) * side                         # Zeit-Regel
+                rem, px, why, x = 0.0, C[i], "Zeit-Regel", i
+                break
         if rem > 0:
             real += rem * (C[-1] - entry) * side
         c = cost_pts if kind == "NQ" else cost_pts * 0.0032 * a
@@ -169,10 +186,13 @@ def sheet(t, nd):
 
 MODES = {"Trend: Stop 0,08 ATR, kein Ziel": dict(stop=0.08, no_target=True),
          "Trend + Nachzug: 1-Min-Kerzen ab 1 R": dict(stop=0.08, no_target=True, trail_act=1.0),
+         "Trend, halbe Position mit Nachzug": dict(stop=0.08, no_target=True, trail_act=1.0, trail_part=0.5),
+         "Trend + Zeit-Regel 30 Min / 0,25 R": dict(stop=0.08, no_target=True, cut=(30, 0.25)),
          "V2a: 50 % bei 0,5 R, Rest bis Tagesende": dict(part=0.5),
          "V2a-75: 50 % bei 0,75 R, Rest bis Tagesende": dict(part=0.5, rr=0.75),
          "R1: alles bei 0,5 R": dict()}
-FILES = {"Trend:": "trend_trades_NQ.csv", "Trend +": "trend_nachzug_trades_NQ.csv", "V2a:": "v2a_trades_NQ.csv",
+FILES = {"Trend:": "trend_trades_NQ.csv", "Trend + Nachzug": "trend_nachzug_trades_NQ.csv",
+         "Trend, halbe": "trend_halb_nachzug_trades_NQ.csv", "Trend + Zeit": "trend_zeitregel_trades_NQ.csv", "V2a:": "v2a_trades_NQ.csv",
          "R1:": "r1_trades_NQ.csv"}
 
 if __name__ == "__main__":
@@ -195,7 +215,7 @@ if __name__ == "__main__":
         print(f"== {kind} ==")
         print(pd.DataFrame(res).T.to_string(float_format="{:.3f}".format), "\n")
 
-    for name in list(MODES)[:2]:
+    for name in list(MODES)[:3]:
         (tc, nc), (tn, nn) = both[name]
         ta = pd.concat([tc, tn], ignore_index=True)
         print(f"== Kennzahlenblatt: {name} ==")

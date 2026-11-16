@@ -60,6 +60,28 @@ R = Vielfaches des Risikos je Trade (Abstand Einstieg bis Stop). Kosten: 1 Punkt
 
 Der Nachzug ist deutlich kostenempfindlicher, weil die Gewinne klein sind und fast jeder Ausstieg eine Stop-Order ist.
 
+**Verluste früher begrenzen** (`losscut_study.py`): Getestet wurden 106 Regeln im Trend-Modus: Ausstieg bei Schlusskurs weiter als x im Minus, Ausstieg ohne Fortschritt nach n Minuten, Ausstieg nach k Kerzen in Folge gegen den Trade, Stop nach n Minuten enger ziehen, Stop auf Einstand, engerer Anfangs-Stop.
+
+- Keine Regel senkt den Drawdown spürbar, ohne mehr Ertrag zu kosten. Der Grund: Gewinner und Verlierer sehen am Anfang zu ähnlich aus. Fünf Minuten nach dem Einstieg liegen 20 % der späteren Gewinner im Minus und 55 % der späteren Verlierer im Plus.
+- Der Drawdown entsteht aus der Zahl der Verluste in Folge, nicht aus ihrer Größe. Wer Verluste auf −0,6 R kürzt (Ausstieg ab 0,3 R Minus), senkt die Trefferquote auf 13 % und den Ertrag um ein Viertel.
+- **Zeit-Regel** (Schalter im Skript, standardmäßig aus): aussteigen, wenn der Trade 30 Minuten nach dem Einstieg mehr als 0,25 × Stop im Minus schließt. Sie ist als einzige in beiden Datensätzen besser, aber nur leicht: Sie betrifft 4 % der Trades, bringt +0,013 R je Trade und senkt den größten Drawdown von −33,8 auf −31,9 R.
+- **Nachzug nur für die halbe Position** (Einstellung „Anteil der Position mit Nachzug“ = 50 %) ist der wirksamste Hebel für ein ruhigeres Profil bei gleichem Verhältnis von Ertrag zu Drawdown:
+
+| | Trend | halbe Position mit Nachzug | ganze Position mit Nachzug |
+|---|---|---|---|
+| Trefferquote | 21,9 % | 35,3 % | 49,1 % |
+| Ø Gewinn / Ø Verlust | +5,27 / −1,03 R | +2,21 / −0,85 R | +1,30 / −1,03 R |
+| Ergebnis je Trade (CFD / NQ) | +0,372 / +0,298 R | +0,241 / +0,207 R | +0,110 / +0,116 R |
+| R gesamt | +497,5 R | +329,1 R | +160,7 R |
+| R pro Jahr | +56,6 R | +37,4 R | +18,3 R |
+| Größter Drawdown | −33,8 R | −21,9 R | −25,7 R |
+| R pro Jahr je Drawdown | 1,68 | 1,71 | 0,71 |
+| Längste Verlustserie | 24 | 12 | 7 |
+| Positive Monate | 67 von 109 | 70 von 109 | 64 von 109 |
+| NQ mit 2 / 3 Punkten Kosten | +0,254 / +0,209 R | +0,162 / +0,118 R | +0,071 / +0,027 R |
+
+Die halbe Position mit Nachzug braucht mindestens 2 Kontrakte.
+
 ## Alle Modi im Vergleich
 
 Der Einstieg ist in allen Modi derselbe. Filter, Wochentage und veränderte Einstiege haben die Gegenprobe nicht bestanden.
@@ -223,7 +245,7 @@ Fast alle 371 Treffer folgen einem Prinzip: mit der Bewegung handeln, wenn der K
 
 1. `R1_OpenDrive.pine` auf dem 1-Minuten-Chart von NQ oder MNQ laden, Chart mit vollständiger Handelszeit (sonst stimmt die ATR nicht). Die Standard-Einstellung ist der Trend-Modus.
 2. Zum Vergleich eine zweite Instanz mit eingeschaltetem Kerzen-Nachzug oder im Modus „Teilverkauf + Runner“ laufen lassen. Der Einstieg ist derselbe; so zeigt sich, welcher Ausstieg trägt.
-3. Im Strategy Tester die letzten Wochen mit den Trade-Listen in `results/` vergleichen: `trend_trades_NQ.csv`, `trend_nachzug_trades_NQ.csv`, `v2a_trades_NQ.csv`, `r1_trades_NQ.csv`.
+3. Im Strategy Tester die letzten Wochen mit den Trade-Listen in `results/` vergleichen: `trend_trades_NQ.csv`, `trend_nachzug_trades_NQ.csv`, `trend_halb_nachzug_trades_NQ.csv`, `trend_zeitregel_trades_NQ.csv`, `v2a_trades_NQ.csv`, `r1_trades_NQ.csv`.
 4. „Nur ab Startdatum handeln“ einschalten. Im Trend-Modus sagt die Trefferquote wenig; entscheidend ist die Summe in R über mindestens 150 Trades (etwa ein Jahr). Eine Verlustserie von 20 Trades ist dabei kein Zeichen, dass die Strategie nicht mehr funktioniert.
 
 ## Dateien
@@ -236,6 +258,7 @@ Fast alle 371 Treffer folgen einem Prinzip: mit der Bewegung handeln, wenn der K
 | `opt_data.py`, `opt_lib.py` | Daten-Cache und Werkzeuge der Optimierung |
 | `opt_selection.json`, `opt_final.py` | eingefrorene Kandidaten und Gegenprobe |
 | `trail_study.py` | Test nachgezogener Stops für offene Positionen |
+| `losscut_study.py` | Test früher Verlustbegrenzung im Trend-Modus |
 | `build_events.py`, `search.py`, `selection.json`, `final_test.py` | erste Suche |
 | `results/` | Trade-Listen |
 
