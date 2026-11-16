@@ -169,7 +169,8 @@ def add_features(S, sig):
 # ------------------------------------------------------------------ Ausstiege
 @njit(cache=True)
 def _sim(O, H, L, C, di, i0, side, entry, stop_d, tgt_d, be_trig, be_off, tr_act, tr_d, tmax, part_f, part_d,
-         part_be, same_bar, cost, ref_l, ref_s, ref_mode):
+         part_be, same_bar, cost, ref_l, ref_s, ref_mode, ct_mode, ct_T, ct_k, ct_act, ct_open, nb_lo, nb_hi,
+         ct_off, xbar, rt_f, rt_act):
     n = len(di)
     nb = C.shape[1]
     R = np.full(n, np.nan)
@@ -187,6 +188,7 @@ def _sim(O, H, L, C, di, i0, side, entry, stop_d, tgt_d, be_trig, be_off, tr_act
         has_p = part_f > 0 and not np.isnan(part_d[k])
         tp1 = e + s * part_d[k] if has_p else 0.0
         rem, real, best, worst, done, last = 1.0, 0.0, e, e, False, -1
+        act, streak = False, 0
         start = i0[k] if same_bar[k] else i0[k] + 1
         for i in range(start, nb):
             c = C[d, i]
@@ -236,7 +238,28 @@ def _sim(O, H, L, C, di, i0, side, entry, stop_d, tgt_d, be_trig, be_off, tr_act
                 ns = best - s * tr_d[k]
                 if (ns - stop) * s > 0:
                     stop = ns
-            if tmax >= 0 and i - i0[k] >= tmax:
+            if ct_mode > 0:                      # Kerzen-Nachzug, gilt ab der naechsten Kerze
+                if not act and (c - e) * s >= ct_act[k]:
+                    act = True
+                co = ct_open[d, i]
+                if not np.isnan(co):             # hier schliesst eine Kerze des Nachzug-Zeitrahmens
+                    if (c - co) * s > 0:
+                        streak += 1
+                    else:
+                        streak = 0
+                    if act:
+                        ns = np.nan
+                        if ct_mode == 1 and streak >= ct_k:
+                            ns = ct_open[d, i - (ct_k - 1) * ct_T]
+                        elif ct_mode == 2:
+                            ns = nb_lo[d, i] - ct_off if s == 1 else nb_hi[d, i] + ct_off
+                        if not np.isnan(ns) and (ns - stop) * s > 0 and (c - ns) * s > 0:
+                            stop = ns
+            if rt_f > 0 and run >= rt_act[k]:    # Anteil des offenen Gewinns absichern
+                ns = e + s * rt_f * run
+                if (ns - stop) * s > 0:
+                    stop = ns
+            if (tmax >= 0 and i - i0[k] >= tmax) or i >= xbar:
                 real += rem * (c - e) * s
                 rem, done = 0.0, True
                 X[k], why[k] = i, 3
@@ -278,10 +301,40 @@ def stop_dist(S, sig, stop):
     return np.clip(d, lo_ * a, hi_ * a)
 
 
+def _ctrail(S, ct, sd):
+    """Kerzen-Nachzug. ct = dict(mode='open'|'ext', T=Kerzenlaenge in Min, k=Kerzen in Folge, act=Ausloeser in R,
+    win=Fenster in Min fuer 'ext', off=Abstand in Punkten).
+      open: nach k Kerzen in Folge in Trade-Richtung Stop auf das Open der ersten dieser Kerzen
+      ext : Stop hinter das Tief/Hoch der letzten `win` Minuten, bei jedem Kerzenschluss"""
+    z = np.zeros((1, 1))
+    if ct is None:
+        return 0, 1, 1, np.zeros(len(sd)), z, z, z, 0.0
+    T = ct.get("T", 1)
+    key = ("ct_open", T)
+    if key not in S:
+        Of = np.where(np.isnan(S["O"]), np.c_[S["Cf"][:, :1], S["Cf"][:, :-1]], S["O"])
+        co = np.full_like(Of, np.nan)
+        idx = np.arange(T - 1, NB, T)
+        co[:, idx] = Of[:, idx - T + 1]
+        S[key] = co
+    if ct["mode"] == "ext":
+        w = ct["win"]
+        if ("nb_lo", w) not in S:
+            S[("nb_lo", w)] = pd.DataFrame(S["L"]).T.rolling(w, min_periods=1).min().T.values
+            S[("nb_hi", w)] = pd.DataFrame(S["H"]).T.rolling(w, min_periods=1).max().T.values
+        lo, hi = S[("nb_lo", w)], S[("nb_hi", w)]
+    else:
+        lo = hi = z
+    return (1 if ct["mode"] == "open" else 2, T, ct.get("k", 1), ct.get("act", 1.0) * sd, S[key], lo, hi,
+            float(ct.get("off", 0.0)))
+
+
 def run_exit(S, sig, stop=0.15, rr=0.5, tgt_atr=None, be=None, be_off=0.0, trail=None, tmax=-1,
-             part=0.0, part_rr=None, part_be=True, cost_mult=1.0, ref=None, ref_mode=1):
+             part=0.0, part_rr=None, part_be=True, cost_mult=1.0, ref=None, ref_mode=1, ctrail=None,
+             xbar=NB, ratchet=None):
     """Liefert R je Trade. be = Ausloeser in R; trail = (Ausloeser in R, Abstand in R); part = Anteil,
-    der bei part_rr x Stop glattgestellt wird."""
+    der bei part_rr x Stop glattgestellt wird; xbar = spaetester Ausstieg (Minuten-Index ab 09:30);
+    ratchet = (Anteil, Ausloeser in R): Stop sichert diesen Anteil des hoechsten offenen Gewinns."""
     a = sig.atr.values
     sd = stop_dist(S, sig, stop)
     tgt = np.full(len(sig), np.nan) if (rr is None and tgt_atr is None) else (
@@ -300,7 +353,8 @@ def run_exit(S, sig, stop=0.15, rr=0.5, tgt_atr=None, be=None, be_off=0.0, trail
         rl = rs = S["vwr"]
     R, X, why, mae, mfe = _sim(S["O"], S["H"], S["L"], S["C"], sig.di.values, sig.i.values, sig.side.values,
                                sig.entry.values, sd, tgt, bt, bo, ta, td, tmax, part, pd_, part_be,
-                               sig.same_bar.values, cost, rl, rs, ref_mode if ref else 0)
+                               sig.same_bar.values, cost, rl, rs, ref_mode if ref else 0, *_ctrail(S, ctrail, sd),
+                               xbar, ratchet[0] if ratchet else 0.0, ratchet[1] * sd if ratchet else nanv)
     return R, dict(X=X, why=why, mae=mae / a, mfe=mfe / a, stop_pts=sd)
 
 

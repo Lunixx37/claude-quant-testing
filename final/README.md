@@ -68,6 +68,39 @@ Vorgehen: Alles wurde nur auf CFD 2016–2022 ausgewählt (Stufe A 2016–2020, 
 - **Struktur-Stops** (hinter Signalkerze, hinter dem Tief der letzten 5 bis 20 Kerzen, hinter dem Ausbruchs-Level) sind schlechter als der feste Stop.
 - Alle 22 geprüften Abwandlungen von V2a (Stop 0,10 bis 0,22 ATR, Teilverkauf 33 bis 67 %, Teilziel 0,4 bis 1,0 × Stop, Signal 0,25 und 0,35 ATR, mit und ohne Spannen-Filter) sind in allen drei Datensätzen positiv.
 
+### Nachgezogene Stops für offene Positionen (`trail_study.py`)
+
+Offene Positionen geben tatsächlich viel wieder ab. Von den Positionen, die mindestens 1 × Stop im Gewinn lagen, blieb bis 15:59 im Schnitt weniger als die Hälfte des Höchststands:
+
+| Position | lag mindestens im Gewinn | Anteil der Trades | Ø Höchststand | Ø Ergebnis bei Halten bis 15:59 | behalten |
+|---|---|---|---|---|---|
+| V2a-Rest | 1 R | 37 % | +2,87 R | +1,24 R | 43 % |
+| V2a-Rest | 3 R | 12 % | +5,25 R | +3,35 R | 64 % |
+| Trend | 1 R | 55 % | +4,57 R | +1,48 R | 32 % |
+| Trend | 3 R | 28 % | +7,18 R | +3,65 R | 51 % |
+
+Ein engerer Nachzug holt davon aber nichts zurück. Unterschied zum Halten bis 15:59 in R je Trade, alle Datensätze zusammen:
+
+| Regel (aktiv, sobald der Trade so weit im Gewinn schließt) | V2a | Trend | Stop 0,15 ohne Ziel |
+|---|---|---|---|
+| Stop auf das Open jeder 1-Min-Kerze in Trade-Richtung, ab 1 R | −0,035 | −0,235 | −0,110 |
+| erst nach 2 Kerzen in Folge (Open der ersten), ab 1 R | −0,032 | −0,225 | −0,097 |
+| erst nach 3 Kerzen in Folge, ab 1 R | −0,029 | −0,209 | −0,096 |
+| 5-Min-Kerzen, ab 1 R | −0,032 | −0,217 | −0,096 |
+| 30-Min-Kerzen, ab 1 R | −0,023 | −0,145 | −0,081 |
+| 1-Min-Kerzen, erst ab 3 R | −0,018 | −0,151 | −0,053 |
+| Stop hinter das Tief/Hoch der letzten 10 Minuten, ab 1 R | −0,033 | −0,216 | −0,096 |
+| Stop hinter das Tief/Hoch der letzten 60 Minuten, ab 1 R | −0,020 | −0,115 | −0,066 |
+| 50 % des höchsten offenen Gewinns absichern, ab 2 R | −0,010 | −0,197 | −0,037 |
+| spätestens 14:00 aussteigen | −0,008 | −0,055 | −0,041 |
+| spätestens 15:30 aussteigen | +0,001 | −0,007 | −0,001 |
+
+- Getestet wurden je Modus 112 Kerzen-Regeln (Kerzenlänge 1 bis 30 Minuten, 1 bis 3 Kerzen in Folge, Tief der letzten 3 bis 120 Minuten, aktiv ab 1 bis 5 R). **Keine der 336 Kombinationen ist in allen drei Datensätzen besser** als Halten bis 15:59; 183 sind deutlich schlechter (t < −2).
+- Je enger und je früher der Nachzug, desto größer der Verlust. Die lockersten Regeln (3 Kerzen in Folge auf 10- oder 30-Min-Kerzen, erst ab 3 bis 5 R) liegen bei null.
+- Der Grund: Ein Rücksetzer, der einen engen Stop auslöst, ist meist nur eine Pause. Die großen Gewinner brauchen diesen Spielraum.
+- **Was der Nachzug ändert, ist das Profil:** Im Trend-Modus steigt die Trefferquote mit dem 1-Min-Nachzug ab 1 R von 22 % auf 49 %, die längste Verlustserie fällt von 18 bis 24 auf 7 und der größte Drawdown von −34 R auf −22 R. Der Ertrag fällt dabei von +0,37 / +0,30 R auf +0,11 / +0,12 R je Trade (CFD / NQ).
+- Die letzte halbe Stunde bringt nichts: Ausstieg um 15:30 oder 15:45 ist gleichwertig mit 15:59.
+
 ### Einstiege (CFD, E je Trade mit V2a-Ausstieg: Stufe A / Stufe B)
 
 | Variante | Ergebnis |
@@ -141,6 +174,7 @@ Fast alle 371 Treffer folgen einem Prinzip: mit der Bewegung handeln, wenn der K
 | `plot_modes.py` | Kapitalkurven |
 | `opt_data.py`, `opt_lib.py` | Daten-Cache und Werkzeuge der Optimierung |
 | `opt_selection.json`, `opt_final.py` | eingefrorene Kandidaten und Gegenprobe |
+| `trail_study.py` | Test nachgezogener Stops für offene Positionen |
 | `build_events.py`, `search.py`, `selection.json`, `final_test.py` | erste Suche |
 | `results/` | Trade-Listen |
 
