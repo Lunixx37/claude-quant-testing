@@ -10,6 +10,9 @@
 //   Filter : Tagesspanne seit 09:30 (Hoch − Tief inkl. Signalkerze) ≤ 0,5·ATR; Signal spätestens 15:29
 //   Entry  : Schlusskurs der Signalkerze, höchstens 1 Trade pro Tag
 //
+// Auf dem Chart: blaue Linie = Entry, rot gestrichelt = Anfangs-Stop, rote Linie = aktueller Stop
+// (Einstand / Nachzug), grün gestrichelt = Ziel 1, Beschriftung "Exit … R" an jedem Ausstieg.
+//
 // Ausstiegs-Modi (Backtest CFD 2016–22 / NQ 2023–25, 1 Punkt Kosten je Kontrakt und Trade):
 //   "Nur Runner" (Trend, Standard): Stop 0,08·ATR, kein Ziel, bis 15:59 halten.
 //        22 % Treffer, Ø Gewinn +5,3 R, Ø Verlust −1,0 R, +0,37 / +0,30 R je Trade, ≈ +57 R pro Jahr,
@@ -71,6 +74,7 @@ int fwdStart  = input.time(timestamp("16 Nov 2026 00:00:00 GMT-5"), "Startdatum"
 
 string grpV = "Darstellung"
 bool showLvl  = input.bool(true, "Eröffnung und Signal-Level zeichnen", group = grpV)
+bool showTrade = input.bool(true, "Entry, Stop, Ziel und Exit je Trade markieren", group = grpV)
 bool showInfo = input.bool(true, "Info-Tabelle", group = grpV)
 color openCol = input.color(color.new(color.gray, 0), "Eröffnung", group = grpV)
 color trigCol = input.color(color.new(color.orange, 0), "Signal-Level", group = grpV)
@@ -112,6 +116,10 @@ var int   dirSign = 0
 var bool  beSet   = false
 var bool  trailOn = false
 var int   streak  = 0
+// ───────────── Markierungen des laufenden Trades
+var line entryLn = na
+var line stopLn  = na
+var line tpLn    = na
 
 if newDay
     o := na
@@ -207,13 +215,44 @@ if upSig or dnSig
              style = upSig ? label.style_label_up : label.style_label_down,
              yloc = upSig ? yloc.belowbar : yloc.abovebar, color = upSig ? color.green : color.red,
              textcolor = color.white, size = size.small)
+        if showTrade
+            entryLn := line.new(time, close, time, close, xloc = xloc.bar_time, color = color.blue, width = 2)
+            stopLn := line.new(time, curStop, time, curStop, xloc = xloc.bar_time, color = color.red, style = line.style_dashed, width = 1)
+            label.new(time, close, "Entry " + str.tostring(close, format.mintick), xloc = xloc.bar_time, style = label.style_label_right, color = color.blue, textcolor = color.white, size = size.small)
+            label.new(time, curStop, "Stop " + str.tostring(curStop, format.mintick), xloc = xloc.bar_time, style = label.style_label_right, color = color.red, textcolor = color.white, size = size.small)
+            if exitMode != modeRun
+                tpLn := line.new(time, tpPx, time, tpPx, xloc = xloc.bar_time, color = color.green, style = line.style_dashed, width = 1)
+                label.new(time, tpPx, "Ziel 1 " + str.tostring(tpPx, format.mintick), xloc = xloc.bar_time, style = label.style_label_right, color = color.green, textcolor = color.white, size = size.small)
+            else
+                tpLn := na
 
 // ───────────── Tagesende: glattstellen
 if strategy.position_size != 0 and (mins >= flatMin or mins < openMin)
     strategy.close_all(comment = "Zeit")
 
+// ───────────── Trade-Markierungen: Linien bis zum Ausstieg ziehen, jeden Ausstieg beschriften
+int nClosed = strategy.closedtrades
+int nPrev   = nz(strategy.closedtrades[1])
+if showTrade
+    if strategy.position_size != 0
+        line.set_x2(entryLn, time)
+        line.set_x2(stopLn, time)
+        line.set_x2(tpLn, time)
+    if nClosed > nPrev
+        for i = nPrev to nClosed - 1
+            float xp = strategy.closedtrades.exit_price(i)
+            float ep = strategy.closedtrades.entry_price(i)
+            int xt   = strategy.closedtrades.exit_time(i)
+            float sz = strategy.closedtrades.size(i)
+            float resR = distPts > 0 ? (xp - ep) * math.sign(sz) / distPts : na
+            label.new(xt, xp, "Exit " + str.tostring(xp, format.mintick) + "  " + (resR >= 0 ? "+" : "") + str.tostring(resR, "#.##") + " R", xloc = xloc.bar_time, style = label.style_label_left, color = resR >= 0 ? color.green : color.red, textcolor = color.white, size = size.small)
+            if strategy.position_size == 0
+                line.set_x2(entryLn, xt)
+                line.set_x2(stopLn, xt)
+                line.set_x2(tpLn, xt)
+
 // ───────────── Stop und Ziel anzeigen
-plot(strategy.position_size != 0 ? curStop : na, "Stop", color = color.red, style = plot.style_linebr, linewidth = 1)
+plot(strategy.position_size != 0 ? curStop : na, "Aktueller Stop", color = color.red, style = plot.style_linebr, linewidth = 2)
 plot(strategy.position_size != 0 and exitMode != modeRun ? tpPx : na, "Ziel 1", color = color.green, style = plot.style_linebr, linewidth = 1)
 
 // ───────────── Info
