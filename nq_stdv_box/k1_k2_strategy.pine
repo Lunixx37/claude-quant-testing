@@ -64,6 +64,9 @@ float k2FixStop = input.float(0.03, "Fix-Stop (× ATR)", minval = 0.005, step = 
 float k2MinBox  = input.float(0.0, "Mindest-Boxhöhe (× ATR)", minval = 0, step = 0.01, group = grp2)
 int k2MinBars   = input.int(0, "Frühester Entry: Kerzen nach 08:30", minval = 0, group = grp2)
 int k2MinRecl   = input.int(0, "Reclaim frühestens nach N Kerzen", minval = 0, group = grp2)
+int k2MaxPerDay = input.int(1, "Max. K2-Trades pro Tag (0 = unbegrenzt)", minval = 0, maxval = 20, group = grp2)
+float k2ExtMin  = input.float(0.0, "Auslauf vor Entry mindestens (Stdv, 0 = aus; getestet 3,75)", minval = 0, step = 0.25, group = grp2)
+float k2ExtMax  = input.float(0.0, "Auslauf vor Entry höchstens (Stdv, 0 = aus; getestet 5,0)", minval = 0, step = 0.25, group = grp2)
 
 string grpV = "Darstellung"
 int maxQty = input.int(50, "Max. Kontrakte", minval = 1, group = grpV)
@@ -196,6 +199,9 @@ var int   tStop    = na
 var bool  active   = false
 var float mid      = na
 var float hBox     = na
+var float dayHi    = na                    // Tageshoch / -tief seit Box-Ende (für den Auslauf-Filter)
+var float dayLo    = na
+var int   k2Today  = 0                     // K2-Trades heute
 var float atrDay   = na
 var int   sessBar0 = na
 var float curStop  = na
@@ -241,6 +247,9 @@ if isEnd and not na(o0) and not na(atrD)
     h    = (top - bot) / 2
     mid      := (top + bot) / 2
     hBox     := h
+    dayHi    := high
+    dayLo    := low
+    k2Today  := 0
     atrDay   := atrD
     tStop    := tX
     sessBar0 := bar_index
@@ -284,6 +293,8 @@ bool enteredK2   = false
 
 // ═════════════ K2: Reclaim-Logik (läuft immer mit, Entries nur wenn K2 gewählt)
 if active and time < tStop and array.size(lvP) > 0
+    dayHi := math.max(dayHi, high)
+    dayLo := math.min(dayLo, low)
     rearm = rearmAtr * atrDay
     for i = 0 to array.size(lvP) - 1
         p  = array.get(lvP, i)
@@ -332,11 +343,14 @@ if active and time < tStop and array.size(lvP) > 0
                 tgt     = math.round_to_mintick(mid + sd * k2TgtK * hBox)
                 risk    = math.abs(close - stop)
                 filtOk  = 2 * hBox / atrDay > k2MinBox and bar_index - sessBar0 >= k2MinBars and bar_index - sTouch >= k2MinRecl
+                extK    = (sd == 1 ? mid - dayLo : dayHi - mid) / hBox      // wie weit lief der Preis heute schon auf dieser Seite?
+                filtOk  := filtOk and (k2ExtMin <= 0 or extK >= k2ExtMin) and (k2ExtMax <= 0 or extK <= k2ExtMax) and (k2MaxPerDay <= 0 or k2Today < k2MaxPerDay)
                 if (tgt - close) * sd > 0 and risk > 0 and filtOk
                     qty = math.max(1, math.min(maxQty, math.floor(k2Risk / (risk * syminfo.pointvalue))))
                     id  = sd == 1 ? "K2 Long" : "K2 Short"
                     strategy.entry(id, sd == 1 ? strategy.long : strategy.short, qty = qty)
                     strategy.exit("Exit " + id, id, stop = stop, limit = tgt)
+                    k2Today := k2Today + 1
                     curStop   := stop
                     curTgt    := tgt
                     enteredK2 := true

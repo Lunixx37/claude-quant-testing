@@ -100,7 +100,10 @@ def build(kind, start, end, first_day, shift=0.0):
                    "body": abs(C[r] - O[r]) / atr, "close_dist": abs(entry - lvl) / atr,
                    "vol_ratio": V[r] / vol_base if vol_base and vol_base > 0 else np.nan,
                    "n_opp": n_opp, "n_same": sum(1 for rr, sd in recl if rr < s and sd == side),
-                   "rr_mid_struct": abs(mid - entry) / abs(entry - sstruct)}
+                   "rr_mid_struct": abs(mid - entry) / abs(entry - sstruct),
+                   # furthest excursion on the trade's side since 08:30, in stdv units (known at entry)
+                   "ext_k": ((mid - L[:r + 1].min()) if side == 1 else (H[:r + 1].max() - mid)) / h,
+                   "ext_k_before": (((mid - L[:s].min()) if side == 1 else (H[:s].max() - mid)) / h) if s > 0 else 0.0}
             stops = {"struct_min": (min(sstruct, entry - 0.02 * atr) if side == 1 else max(sstruct, entry + 0.02 * atr)),
                      "struct": sstruct, "half_struct": entry - 0.5 * (entry - sstruct), "bar": barx}
             for f in (0.010, 0.015, 0.020, 0.030, 0.060):
@@ -133,19 +136,20 @@ def build(kind, start, end, first_day, shift=0.0):
     return ev, len(days)
 
 
-def take(ev, si, xn, mask=None, maxord=6):
-    """Trades of one stop/exit combination, one position at a time."""
+def take(ev, si, xn, mask=None, maxord=6, max_per_day=None):
+    """Trades of one stop/exit combination, one position at a time (optionally max N trades per day)."""
     m = (ev.ord.values < maxord) & ~np.isnan(ev[f"o_{si}_{xn}"].values)
     if mask is not None:
         m &= mask
     t = ev[m]
-    keep, cur, busy = [], -1, -1
+    keep, cur, busy, cnt = [], -1, -1, 0
     for i, (di, bar, xb) in enumerate(zip(t.di.values, t.bar.values, t[f"x_{si}_{xn}"].values)):
         if di != cur:
-            cur, busy = di, -1
-        if bar > busy:
+            cur, busy, cnt = di, -1, 0
+        if bar > busy and (max_per_day is None or cnt < max_per_day):
             keep.append(i)
             busy = xb
+            cnt += 1
     t = t.iloc[keep]
     return t, t[f"o_{si}_{xn}"].values
 

@@ -698,3 +698,72 @@ In allen 7 Boxen und beiden Fenstern liegen echte und Fake-Level innerhalb von �
 * Positiv bleibt **nur die ursprüngliche Box 00:00→08:30**, auch wenn man sie erst ab 09:30 handelt.
 * Das hat zwei mögliche Lesarten: (a) Die beiden Zeitpunkte 00:00 und 08:30 sind besonders. (b) K2 wurde auf genau dieser Box aus sehr vielen Kombinationen ausgesucht und ist dort überangepasst. Dass das Konzept auf keine einzige andere Box-Definition übertragbar ist, spricht eher für (b) und mahnt zur Vorsicht bei K2.
 * Nebenbefund: Die New-York-Box ist mit 0,35 ATR sehr groß, ihre Level werden danach selten erreicht. Die Box 00:00→02:00 ist mit 0,05 ATR winzig, ihre Level liegen im Rauschen.
+
+## Teil 13 – Höchstens ein Trade pro Tag und Filter auf den Auslauf über die 4er-Level (`k2_daily.py`)
+
+Ergebnisse liegen in `results/k2_daily/`.
+
+**Auslauf** = wie weit der Preis am Handelstag (seit 08:30) auf der Seite des Trades schon von der Box-Mitte weggelaufen ist, gemessen in Stdv-Einheiten und bekannt zum Zeitpunkt des Einstiegs. Ein K2-Einstieg am 3.5-Level hat also immer einen Auslauf von mindestens 3,5.
+
+### 1. Unbegrenzt gegen höchstens 1 Trade pro Tag
+
+| | Trades/Woche | Ø R CFD / NQ | R pro Woche CFD / NQ | Max. Drawdown CFD / NQ | Längste Verlustserie |
+|---|---|---|---|---|---|
+| V0 unbegrenzt | 2,4 | +0,136 / +0,190 | 0,33 / 0,45 | −21 / −24 R | 10 / 12 |
+| V0, 1 pro Tag | 1,9 | +0,156 / +0,229 | 0,29 / 0,42 | −14 / −17 R | 8 / 9 |
+| V2 unbegrenzt | 2,8 | +0,270 / +0,196 | 0,78 / 0,55 | −27 / −23 R | 20 / 12 |
+| **V2, 1 pro Tag** | 2,1 | +0,299 / +0,225 | 0,62 / 0,47 | −20 / −17 R | 13 / 10 |
+| V3 unbegrenzt | 2,8 | +0,342 / +0,196 | 0,98 / 0,55 | −24 / −22 R | 20 / 12 |
+| V3, 1 pro Tag | 2,1 | +0,374 / +0,228 | 0,78 / 0,47 | −21 / −18 R | 13 / 16 |
+| V4 unbegrenzt | 2,6 | +0,378 / +0,311 | 0,99 / 0,79 | −81 / −42 R | 41 / 36 |
+| V4, 1 pro Tag | 1,6 | +0,429 / +0,280 | 0,69 / 0,45 | −45 / −39 R | 24 / 25 |
+
+Der erste Trade des Tages ist im Schnitt etwas besser als die späteren. Mit Tageslimit steigt der Ertrag pro Trade leicht, der Ertrag pro Woche sinkt um 15–25 %, und Drawdown und Verlustserien werden deutlich kleiner.
+
+### 2. Ergebnis nach Auslauf (Einstieg und Ziel wie V2, alle Einstiege)
+
+| Auslauf (Stdv) | n CFD / NQ | Winrate CFD / NQ | Ø R CFD / NQ |
+|---|---|---|---|
+| 3,5–3,75 | 79 / 27 | 15 % / 15 % | −0,16 / −0,36 |
+| **3,75–4,0** | 101 / 48 | 25 % / 29 % | **+0,34 / +0,62** |
+| **4,0–4,25** | 96 / 62 | 29 % / 24 % | **+0,64 / +0,24** |
+| **4,25–4,5** | 84 / 39 | 33 % / 36 % | **+0,40 / +0,74** |
+| **4,5–5,0** | 141 / 57 | 37 % / 33 % | **+0,46 / +0,42** |
+| 5,0–6,0 | 162 / 77 | 30 % / 39 % | −0,11 / +0,03 |
+| über 6,0 | 286 / 138 | 52 % / 39 % | +0,19 / −0,18 |
+
+* Der Ertrag sitzt in beiden Datensätzen im Bereich **3,75 bis 5,0 Stdv**: Der Preis ist in den 4er-Cluster hineingelaufen, aber nicht weit darüber hinaus.
+* Ist der Preis schon mehr als etwa 5 Stdv gelaufen, liegt das Setup bei null.
+* Sehr flache Sweeps, die das 3.5-Level nur um weniger als 0,25 Stdv unterschreiten, sind in beiden Datensätzen negativ.
+
+### 3. Varianten mit Filter
+
+| | Trades/Woche | Winrate | Ø Gewinner | Ø R CFD (t) | Ø R NQ (t) | R pro Woche CFD / NQ | Max. DD CFD / NQ | Fake-Level Ø R CFD / NQ |
+|---|---|---|---|---|---|---|---|---|
+| V2 unbegrenzt (bisher) | 2,8–2,9 | 35–37 % | 2,5 R | +0,270 (3,2) | +0,196 (1,8) | 0,78 / 0,55 | −27 / −23 R | −0,03 / −0,01 |
+| V2, 1 pro Tag | 2,1 | 36 % | 2,5–2,7 R | +0,299 (2,8) | +0,225 (1,7) | 0,62 / 0,47 | −20 / −17 R | −0,02 / −0,02 |
+| V2, 1 pro Tag, Auslauf ≤ 5,0 | 1,2 | 29–31 % | 3,9 R | +0,451 (2,8) | +0,375 (1,8) | 0,56 / 0,45 | −23 / −20 R | −0,05 / +0,14 |
+| **V2, 1 pro Tag, Auslauf 3,75–5,0** | 1,0–1,1 | 30–33 % | 3,8–3,9 R | **+0,533 (3,0)** | **+0,432 (2,0)** | 0,56 / 0,46 | −16 / −18 R | −0,03 / +0,07 |
+| **V2 unbegrenzt, Auslauf 3,75–5,0** | 1,3 | 31–32 % | 3,8–4,0 R | **+0,507 (3,3)** | **+0,537 (2,6)** | 0,64 / 0,68 | −19 / −21 R | −0,03 / +0,06 |
+| V3, 1 pro Tag, Auslauf 3,75–5,0 | 1,0–1,1 | 29–30 % | 4,2–4,5 R | +0,640 (3,2) | +0,482 (2,0) | 0,67 / 0,52 | −16 / −22 R | −0,02 / +0,13 |
+| V0, 1 pro Tag, Auslauf 3,75–5,0 | 1,0 | 37–39 % | 2,4–3,2 R | +0,305 (2,3) | +0,533 (2,5) | 0,29 / 0,53 | −12 / −10 R | −0,01 / −0,06 |
+
+### 4. Bestehensquote 50k-Eval (Risiko je Fall optimiert, Annahmen wie in Teil 7)
+
+| | Regel A | Regel B | bestes Risiko | ohne Vorteil (A / B) |
+|---|---|---|---|---|
+| V2 unbegrenzt (bisher) | 60 % | 71 % | 0,2–0,3 % | 21 % / 33 % |
+| V2, 1 pro Tag | 55 % | 68 % | 0,3 % | 19 % / 31 % |
+| V2, 1 pro Tag, Auslauf 3,75–5,0 | 57 % | 73 % | 0,4 % | 16 % / 32 % |
+| **V2 unbegrenzt, Auslauf 3,75–5,0** | **67 %** | **78 %** | 0,3–0,4 % | 17 % / 33 % |
+| V3, 1 pro Tag, Auslauf 3,75–5,0 | 61 % | 76 % | 0,3–0,4 % | 16 % / 34 % |
+| V0, 1 pro Tag, Auslauf 3,75–5,0 | 55 % | 69 % | 0,5–0,6 % | 17 % / 32 % |
+
+### Fazit
+
+* **Ein Trade pro Tag** macht die Strategie ruhiger, kostet aber etwas Ertrag pro Woche und damit ein paar Punkte Eval-Quote.
+* **Der Auslauf-Filter 3,75–5,0** verdoppelt etwa den Ertrag pro Trade und halbiert die Trade-Anzahl auf rund einen pro Woche. Der Ertrag pro Woche bleibt ungefähr gleich, die Eval-Quote steigt leicht.
+* Die Grenzen 3,75 und 5,0 wurden gewählt, **nachdem beide Datensätze sichtbar waren**. Das Muster ist in beiden gleich, aber es ist eine weitere Anpassung an bekannte Daten. Auf NQ sind mit diesem Filter auch die Fake-Level leicht positiv (+0,06 bis +0,14 R), ein Teil des Effekts ist dort also nicht level-spezifisch.
+* Mit Filter liegt die Häufigkeit unter 2 Trades pro Woche.
+
+**Pine:** neue K2-Einstellungen „Max. K2-Trades pro Tag“, „Auslauf vor Entry mindestens“ und „Auslauf vor Entry höchstens“ in `k1_k2_strategy.pine` und `k2_strategy.pine`.
