@@ -1,0 +1,52 @@
+[
+ {
+  "kind": "T",
+  "rel": 0.0,
+  "grp": "stdv",
+  "minrisk": 0.01,
+  "filter": "t11-13:30+ict",
+  "stop": "0.06atr",
+  "exit": "mid",
+  "t_all": 2.8
+ },
+ {
+  "kind": "R",
+  "rel": 0.0,
+  "grp": "3.5",
+  "minrisk": 0.02,
+  "filter": "vorher_gegen+momentum",
+  "stop": "struct_min",
+  "exit": "mid",
+  "t_all": 2.62
+ },
+ {
+  "kind": "T",
+  "rel": 0.0,
+  "grp": "aussen",
+  "minrisk": 0.0,
+  "filter": "t11-13:30+erster_touch",
+  "stop": "0.06atr",
+  "exit": "3R",
+  "t_all": 2.55
+ },
+ {
+  "kind": "R",
+  "rel": 0.2,
+  "grp": "aussen",
+  "minrisk": 0.0,
+  "filter": "ict",
+  "stop": "struct_min",
+  "exit": "5R",
+  "t_all": 2.53
+ },
+ {
+  "kind": "T",
+  "rel": 0.0,
+  "grp": "stdv",
+  "minrisk": 0.01,
+  "filter": "t11-13:30+ict",
+  "stop": "0.06atr",
+  "exit": "5R",
+  "t_all": 2.41
+ }
+]

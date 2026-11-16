@@ -1,0 +1,15 @@
+Variante,Daten,Trades/Wo,Win %,Ø Gewinner R,Ø R,R/Woche,t,Max DD R,längste Verlustserie,Jahre positiv
+"V0  K2 Basis: Struktur-Stop, Ziel Mitte, 3 Touches",CFD,2.41,43.8,1.63,0.136,0.326,2.0,-21.2,10,5/7
+"V0  K2 Basis: Struktur-Stop, Ziel Mitte, 3 Touches",NQ,2.35,41.3,1.9,0.19,0.446,1.82,-24.2,12,3/3
+"V1  Struktur-Stop, Ziel Mitte, 4 Touches",CFD,2.92,43.9,1.67,0.152,0.444,2.36,-20.3,17,4/7
+"V1  Struktur-Stop, Ziel Mitte, 4 Touches",NQ,2.85,42.1,1.85,0.191,0.544,2.08,-23.3,10,3/3
+"V2  Struktur-Stop, Ziel gegenüberliegendes 2.0-Level, 4 Touches",CFD,2.89,37.0,2.5,0.27,0.78,3.2,-26.9,20,5/7
+"V2  Struktur-Stop, Ziel gegenüberliegendes 2.0-Level, 4 Touches",NQ,2.8,34.9,2.5,0.196,0.55,1.8,-23.1,12,3/3
+"V3  Struktur-Stop, Ziel gegenüberliegendes 3.5-Level, 4 Touches",CFD,2.88,33.5,3.1,0.342,0.984,3.54,-24.0,20,6/7
+"V3  Struktur-Stop, Ziel gegenüberliegendes 3.5-Level, 4 Touches",NQ,2.79,31.0,2.93,0.196,0.547,1.63,-22.3,12,3/3
+"V4  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 ATR",CFD,2.63,15.8,8.22,0.378,0.994,2.32,-80.9,41,5/7
+"V4  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 ATR",NQ,2.55,16.3,7.57,0.311,0.794,1.47,-42.1,36,3/3
+"V5  Stop fix 0,03 ATR, Ziel 2.0 gegenüber, nach 09:57",CFD,2.69,18.4,6.55,0.304,0.816,2.12,-41.8,28,5/7
+"V5  Stop fix 0,03 ATR, Ziel 2.0 gegenüber, nach 09:57",NQ,2.62,19.3,6.11,0.277,0.728,1.52,-68.3,20,2/3
+"V6  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 + Reclaim > 2 Kerzen",CFD,1.48,19.2,7.91,0.638,0.942,2.71,-35.3,23,5/7
+"V6  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 + Reclaim > 2 Kerzen",NQ,1.5,18.1,7.93,0.534,0.799,1.76,-31.2,22,2/3

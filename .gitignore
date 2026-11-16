@@ -1,2 +1,5 @@
-research/cache/
 __pycache__/
+*.pyc
+research/cache/
+nq_stdv_box/results/search/all_results.pkl
+nq_stdv_box/results/search/scan_*.pkl

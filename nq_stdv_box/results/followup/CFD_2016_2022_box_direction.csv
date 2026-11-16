@@ -1,0 +1,21 @@
+Box,Trade,Config,n,Win %,Ø R,t
+bearish (00:00 über 08:30),Long,Box≥0.2 limit_0.25h mid,529.0,12.7,0.076,0.52
+bearish (00:00 über 08:30),Short,Box≥0.2 limit_0.25h mid,249.0,13.7,-0.064,-0.32
+bullish (00:00 unter 08:30),Long,Box≥0.2 limit_0.25h mid,349.0,10.0,-0.176,-1.07
+bullish (00:00 unter 08:30),Short,Box≥0.2 limit_0.25h mid,729.0,12.3,-0.017,-0.13
+bearish (00:00 über 08:30),Long,Box≥0.2 limit_0.5h 3R,363.0,25.3,-0.093,-1.05
+bearish (00:00 über 08:30),Short,Box≥0.2 limit_0.5h 3R,174.0,28.2,-0.052,-0.41
+bullish (00:00 unter 08:30),Long,Box≥0.2 limit_0.5h 3R,253.0,23.3,-0.169,-1.63
+bullish (00:00 unter 08:30),Short,Box≥0.2 limit_0.5h 3R,508.0,23.4,-0.178,-2.46
+bearish (00:00 über 08:30),Long,Box≥0.2 momentum 3R,411.0,24.3,-0.162,-2.01
+bearish (00:00 über 08:30),Short,Box≥0.2 momentum 3R,212.0,24.1,-0.242,-2.14
+bullish (00:00 unter 08:30),Long,Box≥0.2 momentum 3R,253.0,26.9,-0.095,-0.9
+bullish (00:00 unter 08:30),Short,Box≥0.2 momentum 3R,596.0,26.3,-0.129,-1.79
+bearish (00:00 über 08:30),Long,Box≥0.0 limit_0.25h mid,1416.0,9.7,-0.282,-3.09
+bearish (00:00 über 08:30),Short,Box≥0.0 limit_0.25h mid,1050.0,9.4,-0.4,-3.81
+bullish (00:00 unter 08:30),Long,Box≥0.0 limit_0.25h mid,1274.0,8.2,-0.466,-5.31
+bullish (00:00 unter 08:30),Short,Box≥0.0 limit_0.25h mid,1922.0,9.5,-0.309,-4.01
+bearish (00:00 über 08:30),Long,Box≥0.0 momentum 2R,1012.0,34.1,-0.123,-2.78
+bearish (00:00 über 08:30),Short,Box≥0.0 momentum 2R,706.0,33.4,-0.174,-3.29
+bullish (00:00 unter 08:30),Long,Box≥0.0 momentum 2R,776.0,32.9,-0.128,-2.53
+bullish (00:00 unter 08:30),Short,Box≥0.0 momentum 2R,1374.0,35.4,-0.122,-3.16

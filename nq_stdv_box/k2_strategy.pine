@@ -1,0 +1,246 @@
+//@version=6
+// ─────────────────────────────────────────────────────────────────────────────────────────────
+// NQ Stdv Box – Strategie K2            (nur auf dem 1-MINUTEN-Chart verwenden, NQ / MNQ)
+//
+// Box   : Open der 00:00-ET-Kerze bis Open der 08:30-ET-Kerze, Mitte = 50 %, h = halbe Boxhöhe
+// Level : Mitte ± k·h  (k = 2, 2.25, 2.5, 3.5, 4, 4.25, 4.5) + beide Box-Kanten
+//
+// K2-Regeln (identisch zum Python-Backtest, 08:30–16:00 ET):
+//   1. Touch   : Preis handelt mind. 1 Tick DURCH das 3.5-Level (−3.5 von oben = Long, +3.5 von unten = Short).
+//                Pro Level und Tag max. N Touches; ein Level wird erst wieder "scharf", wenn eine Kerze
+//                mind. 0,02·ATR auf der Ausgangsseite schließt.
+//   2. Reclaim : innerhalb von 10 Kerzen schließt eine 1-Min-Kerze wieder auf der Ausgangsseite.
+//   3. Momentum: diese Kerze schließt über dem Hoch der Vorkerze (Short: unter dem Tief) und in Trade-Richtung.
+//   4. Vorher  : vor dem Touch gab es heute bereits einen Reclaim in die GEGENRICHTUNG an irgendeinem Level
+//                (Box-Kanten oder Stdv-Level).
+//   5. Entry   : Schlusskurs der Reclaim-Kerze. Stop: hinter dem Sweep-Extrem (+1 Tick), mind. 0,02·ATR.
+//                Ziel: Box-Mitte. Spätestens 15:59 ET wird glattgestellt. Nur eine Position gleichzeitig.
+//   ATR = Durchschnitt der Tagesrange (High−Low) der letzten 14 abgeschlossenen Handelstage.
+//
+// Lockerungen (Einstellungen): "Max. Touches" 3 → 6 (≈ 3,6 statt 2,3 Trades/Woche im Backtest),
+// "Vorherige Gegenreaktion nötig" aus, "Reclaim-Fenster" 10 → 30.
+// ─────────────────────────────────────────────────────────────────────────────────────────────
+strategy("NQ Stdv Box – K2", overlay = true, process_orders_on_close = true, initial_capital = 50000,
+     default_qty_type = strategy.fixed, default_qty_value = 1,
+     margin_long = 0, margin_short = 0,
+     commission_type = strategy.commission.cash_per_contract, commission_value = 0.6, slippage = 1,
+     max_lines_count = 500, max_boxes_count = 200, max_labels_count = 500)
+
+// ───────────── Inputs
+string grpT = "Zeiten"
+string tz   = input.string("America/New_York", "Zeitzone", group = grpT)
+int sH   = input.int(0,  "Box-Start (Std : Min)", minval = 0, maxval = 23, group = grpT, inline = "s")
+int sM   = input.int(0,  "",           minval = 0, maxval = 59, group = grpT, inline = "s")
+int eH   = input.int(8,  "Box-Ende (Std : Min)",  minval = 0, maxval = 23, group = grpT, inline = "e")
+int eM   = input.int(30, "",           minval = 0, maxval = 59, group = grpT, inline = "e")
+int xH   = input.int(16, "Handelsende (Std)", minval = 0, maxval = 23, group = grpT)
+
+string grpK = "K2-Regeln"
+float k2Level     = input.float(3.5, "Setup-Level (Stdv)", group = grpK)
+int maxTouches  = input.int(4, "Max. Touches pro Level und Tag (Basis 3, empfohlen 4)", minval = 1, maxval = 10, group = grpK)
+int reclaimBars = input.int(10, "Reclaim-Fenster in Kerzen (Basis 10)", minval = 0, maxval = 60, group = grpK)
+bool needPrior   = input.bool(true, "Vorherige Gegenreaktion nötig", group = grpK)
+bool needMom     = input.bool(true, "Momentum-Kerze nötig", group = grpK)
+float minStopAtr  = input.float(0.02, "Mindest-Stop (× ATR)", minval = 0, step = 0.005, group = grpK)
+float rearmAtr    = input.float(0.02, "Re-Arm-Abstand (× ATR)", minval = 0, step = 0.005, group = grpK)
+float k2TgtK    = input.float(2.0, "Ziel: Stdv jenseits der Mitte (0 = Mitte, 2 = 2.0-Level gegenüber, 3.5 = 3.5-Level gegenüber)", minval = 0, step = 0.5, group = grpK)
+string k2StopMode = input.string("Struktur", "Stop-Modell", options = ["Struktur", "Halbe Struktur", "Fix (× ATR)"], group = grpK)
+float k2FixStop = input.float(0.03, "Fix-Stop (× ATR)", minval = 0.005, step = 0.005, group = grpK)
+float k2MinBox  = input.float(0.0, "Mindest-Boxhöhe (× ATR)", minval = 0, step = 0.01, group = grpK)
+int k2MinBars   = input.int(0, "Frühester Entry: Kerzen nach 08:30", minval = 0, group = grpK)
+int k2MinRecl   = input.int(0, "Reclaim frühestens nach N Kerzen", minval = 0, group = grpK)
+int k2MaxPerDay = input.int(1, "Max. K2-Trades pro Tag (0 = unbegrenzt)", minval = 0, maxval = 20, group = grpK)
+float k2ExtMin  = input.float(0.0, "Auslauf vor Entry mindestens (Stdv, 0 = aus; getestet 3,75)", minval = 0, step = 0.25, group = grpK)
+float k2ExtMax  = input.float(0.0, "Auslauf vor Entry höchstens (Stdv, 0 = aus; getestet 5,0)", minval = 0, step = 0.25, group = grpK)
+
+string grpR = "Positionsgröße"
+float riskUsd = input.float(200, "Risiko pro Trade ($)", minval = 1, group = grpR)
+int maxQty  = input.int(50, "Max. Kontrakte", minval = 1, group = grpR)
+
+string grpV = "Darstellung"
+bool showAll = input.bool(true, "Alle Stdv-Level zeichnen", group = grpV)
+color boxCol  = input.color(color.new(color.blue, 80), "Box", group = grpV)
+color midCol  = input.color(color.white, "Mittellinie", group = grpV)
+color lvlCol  = input.color(color.new(color.white, 25), "Level", group = grpV)
+color k2Col   = input.color(color.new(color.red, 0), "Setup-Level", group = grpV)
+
+// ───────────── ATR14 der letzten 14 abgeschlossenen Handelstage (kein Repainting)
+float atrD = request.security(syminfo.tickerid, "D", ta.sma(high - low, 14)[1], lookahead = barmerge.lookahead_on)
+
+// ───────────── Zeiten
+int y  = year(time, tz)
+int mo = month(time, tz)
+int d  = dayofmonth(time, tz)
+int tS = timestamp(tz, y, mo, d, sH, sM)
+int tE = timestamp(tz, y, mo, d, eH, eM)
+int tX = timestamp(tz, y, mo, d, xH, 0)
+bool isStart = time >= tS and (na(time[1]) or time[1] < tS)
+bool isEnd   = time >= tE and (na(time[1]) or time[1] < tE)
+
+// ───────────── State
+var float o0       = na
+var int   t0       = na
+var int   tStop    = na
+var bool  active   = false
+var float mid      = na
+var float hBox     = na
+var float dayHi    = na                    // Tageshoch / -tief seit Box-Ende (für den Auslauf-Filter)
+var float dayLo    = na
+var int   k2Today  = 0                     // K2-Trades heute
+var float atrDay   = na
+var int   sessBar0 = na
+var int   firstBull = na     // frühester bullischer Reclaim des Tages (bar_index)
+var int   firstBear = na
+var float curStop  = na
+var float curTgt   = na
+
+var float[] mults  = array.from(2.0, 2.25, 2.5, 3.5, 4.0, 4.25, 4.5)
+var float[] lvP    = array.new_float()   // Level-Preis
+var int[]   lvS    = array.new_int()     // +1 = Support (Long), −1 = Resistance (Short)
+var bool[]  lvK2   = array.new_bool()    // Setup-Level?
+var bool[]  lvArm  = array.new_bool()
+var int[]   lvPend = array.new_int()     // Touch-Bar eines offenen Reclaim-Fensters, −1 = keins
+var float[] lvExt  = array.new_float()   // Sweep-Extrem
+var int[]   lvN    = array.new_int()     // Anzahl Touches heute
+
+addLevel(float p, bool isK2, float rearm) =>
+    for sd in array.from(1, -1)
+        array.push(lvP, p)
+        array.push(lvS, sd)
+        array.push(lvK2, isK2)
+        array.push(lvArm, (open - p) * sd >= rearm)
+        array.push(lvPend, -1)
+        array.push(lvExt, na)
+        array.push(lvN, 0)
+
+if isStart
+    o0     := open
+    t0     := time
+    active := false
+
+if isEnd and not na(o0) and not na(atrD)
+    o830   = open
+    top    = math.max(o0, o830)
+    bot    = math.min(o0, o830)
+    h      = (top - bot) / 2
+    mid      := (top + bot) / 2
+    hBox     := h
+    dayHi    := high
+    dayLo    := low
+    k2Today  := 0
+    atrDay   := atrD
+    tStop    := tX
+    sessBar0 := bar_index
+    firstBull := na
+    firstBear := na
+    array.clear(lvP)
+    array.clear(lvS)
+    array.clear(lvK2)
+    array.clear(lvArm)
+    array.clear(lvPend)
+    array.clear(lvExt)
+    array.clear(lvN)
+    rearm = rearmAtr * atrDay
+    box.new(t0, top, tX, bot, xloc = xloc.bar_time, bgcolor = boxCol, border_color = color.new(color.blue, 40), force_overlay = true)
+    line.new(t0, mid, tX, mid, xloc = xloc.bar_time, color = midCol, force_overlay = true)
+    addLevel(o0, false, rearm)
+    addLevel(o830, false, rearm)
+    for k in mults
+        isK2 = math.abs(k - k2Level) < 0.0001
+        for sg in array.from(1, -1)
+            p = mid + sg * k * h
+            addLevel(p, isK2, rearm)
+            if showAll or isK2
+                line.new(time, p, tX, p, xloc = xloc.bar_time, color = isK2 ? k2Col : lvlCol, force_overlay = true)
+                label.new(tX, p, (sg == 1 ? "+" : "-") + str.tostring(k), xloc = xloc.bar_time, style = label.style_label_left, color = color.new(color.black, 100), textcolor = isK2 ? k2Col : lvlCol, size = size.tiny, force_overlay = true)
+    active := h > 0
+    o0     := na
+
+bool isLastBar = active and not na(tStop) and time_close >= tStop
+int lastExitBar = strategy.closedtrades > 0 ? strategy.closedtrades.exit_bar_index(strategy.closedtrades - 1) : -1
+
+// ───────────── Level-Logik + Signale
+if active and time < tStop and array.size(lvP) > 0
+    dayHi := math.max(dayHi, high)
+    dayLo := math.min(dayLo, low)
+    rearm   = rearmAtr * atrDay
+    entered = false
+    for i = 0 to array.size(lvP) - 1
+        p  = array.get(lvP, i)
+        sd = array.get(lvS, i)
+        bool  recl   = false
+        int   sTouch = na
+        float ext    = na
+        pend = array.get(lvPend, i)
+        if pend >= 0
+            e = sd == 1 ? math.min(array.get(lvExt, i), low) : math.max(array.get(lvExt, i), high)
+            array.set(lvExt, i, e)
+            if (sd == 1 ? close > p : close < p)
+                recl   := true
+                sTouch := pend
+                ext    := e
+                array.set(lvPend, i, -1)
+            else if bar_index - pend >= reclaimBars
+                array.set(lvPend, i, -1)
+        else if array.get(lvArm, i) and array.get(lvN, i) < maxTouches
+            touched = sd == 1 ? low <= p - syminfo.mintick : high >= p + syminfo.mintick
+            if touched
+                array.set(lvN, i, array.get(lvN, i) + 1)
+                array.set(lvArm, i, false)
+                e = sd == 1 ? low : high
+                array.set(lvExt, i, e)
+                if (sd == 1 ? close > p : close < p)
+                    recl   := true
+                    sTouch := bar_index
+                    ext    := e
+                else
+                    array.set(lvPend, i, bar_index)
+        if not array.get(lvArm, i) and (close - p) * sd >= rearm
+            array.set(lvArm, i, true)
+
+        if recl
+            // --- K2-Signal prüfen (vorherige Gegenreaktion muss VOR dem Touch abgeschlossen sein)
+            priorOk = not needPrior or (sd == 1 ? (not na(firstBear) and firstBear < sTouch) : (not na(firstBull) and firstBull < sTouch))
+            momOk   = not needMom or (bar_index > sessBar0 and (sd == 1 ? (close > high[1] and close > open) : (close < low[1] and close < open)))
+            if array.get(lvK2, i) and priorOk and momOk and not isLastBar and not entered and strategy.position_size == 0 and lastExitBar < bar_index
+                sStruct = ext - sd * syminfo.mintick
+                stop    = sd == 1 ? math.min(sStruct, close - minStopAtr * atrDay) : math.max(sStruct, close + minStopAtr * atrDay)
+                if k2StopMode == "Halbe Struktur"
+                    stop := close - 0.5 * (close - sStruct)
+                if k2StopMode == "Fix (× ATR)"
+                    stop := close - sd * k2FixStop * atrDay
+                stop    := math.round_to_mintick(stop)
+                tgt     = math.round_to_mintick(mid + sd * k2TgtK * hBox)
+                risk    = math.abs(close - stop)
+                filtOk  = 2 * hBox / atrDay > k2MinBox and bar_index - sessBar0 >= k2MinBars and bar_index - sTouch >= k2MinRecl
+                extK    = (sd == 1 ? mid - dayLo : dayHi - mid) / hBox      // wie weit lief der Preis heute schon auf dieser Seite?
+                filtOk  := filtOk and (k2ExtMin <= 0 or extK >= k2ExtMin) and (k2ExtMax <= 0 or extK <= k2ExtMax) and (k2MaxPerDay <= 0 or k2Today < k2MaxPerDay)
+                if (tgt - close) * sd > 0 and risk > 0 and filtOk
+                    qty = math.max(1, math.min(maxQty, math.floor(riskUsd / (risk * syminfo.pointvalue))))
+                    id  = sd == 1 ? "K2 Long" : "K2 Short"
+                    strategy.entry(id, sd == 1 ? strategy.long : strategy.short, qty = qty)
+                    strategy.exit("Exit " + id, id, stop = stop, limit = tgt)
+                    k2Today := k2Today + 1
+                    curStop := stop
+                    curTgt  := tgt
+                    entered := true
+                    rr = math.abs(tgt - close) / risk
+                    label.new(bar_index, sd == 1 ? low : high, (sd == 1 ? "K2 Long" : "K2 Short") + "\nRR " + str.tostring(rr, "#.0") + " | Stop " + str.tostring(risk, "#.00") + " Pkt\n" + str.tostring(qty) + " Kontr.", style = sd == 1 ? label.style_label_up : label.style_label_down, color = sd == 1 ? color.new(color.green, 10) : color.new(color.red, 10), textcolor = color.white, size = size.small, force_overlay = true)
+                    alert("K2 " + (sd == 1 ? "LONG" : "SHORT") + " Entry " + str.tostring(close) + " Stop " + str.tostring(stop) + " Ziel " + str.tostring(tgt), alert.freq_once_per_bar_close)
+            // --- Reclaim für die "vorherige Reaktion" merken (frühester je Richtung)
+            if sd == 1 and na(firstBull)
+                firstBull := bar_index
+            if sd == -1 and na(firstBear)
+                firstBear := bar_index
+
+// ───────────── Tagesende
+if isLastBar
+    if strategy.position_size != 0
+        strategy.close_all(comment = "15:59")
+    active := false
+
+plot(strategy.position_size != 0 ? curStop : na, "Stop", color.red, 1, plot.style_linebr, force_overlay = true)
+plot(strategy.position_size != 0 ? curTgt : na, "Ziel", color.green, 1, plot.style_linebr, force_overlay = true)
+
+if barstate.islast and not (timeframe.isminutes and timeframe.multiplier == 1)
+    label.new(bar_index, high, "K2 ist für den 1-Minuten-Chart gebaut.\nBitte Timeframe auf 1m stellen.", color = color.orange, textcolor = color.black, force_overlay = true)

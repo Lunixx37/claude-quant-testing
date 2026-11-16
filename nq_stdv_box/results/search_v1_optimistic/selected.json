@@ -1,0 +1,47 @@
+[
+ {
+  "kind": "R",
+  "rel": 0.0,
+  "grp": "kante00",
+  "minrisk": 0.03,
+  "filter": "vwap_mit+vorher_reaktion_q",
+  "stop": "struct_min",
+  "exit": "trail1R"
+ },
+ {
+  "kind": "R",
+  "rel": 0.1,
+  "grp": "aussen",
+  "minrisk": 0.03,
+  "filter": "vwap_mit+erster_touch",
+  "stop": "0.03atr",
+  "exit": "trail1R"
+ },
+ {
+  "kind": "T",
+  "rel": 0.1,
+  "grp": "stdv",
+  "minrisk": 0.0,
+  "filter": "flip+erster_touch",
+  "stop": "0.03atr",
+  "exit": "trail1R"
+ },
+ {
+  "kind": "R",
+  "rel": 0.1,
+  "grp": "aussen",
+  "minrisk": 0.03,
+  "filter": "ict+vorher_gegen",
+  "stop": "0.03atr",
+  "exit": "trail1R"
+ },
+ {
+  "kind": "R",
+  "rel": 0.1,
+  "grp": "c4",
+  "minrisk": 0.02,
+  "filter": "ict+erster_touch",
+  "stop": "0.06atr",
+  "exit": "3R"
+ }
+]

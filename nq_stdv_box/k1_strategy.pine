@@ -1,0 +1,269 @@
+//@version=6
+// ─────────────────────────────────────────────────────────────────────────────────────────────
+// NQ Stdv Box – Strategie K1            (nur auf dem 1-MINUTEN-Chart verwenden, NQ / MNQ)
+//
+// Box   : Open der 00:00-ET-Kerze bis Open der 08:30-ET-Kerze, Mitte = 50 %, h = halbe Boxhöhe
+// Level : Mitte ± k·h  (k = 2, 2.25, 2.5, 3.5, 4, 4.25, 4.5)
+//
+// K1-Regeln (identisch zum Python-Backtest):
+//   1. Limit-Order direkt an einem Stdv-Level (unter der Box = Long, über der Box = Short).
+//   2. Nur Touches zwischen 11:00 und 13:30 ET.
+//   3. Das Level liegt in einer noch gültigen ICT-Zone passender Richtung (bullische Zone für Long,
+//      bärische für Short; Toleranz ± 2,5 Punkte). Zonen auf 5-Minuten-Kerzen:
+//        FVG  : Low[i] > High[i−2] (bullisch) bzw. High[i] < Low[i−2] (bärisch)
+//        OB   : letzte Gegenkerze vor einer Displacement-Kerze, die darüber/darunter schließt und ein FVG erzeugt
+//        RB   : Swing-Hoch/-Tief (2 Kerzen je Seite) mit Docht ≥ 50 % der Kerzenrange, Zone = Docht
+//      Eine Zone gilt bis zum ersten 5-Min-Schluss jenseits der Zone, höchstens 48 Stunden.
+//   4. Pro Level und Tag max. N Touches; ein Level wird erst wieder "scharf", wenn eine Kerze
+//      mind. 0,02·ATR auf der Ausgangsseite schließt.
+//   5. Stop: 0,06·ATR hinter dem Level. Ziel: Box-Mitte. 15:59 ET flat. Nur eine Position gleichzeitig.
+//   ATR = Durchschnitt der Tagesrange (High−Low) der letzten 14 abgeschlossenen Handelstage.
+//   Limit-Orders gelten erst als gefüllt, wenn der Preis 1 Tick durch das Level handelt.
+// ─────────────────────────────────────────────────────────────────────────────────────────────
+strategy("NQ Stdv Box – K1", overlay = true, process_orders_on_close = true, initial_capital = 50000,
+     default_qty_type = strategy.fixed, default_qty_value = 1, pyramiding = 0,
+     backtest_fill_limits_assumption = 1,
+     margin_long = 0, margin_short = 0,
+     commission_type = strategy.commission.cash_per_contract, commission_value = 0.6, slippage = 1,
+     max_lines_count = 500, max_boxes_count = 200, max_labels_count = 500)
+
+// ───────────── Inputs
+string grpT = "Zeiten"
+string tz   = input.string("America/New_York", "Zeitzone", group = grpT)
+int sH   = input.int(0,  "Box-Start (Std : Min)", minval = 0, maxval = 23, group = grpT, inline = "s")
+int sM   = input.int(0,  "",           minval = 0, maxval = 59, group = grpT, inline = "s")
+int eH   = input.int(8,  "Box-Ende (Std : Min)",  minval = 0, maxval = 23, group = grpT, inline = "e")
+int eM   = input.int(30, "",           minval = 0, maxval = 59, group = grpT, inline = "e")
+int xH   = input.int(16, "Handelsende (Std)", minval = 0, maxval = 23, group = grpT)
+int wH1  = input.int(11, "Entry-Fenster von (Std : Min)", minval = 0, maxval = 23, group = grpT, inline = "w1")
+int wM1  = input.int(0,  "", minval = 0, maxval = 59, group = grpT, inline = "w1")
+int wH2  = input.int(13, "Entry-Fenster bis (Std : Min)", minval = 0, maxval = 23, group = grpT, inline = "w2")
+int wM2  = input.int(30, "", minval = 0, maxval = 59, group = grpT, inline = "w2")
+
+string grpK = "K1-Regeln"
+int maxTouches = input.int(3, "Max. Touches pro Level und Tag", minval = 1, maxval = 10, group = grpK)
+bool needIct    = input.bool(true, "ICT-Zone nötig (FVG / OB / RB)", group = grpK)
+float zoneTol    = input.float(2.5, "Zonen-Toleranz (Punkte)", minval = 0, group = grpK)
+float stopAtr    = input.float(0.06, "Stop (× ATR) hinter dem Level", minval = 0.005, step = 0.005, group = grpK)
+float rearmAtr   = input.float(0.02, "Re-Arm-Abstand (× ATR)", minval = 0, step = 0.005, group = grpK)
+
+string grpR = "Positionsgröße"
+float riskUsd = input.float(150, "Risiko pro Trade ($)", minval = 1, group = grpR)
+int maxQty  = input.int(50, "Max. Kontrakte", minval = 1, group = grpR)
+
+string grpV = "Darstellung"
+color boxCol = input.color(color.new(color.blue, 80), "Box", group = grpV)
+color midCol = input.color(color.white, "Mittellinie", group = grpV)
+color lvlCol = input.color(color.new(color.white, 25), "Level", group = grpV)
+
+// ───────────── ATR14 der letzten 14 abgeschlossenen Handelstage (kein Repainting)
+float atrD = request.security(syminfo.tickerid, "D", ta.sma(high - low, 14)[1], lookahead = barmerge.lookahead_on)
+
+// ───────────── ICT-Zonen auf selbst gebauten 5-Minuten-Kerzen
+var float[] zLo  = array.new_float()
+var float[] zHi  = array.new_float()
+var int[]   zPol = array.new_int()      // +1 bullisch, −1 bärisch
+var int[]   zAv  = array.new_int()      // Zeitpunkt, ab dem die Zone gilt (ms)
+var float[] bO = array.new_float()
+var float[] bH = array.new_float()
+var float[] bL = array.new_float()
+var float[] bC = array.new_float()
+var int[]   bT = array.new_int()
+var int   bkt  = na
+var float o5   = na
+var float h5   = na
+var float l5   = na
+var float c5   = na
+var bool  fin5 = true
+
+int MS5  = 300000
+int MS48 = 48 * 60 * 60 * 1000
+
+addZone(float lo, float hi, int pol, int av) =>
+    array.push(zLo, lo)
+    array.push(zHi, hi)
+    array.push(zPol, pol)
+    array.push(zAv, av)
+
+finalize5(float o, float h, float l, float c, int tOpen) =>
+    tClose = tOpen + MS5
+    // 1) bestehende Zonen invalidieren (Schluss jenseits der Zone oder älter als 48 h)
+    if array.size(zLo) > 0
+        for j = array.size(zLo) - 1 to 0
+            dead = (array.get(zPol, j) == -1 and c > array.get(zHi, j)) or (array.get(zPol, j) == 1 and c < array.get(zLo, j)) or (tClose - array.get(zAv, j) >= MS48)
+            if dead
+                array.remove(zLo, j)
+                array.remove(zHi, j)
+                array.remove(zPol, j)
+                array.remove(zAv, j)
+    // 2) Kerze speichern (letzte 5)
+    array.push(bO, o)
+    array.push(bH, h)
+    array.push(bL, l)
+    array.push(bC, c)
+    array.push(bT, tOpen)
+    if array.size(bO) > 5
+        array.shift(bO)
+        array.shift(bH)
+        array.shift(bL)
+        array.shift(bC)
+        array.shift(bT)
+    n = array.size(bO)
+    // 3) FVG + Order Block (Kerzen i−2, i−1, i)
+    if n >= 3
+        i = n - 1
+        k = i - 2
+        if array.get(bT, i) - array.get(bT, k) <= 15 * 60000
+            if array.get(bL, i) > array.get(bH, k)
+                addZone(array.get(bH, k), array.get(bL, i), 1, tClose)
+            if array.get(bH, i) < array.get(bL, k)
+                addZone(array.get(bH, i), array.get(bL, k), -1, tClose)
+            if array.get(bC, k) < array.get(bO, k) and array.get(bC, k + 1) > array.get(bO, k + 1) and array.get(bC, k + 1) > array.get(bH, k) and array.get(bL, i) > array.get(bH, k)
+                addZone(array.get(bL, k), array.get(bH, k), 1, tClose)
+            if array.get(bC, k) > array.get(bO, k) and array.get(bC, k + 1) < array.get(bO, k + 1) and array.get(bC, k + 1) < array.get(bL, k) and array.get(bH, i) < array.get(bL, k)
+                addZone(array.get(bL, k), array.get(bH, k), -1, tClose)
+    // 4) Rejection Block (Swing in der Mitte von 5 Kerzen)
+    if n >= 5
+        m = n - 3
+        if array.get(bT, n - 1) - array.get(bT, n - 5) <= 25 * 60000
+            rng = array.get(bH, m) - array.get(bL, m)
+            if rng > 0
+                bodyHi = math.max(array.get(bO, m), array.get(bC, m))
+                bodyLo = math.min(array.get(bO, m), array.get(bC, m))
+                if array.get(bH, m) > math.max(array.get(bH, m - 1), array.get(bH, m - 2), array.get(bH, m + 1), array.get(bH, m + 2)) and array.get(bH, m) - bodyHi >= 0.5 * rng
+                    addZone(bodyHi, array.get(bH, m), -1, tClose)
+                if array.get(bL, m) < math.min(array.get(bL, m - 1), array.get(bL, m - 2), array.get(bL, m + 1), array.get(bL, m + 2)) and bodyLo - array.get(bL, m) >= 0.5 * rng
+                    addZone(array.get(bL, m), bodyLo, 1, tClose)
+    true
+
+int bucketStart = time - time % MS5            // Öffnungszeit der laufenden 5-Minuten-Kerze (ms)
+if na(bkt) or bucketStart != bkt
+    if not na(bkt) and not fin5
+        finalize5(o5, h5, l5, c5, bkt)
+    bkt  := bucketStart
+    o5   := open
+    h5   := high
+    l5   := low
+    c5   := close
+    fin5 := false
+else
+    h5 := math.max(h5, high)
+    l5 := math.min(l5, low)
+    c5 := close
+if not fin5 and time_close >= bkt + MS5
+    finalize5(o5, h5, l5, c5, bkt)
+    fin5 := true
+
+inZone(float p, int sd) =>
+    bool res = false
+    if array.size(zLo) > 0
+        for j = 0 to array.size(zLo) - 1
+            if array.get(zPol, j) == sd and array.get(zLo, j) - zoneTol <= p and array.get(zHi, j) + zoneTol >= p
+                res := true
+                break
+    res
+
+// ───────────── Zeiten
+int y  = year(time, tz)
+int mo = month(time, tz)
+int d  = dayofmonth(time, tz)
+int tS = timestamp(tz, y, mo, d, sH, sM)
+int tE = timestamp(tz, y, mo, d, eH, eM)
+int tX = timestamp(tz, y, mo, d, xH, 0)
+int tW1 = timestamp(tz, y, mo, d, wH1, wM1)
+int tW2 = timestamp(tz, y, mo, d, wH2, wM2)
+bool isStart = time >= tS and (na(time[1]) or time[1] < tS)
+bool isEnd   = time >= tE and (na(time[1]) or time[1] < tE)
+
+// ───────────── State
+var float o0     = na
+var int   t0     = na
+var int   tStop  = na
+var bool  active = false
+var float mid    = na
+var float atrDay = na
+var float[] mults = array.from(2.0, 2.25, 2.5, 3.5, 4.0, 4.25, 4.5)
+var float[] lvP   = array.new_float()   // Level-Preis
+var int[]   lvS   = array.new_int()     // +1 = Long (Level unter der Mitte), −1 = Short
+var bool[]  lvArm = array.new_bool()
+var int[]   lvN   = array.new_int()     // Touches heute
+
+if isStart
+    o0     := open
+    t0     := time
+    active := false
+
+if isEnd and not na(o0) and not na(atrD)
+    o830 = open
+    top  = math.max(o0, o830)
+    bot  = math.min(o0, o830)
+    h    = (top - bot) / 2
+    mid    := (top + bot) / 2
+    atrDay := atrD
+    tStop  := tX
+    array.clear(lvP)
+    array.clear(lvS)
+    array.clear(lvArm)
+    array.clear(lvN)
+    box.new(t0, top, tX, bot, xloc = xloc.bar_time, bgcolor = boxCol, border_color = color.new(color.blue, 40), force_overlay = true)
+    line.new(t0, mid, tX, mid, xloc = xloc.bar_time, color = midCol, force_overlay = true)
+    for k in mults
+        for sg in array.from(1, -1)
+            p  = mid + sg * k * h
+            sd = -sg                                   // Level über der Mitte = Short, darunter = Long
+            array.push(lvP, p)
+            array.push(lvS, sd)
+            array.push(lvArm, (open - p) * sd >= rearmAtr * atrDay)
+            array.push(lvN, 0)
+            line.new(time, p, tX, p, xloc = xloc.bar_time, color = lvlCol, force_overlay = true)
+            label.new(tX, p, (sg == 1 ? "+" : "-") + str.tostring(k), xloc = xloc.bar_time, style = label.style_label_left, color = color.new(color.black, 100), textcolor = lvlCol, size = size.tiny, force_overlay = true)
+    active := h > 0
+    o0     := na
+
+bool isLastBar = active and not na(tStop) and time_close >= tStop
+float riskPts     = stopAtr * nz(atrDay)
+
+// ───────────── Touch-Zähler aktualisieren, dann Limit-Orders für die NÄCHSTE Kerze setzen
+if active and time < tStop and array.size(lvP) > 0
+    rearm = rearmAtr * atrDay
+    for i = 0 to array.size(lvP) - 1
+        p  = array.get(lvP, i)
+        sd = array.get(lvS, i)
+        if array.get(lvArm, i) and array.get(lvN, i) < maxTouches
+            touched = sd == 1 ? low <= p - syminfo.mintick : high >= p + syminfo.mintick
+            if touched
+                array.set(lvN, i, array.get(lvN, i) + 1)
+                array.set(lvArm, i, false)
+        if not array.get(lvArm, i) and (close - p) * sd >= rearm
+            array.set(lvArm, i, true)
+
+    flat     = strategy.position_size == 0
+    inWindow = time_close >= tW1 and time_close < tW2 and time_close < tStop
+    if flat
+        strategy.cancel_all()
+    for i = 0 to array.size(lvP) - 1
+        p  = array.get(lvP, i)
+        sd = array.get(lvS, i)
+        id = (sd == 1 ? "K1 Long " : "K1 Short ") + str.tostring(i)
+        ok = flat and inWindow and not isLastBar and array.get(lvArm, i) and array.get(lvN, i) < maxTouches and (mid - p) * sd > 0 and riskPts > 0 and (not needIct or inZone(p, sd))
+        if ok
+            lim  = math.round_to_mintick(p)
+            stop = math.round_to_mintick(p - sd * riskPts)
+            qty  = math.max(1, math.min(maxQty, math.floor(riskUsd / (riskPts * syminfo.pointvalue))))
+            strategy.entry(id, sd == 1 ? strategy.long : strategy.short, qty = qty, limit = lim)
+            strategy.exit("Exit " + id, id, stop = stop, limit = math.round_to_mintick(mid))
+        else
+            strategy.cancel(id)
+
+// ───────────── Tagesende
+if isLastBar
+    strategy.cancel_all()
+    if strategy.position_size != 0
+        strategy.close_all(comment = "15:59")
+    active := false
+
+plot(strategy.position_size != 0 ? strategy.position_avg_price - math.sign(strategy.position_size) * riskPts : na, "Stop", color.red, 1, plot.style_linebr, force_overlay = true)
+plot(strategy.position_size != 0 ? mid : na, "Ziel", color.green, 1, plot.style_linebr, force_overlay = true)
+
+if barstate.islast and not (timeframe.isminutes and timeframe.multiplier == 1)
+    label.new(bar_index, high, "K1 ist für den 1-Minuten-Chart gebaut.\nBitte Timeframe auf 1m stellen.", color = color.orange, textcolor = color.black, force_overlay = true)

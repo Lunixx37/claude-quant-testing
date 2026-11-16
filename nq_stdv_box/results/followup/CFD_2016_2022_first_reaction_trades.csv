@@ -1,0 +1,31 @@
+,,,Config,n,Win %,Ø R,t
+ALLE,,gegen Bias,Box≥0.1 limit_0.25h mid,1302.0,9.3,-0.294,-3.39
+ALLE,,mit Bias,Box≥0.1 limit_0.25h mid,1380.0,10.2,-0.082,-0.85
+2.0 hinter 08:30-Kante,Break,gegen Bias,Box≥0.1 limit_0.25h mid,357.0,10.6,-0.13,-0.7
+2.0 hinter 08:30-Kante,Break,mit Bias,Box≥0.1 limit_0.25h mid,145.0,9.7,-0.21,-0.78
+2.0 hinter 08:30-Kante,Rejection,gegen Bias,Box≥0.1 limit_0.25h mid,446.0,8.1,-0.45,-3.39
+2.0 hinter 08:30-Kante,Rejection,mit Bias,Box≥0.1 limit_0.25h mid,725.0,10.5,0.037,0.26
+Box-Kante (00:00 Open),Break,gegen Bias,Box≥0.1 limit_0.25h mid,215.0,11.6,-0.064,-0.27
+Box-Kante (00:00 Open),Break,mit Bias,Box≥0.1 limit_0.25h mid,90.0,8.9,-0.301,-0.89
+Box-Kante (00:00 Open),Rejection,gegen Bias,Box≥0.1 limit_0.25h mid,284.0,7.7,-0.43,-2.51
+Box-Kante (00:00 Open),Rejection,mit Bias,Box≥0.1 limit_0.25h mid,420.0,10.2,-0.197,-1.22
+ALLE,,gegen Bias,Box≥0.1 limit_0.5h 3R,991.0,23.2,-0.229,-4.46
+ALLE,,mit Bias,Box≥0.1 limit_0.5h 3R,1154.0,25.4,-0.093,-1.84
+2.0 hinter 08:30-Kante,Break,gegen Bias,Box≥0.1 limit_0.5h 3R,279.0,26.5,-0.113,-1.14
+2.0 hinter 08:30-Kante,Break,mit Bias,Box≥0.1 limit_0.5h 3R,110.0,20.9,-0.271,-1.75
+2.0 hinter 08:30-Kante,Rejection,gegen Bias,Box≥0.1 limit_0.5h 3R,347.0,22.5,-0.264,-3.06
+2.0 hinter 08:30-Kante,Rejection,mit Bias,Box≥0.1 limit_0.5h 3R,650.0,25.8,-0.067,-0.98
+Box-Kante (00:00 Open),Break,gegen Bias,Box≥0.1 limit_0.5h 3R,155.0,21.3,-0.282,-2.21
+Box-Kante (00:00 Open),Break,mit Bias,Box≥0.1 limit_0.5h 3R,67.0,17.9,-0.383,-2.13
+Box-Kante (00:00 Open),Rejection,gegen Bias,Box≥0.1 limit_0.5h 3R,210.0,21.4,-0.285,-2.6
+Box-Kante (00:00 Open),Rejection,mit Bias,Box≥0.1 limit_0.5h 3R,327.0,27.5,-0.028,-0.28
+ALLE,,gegen Bias,Box≥0.1 momentum 3R,1078.0,25.3,-0.164,-3.2
+ALLE,,mit Bias,Box≥0.1 momentum 3R,1083.0,28.5,-0.042,-0.8
+2.0 hinter 08:30-Kante,Break,gegen Bias,Box≥0.1 momentum 3R,433.0,25.9,-0.148,-1.81
+2.0 hinter 08:30-Kante,Break,mit Bias,Box≥0.1 momentum 3R,108.0,24.1,-0.313,-2.1
+2.0 hinter 08:30-Kante,Rejection,gegen Bias,Box≥0.1 momentum 3R,286.0,26.9,-0.109,-1.07
+2.0 hinter 08:30-Kante,Rejection,mit Bias,Box≥0.1 momentum 3R,623.0,29.4,0.02,0.28
+Box-Kante (00:00 Open),Break,gegen Bias,Box≥0.1 momentum 3R,169.0,23.1,-0.22,-1.7
+Box-Kante (00:00 Open),Break,mit Bias,Box≥0.1 momentum 3R,55.0,34.5,0.021,0.09
+Box-Kante (00:00 Open),Rejection,gegen Bias,Box≥0.1 momentum 3R,190.0,23.7,-0.237,-1.98
+Box-Kante (00:00 Open),Rejection,mit Bias,Box≥0.1 momentum 3R,297.0,27.3,-0.087,-0.87

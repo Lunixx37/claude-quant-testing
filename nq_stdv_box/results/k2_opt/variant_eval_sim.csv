@@ -1,0 +1,337 @@
+Variante,Kante,Regel,Risiko %,Pass %,Bust %,offen nach 120 T %,Pass ≤30 T %,Pass ≤60 T %,Median Tage bis Pass
+"V0  K2 Basis: Struktur-Stop, Ziel Mitte, 3 Touches",wie Backtest,A,0.1,3.5,0.2,96.3,0.0,0.0,211
+"V0  K2 Basis: Struktur-Stop, Ziel Mitte, 3 Touches",wie Backtest,A,0.15,17.7,4.2,78.1,0.0,0.4,182
+"V0  K2 Basis: Struktur-Stop, Ziel Mitte, 3 Touches",wie Backtest,A,0.2,31.9,13.6,54.5,0.0,0.9,167
+"V0  K2 Basis: Struktur-Stop, Ziel Mitte, 3 Touches",wie Backtest,A,0.25,41.6,24.0,34.5,0.3,2.9,147
+"V0  K2 Basis: Struktur-Stop, Ziel Mitte, 3 Touches",wie Backtest,A,0.3,46.6,33.5,19.8,0.7,5.3,131
+"V0  K2 Basis: Struktur-Stop, Ziel Mitte, 3 Touches",wie Backtest,A,0.4,47.6,45.1,7.4,2.7,11.8,98
+"V0  K2 Basis: Struktur-Stop, Ziel Mitte, 3 Touches",wie Backtest,A,0.5,43.6,52.6,3.8,5.6,17.0,74
+"V0  K2 Basis: Struktur-Stop, Ziel Mitte, 3 Touches",wie Backtest,A,0.75,37.9,60.1,2.0,10.8,24.0,46
+"V0  K2 Basis: Struktur-Stop, Ziel Mitte, 3 Touches",wie Backtest,B,0.1,3.6,0.0,96.4,0.0,0.0,209
+"V0  K2 Basis: Struktur-Stop, Ziel Mitte, 3 Touches",wie Backtest,B,0.15,19.1,1.1,79.8,0.0,0.3,184
+"V0  K2 Basis: Struktur-Stop, Ziel Mitte, 3 Touches",wie Backtest,B,0.2,35.0,5.7,59.3,0.3,1.9,160
+"V0  K2 Basis: Struktur-Stop, Ziel Mitte, 3 Touches",wie Backtest,B,0.25,48.1,14.0,37.8,1.4,5.1,140
+"V0  K2 Basis: Struktur-Stop, Ziel Mitte, 3 Touches",wie Backtest,B,0.3,55.6,22.1,22.3,2.6,9.0,123
+"V0  K2 Basis: Struktur-Stop, Ziel Mitte, 3 Touches",wie Backtest,B,0.4,59.8,34.8,5.4,6.6,18.7,88
+"V0  K2 Basis: Struktur-Stop, Ziel Mitte, 3 Touches",wie Backtest,B,0.5,56.7,42.5,0.8,12.0,27.7,62
+"V0  K2 Basis: Struktur-Stop, Ziel Mitte, 3 Touches",wie Backtest,B,0.75,50.4,49.6,0.0,23.9,40.9,32
+"V0  K2 Basis: Struktur-Stop, Ziel Mitte, 3 Touches",halbe Kante,A,0.1,1.7,1.1,97.2,0.0,0.0,204
+"V0  K2 Basis: Struktur-Stop, Ziel Mitte, 3 Touches",halbe Kante,A,0.15,10.2,11.8,78.1,0.0,0.2,190
+"V0  K2 Basis: Struktur-Stop, Ziel Mitte, 3 Touches",halbe Kante,A,0.2,18.4,28.0,53.6,0.1,0.7,168
+"V0  K2 Basis: Struktur-Stop, Ziel Mitte, 3 Touches",halbe Kante,A,0.25,25.5,42.7,31.8,0.2,1.5,151
+"V0  K2 Basis: Struktur-Stop, Ziel Mitte, 3 Touches",halbe Kante,A,0.3,29.8,51.6,18.6,0.6,3.6,129
+"V0  K2 Basis: Struktur-Stop, Ziel Mitte, 3 Touches",halbe Kante,A,0.4,31.7,61.2,7.2,1.9,7.8,97
+"V0  K2 Basis: Struktur-Stop, Ziel Mitte, 3 Touches",halbe Kante,A,0.5,31.4,64.6,4.0,4.2,12.7,72
+"V0  K2 Basis: Struktur-Stop, Ziel Mitte, 3 Touches",halbe Kante,A,0.75,26.0,71.8,2.2,8.0,16.9,45
+"V0  K2 Basis: Struktur-Stop, Ziel Mitte, 3 Touches",halbe Kante,B,0.1,1.5,0.1,98.3,0.0,0.0,206
+"V0  K2 Basis: Struktur-Stop, Ziel Mitte, 3 Touches",halbe Kante,B,0.15,10.3,4.0,85.7,0.1,0.2,177
+"V0  K2 Basis: Struktur-Stop, Ziel Mitte, 3 Touches",halbe Kante,B,0.2,22.0,14.6,63.3,0.2,1.4,160
+"V0  K2 Basis: Struktur-Stop, Ziel Mitte, 3 Touches",halbe Kante,B,0.25,32.8,27.0,40.2,0.9,3.7,141
+"V0  K2 Basis: Struktur-Stop, Ziel Mitte, 3 Touches",halbe Kante,B,0.3,38.9,39.5,21.6,2.2,7.1,119
+"V0  K2 Basis: Struktur-Stop, Ziel Mitte, 3 Touches",halbe Kante,B,0.4,44.5,51.0,4.5,5.7,14.6,84
+"V0  K2 Basis: Struktur-Stop, Ziel Mitte, 3 Touches",halbe Kante,B,0.5,43.3,56.1,0.6,9.5,21.6,61
+"V0  K2 Basis: Struktur-Stop, Ziel Mitte, 3 Touches",halbe Kante,B,0.75,39.6,60.4,0.0,19.7,33.2,31
+"V0  K2 Basis: Struktur-Stop, Ziel Mitte, 3 Touches",keine Kante,A,0.1,0.8,4.4,94.8,0.0,0.0,193
+"V0  K2 Basis: Struktur-Stop, Ziel Mitte, 3 Touches",keine Kante,A,0.15,5.1,24.2,70.8,0.0,0.2,178
+"V0  K2 Basis: Struktur-Stop, Ziel Mitte, 3 Touches",keine Kante,A,0.2,10.2,46.6,43.2,0.1,0.5,164
+"V0  K2 Basis: Struktur-Stop, Ziel Mitte, 3 Touches",keine Kante,A,0.25,14.1,61.4,24.5,0.2,1.2,145
+"V0  K2 Basis: Struktur-Stop, Ziel Mitte, 3 Touches",keine Kante,A,0.3,17.5,68.4,14.1,0.4,2.5,126
+"V0  K2 Basis: Struktur-Stop, Ziel Mitte, 3 Touches",keine Kante,A,0.4,19.3,75.5,5.2,1.4,5.3,94
+"V0  K2 Basis: Struktur-Stop, Ziel Mitte, 3 Touches",keine Kante,A,0.5,20.1,76.6,3.3,2.8,8.8,68
+"V0  K2 Basis: Struktur-Stop, Ziel Mitte, 3 Touches",keine Kante,A,0.75,18.4,79.6,2.0,6.6,13.1,40
+"V0  K2 Basis: Struktur-Stop, Ziel Mitte, 3 Touches",keine Kante,B,0.1,0.7,0.8,98.5,0.0,0.0,192
+"V0  K2 Basis: Struktur-Stop, Ziel Mitte, 3 Touches",keine Kante,B,0.15,5.2,11.4,83.4,0.0,0.1,173
+"V0  K2 Basis: Struktur-Stop, Ziel Mitte, 3 Touches",keine Kante,B,0.2,13.2,29.1,57.8,0.2,1.1,158
+"V0  K2 Basis: Struktur-Stop, Ziel Mitte, 3 Touches",keine Kante,B,0.25,19.9,46.9,33.2,0.7,2.5,139
+"V0  K2 Basis: Struktur-Stop, Ziel Mitte, 3 Touches",keine Kante,B,0.3,26.4,56.9,16.7,1.9,5.8,112
+"V0  K2 Basis: Struktur-Stop, Ziel Mitte, 3 Touches",keine Kante,B,0.4,31.2,65.5,3.3,5.0,11.9,79
+"V0  K2 Basis: Struktur-Stop, Ziel Mitte, 3 Touches",keine Kante,B,0.5,32.0,67.8,0.3,8.1,17.5,55
+"V0  K2 Basis: Struktur-Stop, Ziel Mitte, 3 Touches",keine Kante,B,0.75,31.7,68.3,0.0,17.5,27.4,27
+"V1  Struktur-Stop, Ziel Mitte, 4 Touches",wie Backtest,A,0.1,7.8,0.5,91.7,0.0,0.0,204
+"V1  Struktur-Stop, Ziel Mitte, 4 Touches",wie Backtest,A,0.15,28.7,5.8,65.4,0.1,0.6,176
+"V1  Struktur-Stop, Ziel Mitte, 4 Touches",wie Backtest,A,0.2,44.3,15.7,40.0,0.3,2.5,154
+"V1  Struktur-Stop, Ziel Mitte, 4 Touches",wie Backtest,A,0.25,52.1,26.2,21.7,1.0,6.3,130
+"V1  Struktur-Stop, Ziel Mitte, 4 Touches",wie Backtest,A,0.3,53.7,35.1,11.2,1.6,9.4,113
+"V1  Struktur-Stop, Ziel Mitte, 4 Touches",wie Backtest,A,0.4,50.5,45.5,4.0,4.5,16.9,82
+"V1  Struktur-Stop, Ziel Mitte, 4 Touches",wie Backtest,A,0.5,46.3,51.4,2.3,8.0,22.1,63
+"V1  Struktur-Stop, Ziel Mitte, 4 Touches",wie Backtest,A,0.75,38.8,60.0,1.2,13.1,25.9,43
+"V1  Struktur-Stop, Ziel Mitte, 4 Touches",wie Backtest,B,0.1,8.4,0.0,91.6,0.0,0.0,207
+"V1  Struktur-Stop, Ziel Mitte, 4 Touches",wie Backtest,B,0.15,29.0,1.8,69.3,0.0,0.7,171
+"V1  Struktur-Stop, Ziel Mitte, 4 Touches",wie Backtest,B,0.2,47.5,7.6,44.9,0.5,3.6,148
+"V1  Struktur-Stop, Ziel Mitte, 4 Touches",wie Backtest,B,0.25,58.7,16.7,24.6,1.8,8.6,127
+"V1  Struktur-Stop, Ziel Mitte, 4 Touches",wie Backtest,B,0.3,64.4,23.5,12.1,4.0,14.4,108
+"V1  Struktur-Stop, Ziel Mitte, 4 Touches",wie Backtest,B,0.4,62.9,35.4,1.8,9.5,25.0,74
+"V1  Struktur-Stop, Ziel Mitte, 4 Touches",wie Backtest,B,0.5,59.4,40.4,0.1,16.3,35.3,51
+"V1  Struktur-Stop, Ziel Mitte, 4 Touches",wie Backtest,B,0.75,51.6,48.4,0.0,29.9,46.1,26
+"V1  Struktur-Stop, Ziel Mitte, 4 Touches",halbe Kante,A,0.1,3.5,1.9,94.6,0.0,0.0,202
+"V1  Struktur-Stop, Ziel Mitte, 4 Touches",halbe Kante,A,0.15,16.4,16.7,66.9,0.0,0.5,176
+"V1  Struktur-Stop, Ziel Mitte, 4 Touches",halbe Kante,A,0.2,26.7,34.4,38.9,0.2,1.4,152
+"V1  Struktur-Stop, Ziel Mitte, 4 Touches",halbe Kante,A,0.25,32.7,47.0,20.3,0.5,3.7,131
+"V1  Struktur-Stop, Ziel Mitte, 4 Touches",halbe Kante,A,0.3,35.7,53.4,10.9,1.2,6.6,112
+"V1  Struktur-Stop, Ziel Mitte, 4 Touches",halbe Kante,A,0.4,33.3,62.6,4.1,3.3,11.4,80
+"V1  Struktur-Stop, Ziel Mitte, 4 Touches",halbe Kante,A,0.5,31.3,66.4,2.3,6.0,15.4,61
+"V1  Struktur-Stop, Ziel Mitte, 4 Touches",halbe Kante,A,0.75,26.0,72.6,1.4,9.4,18.3,40
+"V1  Struktur-Stop, Ziel Mitte, 4 Touches",halbe Kante,B,0.1,3.6,0.4,96.1,0.0,0.0,204
+"V1  Struktur-Stop, Ziel Mitte, 4 Touches",halbe Kante,B,0.15,16.2,6.9,76.9,0.0,0.4,176
+"V1  Struktur-Stop, Ziel Mitte, 4 Touches",halbe Kante,B,0.2,30.0,20.8,49.3,0.5,2.6,148
+"V1  Struktur-Stop, Ziel Mitte, 4 Touches",halbe Kante,B,0.25,39.8,33.5,26.7,1.5,6.0,128
+"V1  Struktur-Stop, Ziel Mitte, 4 Touches",halbe Kante,B,0.3,45.2,43.3,11.5,3.1,10.7,102
+"V1  Struktur-Stop, Ziel Mitte, 4 Touches",halbe Kante,B,0.4,46.6,51.9,1.5,8.4,20.3,68
+"V1  Struktur-Stop, Ziel Mitte, 4 Touches",halbe Kante,B,0.5,44.4,55.6,0.1,13.2,27.9,47
+"V1  Struktur-Stop, Ziel Mitte, 4 Touches",halbe Kante,B,0.75,41.0,59.0,0.0,25.5,37.3,24
+"V1  Struktur-Stop, Ziel Mitte, 4 Touches",keine Kante,A,0.1,1.2,8.1,90.7,0.0,0.0,204
+"V1  Struktur-Stop, Ziel Mitte, 4 Touches",keine Kante,A,0.15,7.8,33.6,58.6,0.0,0.2,174
+"V1  Struktur-Stop, Ziel Mitte, 4 Touches",keine Kante,A,0.2,14.0,55.7,30.2,0.2,1.0,150
+"V1  Struktur-Stop, Ziel Mitte, 4 Touches",keine Kante,A,0.25,18.8,66.3,14.9,0.4,2.5,128
+"V1  Struktur-Stop, Ziel Mitte, 4 Touches",keine Kante,A,0.3,19.7,72.4,7.9,0.8,3.9,109
+"V1  Struktur-Stop, Ziel Mitte, 4 Touches",keine Kante,A,0.4,20.7,76.4,3.0,2.6,8.1,73
+"V1  Struktur-Stop, Ziel Mitte, 4 Touches",keine Kante,A,0.5,19.6,78.3,2.1,3.9,10.2,58
+"V1  Struktur-Stop, Ziel Mitte, 4 Touches",keine Kante,A,0.75,17.2,81.8,1.1,7.1,12.7,37
+"V1  Struktur-Stop, Ziel Mitte, 4 Touches",keine Kante,B,0.1,1.1,2.3,96.6,0.0,0.0,205
+"V1  Struktur-Stop, Ziel Mitte, 4 Touches",keine Kante,B,0.15,7.5,18.8,73.6,0.0,0.3,170
+"V1  Struktur-Stop, Ziel Mitte, 4 Touches",keine Kante,B,0.2,17.1,39.8,43.1,0.4,1.7,146
+"V1  Struktur-Stop, Ziel Mitte, 4 Touches",keine Kante,B,0.25,24.2,55.6,20.2,1.1,4.0,124
+"V1  Struktur-Stop, Ziel Mitte, 4 Touches",keine Kante,B,0.3,28.7,62.9,8.5,2.6,7.6,98
+"V1  Struktur-Stop, Ziel Mitte, 4 Touches",keine Kante,B,0.4,32.4,66.7,0.9,6.5,15.2,65
+"V1  Struktur-Stop, Ziel Mitte, 4 Touches",keine Kante,B,0.5,32.7,67.3,0.1,11.0,22.2,43
+"V1  Struktur-Stop, Ziel Mitte, 4 Touches",keine Kante,B,0.75,31.6,68.4,0.0,21.4,29.6,22
+"V2  Struktur-Stop, Ziel gegenüberliegendes 2.0-Level, 4 Touches",wie Backtest,A,0.1,23.0,1.0,76.0,0.0,0.3,188
+"V2  Struktur-Stop, Ziel gegenüberliegendes 2.0-Level, 4 Touches",wie Backtest,A,0.15,49.0,7.8,43.3,0.2,2.5,152
+"V2  Struktur-Stop, Ziel gegenüberliegendes 2.0-Level, 4 Touches",wie Backtest,A,0.2,59.7,18.8,21.4,1.1,6.9,130
+"V2  Struktur-Stop, Ziel gegenüberliegendes 2.0-Level, 4 Touches",wie Backtest,A,0.25,61.3,28.7,10.0,2.8,12.7,107
+"V2  Struktur-Stop, Ziel gegenüberliegendes 2.0-Level, 4 Touches",wie Backtest,A,0.3,59.5,35.6,4.9,4.7,17.0,90
+"V2  Struktur-Stop, Ziel gegenüberliegendes 2.0-Level, 4 Touches",wie Backtest,A,0.4,51.7,45.8,2.5,7.2,22.0,69
+"V2  Struktur-Stop, Ziel gegenüberliegendes 2.0-Level, 4 Touches",wie Backtest,A,0.5,45.9,52.4,1.7,9.8,24.5,57
+"V2  Struktur-Stop, Ziel gegenüberliegendes 2.0-Level, 4 Touches",wie Backtest,A,0.75,37.6,61.4,1.0,12.8,25.1,44
+"V2  Struktur-Stop, Ziel gegenüberliegendes 2.0-Level, 4 Touches",wie Backtest,B,0.1,23.8,0.1,76.1,0.0,0.3,185
+"V2  Struktur-Stop, Ziel gegenüberliegendes 2.0-Level, 4 Touches",wie Backtest,B,0.15,50.0,3.4,46.6,0.4,3.2,155
+"V2  Struktur-Stop, Ziel gegenüberliegendes 2.0-Level, 4 Touches",wie Backtest,B,0.2,65.9,10.3,23.8,2.0,9.3,127
+"V2  Struktur-Stop, Ziel gegenüberliegendes 2.0-Level, 4 Touches",wie Backtest,B,0.25,70.4,19.6,10.0,5.3,17.7,100
+"V2  Struktur-Stop, Ziel gegenüberliegendes 2.0-Level, 4 Touches",wie Backtest,B,0.3,70.8,25.8,3.4,9.0,25.4,81
+"V2  Struktur-Stop, Ziel gegenüberliegendes 2.0-Level, 4 Touches",wie Backtest,B,0.4,65.8,34.0,0.2,18.4,38.2,51
+"V2  Struktur-Stop, Ziel gegenüberliegendes 2.0-Level, 4 Touches",wie Backtest,B,0.5,60.0,40.0,0.0,25.0,45.8,36
+"V2  Struktur-Stop, Ziel gegenüberliegendes 2.0-Level, 4 Touches",wie Backtest,B,0.75,52.1,47.9,0.0,38.5,50.0,19
+"V2  Struktur-Stop, Ziel gegenüberliegendes 2.0-Level, 4 Touches",halbe Kante,A,0.1,9.6,6.0,84.4,0.0,0.1,190
+"V2  Struktur-Stop, Ziel gegenüberliegendes 2.0-Level, 4 Touches",halbe Kante,A,0.15,26.3,26.1,47.6,0.1,1.4,160
+"V2  Struktur-Stop, Ziel gegenüberliegendes 2.0-Level, 4 Touches",halbe Kante,A,0.2,35.6,42.5,21.9,0.8,4.2,134
+"V2  Struktur-Stop, Ziel gegenüberliegendes 2.0-Level, 4 Touches",halbe Kante,A,0.25,37.7,52.6,9.8,1.9,7.7,106
+"V2  Struktur-Stop, Ziel gegenüberliegendes 2.0-Level, 4 Touches",halbe Kante,A,0.3,36.7,58.2,5.1,3.2,11.0,86
+"V2  Struktur-Stop, Ziel gegenüberliegendes 2.0-Level, 4 Touches",halbe Kante,A,0.4,32.9,64.3,2.8,5.3,14.6,67
+"V2  Struktur-Stop, Ziel gegenüberliegendes 2.0-Level, 4 Touches",halbe Kante,A,0.5,29.4,68.6,2.0,7.3,16.5,53
+"V2  Struktur-Stop, Ziel gegenüberliegendes 2.0-Level, 4 Touches",halbe Kante,A,0.75,23.9,74.7,1.4,8.8,16.2,40
+"V2  Struktur-Stop, Ziel gegenüberliegendes 2.0-Level, 4 Touches",halbe Kante,B,0.1,10.7,1.6,87.7,0.0,0.1,189
+"V2  Struktur-Stop, Ziel gegenüberliegendes 2.0-Level, 4 Touches",halbe Kante,B,0.15,30.2,14.1,55.8,0.3,1.8,158
+"V2  Struktur-Stop, Ziel gegenüberliegendes 2.0-Level, 4 Touches",halbe Kante,B,0.2,41.9,29.2,28.9,1.7,6.8,127
+"V2  Struktur-Stop, Ziel gegenüberliegendes 2.0-Level, 4 Touches",halbe Kante,B,0.25,48.3,41.1,10.6,4.2,12.2,102
+"V2  Struktur-Stop, Ziel gegenüberliegendes 2.0-Level, 4 Touches",halbe Kante,B,0.3,50.4,46.7,2.9,7.4,18.4,81
+"V2  Struktur-Stop, Ziel gegenüberliegendes 2.0-Level, 4 Touches",halbe Kante,B,0.4,47.0,52.8,0.1,14.1,29.3,48
+"V2  Struktur-Stop, Ziel gegenüberliegendes 2.0-Level, 4 Touches",halbe Kante,B,0.5,43.7,56.3,0.0,20.6,34.9,32
+"V2  Struktur-Stop, Ziel gegenüberliegendes 2.0-Level, 4 Touches",halbe Kante,B,0.75,40.2,59.8,0.0,31.5,39.1,17
+"V2  Struktur-Stop, Ziel gegenüberliegendes 2.0-Level, 4 Touches",keine Kante,A,0.1,4.1,21.0,74.9,0.0,0.1,181
+"V2  Struktur-Stop, Ziel gegenüberliegendes 2.0-Level, 4 Touches",keine Kante,A,0.15,12.6,52.0,35.4,0.1,0.8,152
+"V2  Struktur-Stop, Ziel gegenüberliegendes 2.0-Level, 4 Touches",keine Kante,A,0.2,18.2,67.2,14.6,0.5,2.5,127
+"V2  Struktur-Stop, Ziel gegenüberliegendes 2.0-Level, 4 Touches",keine Kante,A,0.25,20.8,72.5,6.6,1.1,4.9,99
+"V2  Struktur-Stop, Ziel gegenüberliegendes 2.0-Level, 4 Touches",keine Kante,A,0.3,20.3,76.2,3.6,2.3,7.1,80
+"V2  Struktur-Stop, Ziel gegenüberliegendes 2.0-Level, 4 Touches",keine Kante,A,0.4,19.2,78.7,2.1,3.5,10.0,58
+"V2  Struktur-Stop, Ziel gegenüberliegendes 2.0-Level, 4 Touches",keine Kante,A,0.5,17.1,81.4,1.5,4.6,10.1,50
+"V2  Struktur-Stop, Ziel gegenüberliegendes 2.0-Level, 4 Touches",keine Kante,A,0.75,14.7,84.3,1.0,6.2,10.9,35
+"V2  Struktur-Stop, Ziel gegenüberliegendes 2.0-Level, 4 Touches",keine Kante,B,0.1,4.1,8.4,87.5,0.0,0.0,181
+"V2  Struktur-Stop, Ziel gegenüberliegendes 2.0-Level, 4 Touches",keine Kante,B,0.15,14.3,34.0,51.7,0.2,1.2,153
+"V2  Struktur-Stop, Ziel gegenüberliegendes 2.0-Level, 4 Touches",keine Kante,B,0.2,23.8,54.7,21.5,1.2,4.1,122
+"V2  Struktur-Stop, Ziel gegenüberliegendes 2.0-Level, 4 Touches",keine Kante,B,0.25,29.9,63.8,6.3,3.0,8.7,94
+"V2  Struktur-Stop, Ziel gegenüberliegendes 2.0-Level, 4 Touches",keine Kante,B,0.3,30.8,67.4,1.7,5.6,13.5,68
+"V2  Struktur-Stop, Ziel gegenüberliegendes 2.0-Level, 4 Touches",keine Kante,B,0.4,31.4,68.5,0.0,10.9,21.8,43
+"V2  Struktur-Stop, Ziel gegenüberliegendes 2.0-Level, 4 Touches",keine Kante,B,0.5,31.6,68.4,0.0,16.9,26.7,29
+"V2  Struktur-Stop, Ziel gegenüberliegendes 2.0-Level, 4 Touches",keine Kante,B,0.75,32.0,68.0,0.0,26.5,31.6,15
+"V3  Struktur-Stop, Ziel gegenüberliegendes 3.5-Level, 4 Touches",wie Backtest,A,0.1,34.6,1.3,64.2,0.1,0.5,179
+"V3  Struktur-Stop, Ziel gegenüberliegendes 3.5-Level, 4 Touches",wie Backtest,A,0.15,56.8,10.4,32.8,0.7,4.6,144
+"V3  Struktur-Stop, Ziel gegenüberliegendes 3.5-Level, 4 Touches",wie Backtest,A,0.2,64.2,21.2,14.7,2.0,10.5,118
+"V3  Struktur-Stop, Ziel gegenüberliegendes 3.5-Level, 4 Touches",wie Backtest,A,0.25,63.1,30.1,6.8,3.4,15.2,100
+"V3  Struktur-Stop, Ziel gegenüberliegendes 3.5-Level, 4 Touches",wie Backtest,A,0.3,59.0,37.1,3.9,5.9,18.8,84
+"V3  Struktur-Stop, Ziel gegenüberliegendes 3.5-Level, 4 Touches",wie Backtest,A,0.4,51.0,46.6,2.4,8.3,23.5,65
+"V3  Struktur-Stop, Ziel gegenüberliegendes 3.5-Level, 4 Touches",wie Backtest,A,0.5,45.4,52.6,2.0,11.0,25.2,54
+"V3  Struktur-Stop, Ziel gegenüberliegendes 3.5-Level, 4 Touches",wie Backtest,A,0.75,36.9,62.1,1.0,11.7,23.6,45
+"V3  Struktur-Stop, Ziel gegenüberliegendes 3.5-Level, 4 Touches",wie Backtest,B,0.1,34.6,0.2,65.2,0.0,0.6,177
+"V3  Struktur-Stop, Ziel gegenüberliegendes 3.5-Level, 4 Touches",wie Backtest,B,0.15,60.6,4.2,35.2,1.0,5.8,142
+"V3  Struktur-Stop, Ziel gegenüberliegendes 3.5-Level, 4 Touches",wie Backtest,B,0.2,71.3,12.3,16.4,3.6,14.0,112
+"V3  Struktur-Stop, Ziel gegenüberliegendes 3.5-Level, 4 Touches",wie Backtest,B,0.25,74.2,20.3,5.6,8.5,24.2,85
+"V3  Struktur-Stop, Ziel gegenüberliegendes 3.5-Level, 4 Touches",wie Backtest,B,0.3,71.6,26.9,1.6,13.1,31.0,69
+"V3  Struktur-Stop, Ziel gegenüberliegendes 3.5-Level, 4 Touches",wie Backtest,B,0.4,64.5,35.4,0.1,22.4,43.6,42
+"V3  Struktur-Stop, Ziel gegenüberliegendes 3.5-Level, 4 Touches",wie Backtest,B,0.5,60.0,40.0,0.0,30.2,49.6,30
+"V3  Struktur-Stop, Ziel gegenüberliegendes 3.5-Level, 4 Touches",wie Backtest,B,0.75,52.4,47.6,0.0,41.8,51.2,16
+"V3  Struktur-Stop, Ziel gegenüberliegendes 3.5-Level, 4 Touches",halbe Kante,A,0.1,16.0,9.0,75.0,0.0,0.4,179
+"V3  Struktur-Stop, Ziel gegenüberliegendes 3.5-Level, 4 Touches",halbe Kante,A,0.15,33.0,31.4,35.6,0.5,2.7,146
+"V3  Struktur-Stop, Ziel gegenüberliegendes 3.5-Level, 4 Touches",halbe Kante,A,0.2,39.9,45.9,14.2,1.3,6.5,120
+"V3  Struktur-Stop, Ziel gegenüberliegendes 3.5-Level, 4 Touches",halbe Kante,A,0.25,38.5,55.2,6.4,2.4,9.8,96
+"V3  Struktur-Stop, Ziel gegenüberliegendes 3.5-Level, 4 Touches",halbe Kante,A,0.3,35.5,59.7,4.8,4.0,12.2,80
+"V3  Struktur-Stop, Ziel gegenüberliegendes 3.5-Level, 4 Touches",halbe Kante,A,0.4,31.6,66.0,2.4,5.7,15.8,61
+"V3  Struktur-Stop, Ziel gegenüberliegendes 3.5-Level, 4 Touches",halbe Kante,A,0.5,28.4,69.9,1.8,7.2,15.9,53
+"V3  Struktur-Stop, Ziel gegenüberliegendes 3.5-Level, 4 Touches",halbe Kante,A,0.75,23.2,75.6,1.2,8.3,15.2,42
+"V3  Struktur-Stop, Ziel gegenüberliegendes 3.5-Level, 4 Touches",halbe Kante,B,0.1,15.7,2.5,81.8,0.0,0.3,177
+"V3  Struktur-Stop, Ziel gegenüberliegendes 3.5-Level, 4 Touches",halbe Kante,B,0.15,37.4,17.6,45.0,0.5,3.4,147
+"V3  Struktur-Stop, Ziel gegenüberliegendes 3.5-Level, 4 Touches",halbe Kante,B,0.2,47.6,34.6,17.8,2.6,9.6,112
+"V3  Struktur-Stop, Ziel gegenüberliegendes 3.5-Level, 4 Touches",halbe Kante,B,0.25,51.0,43.7,5.3,6.0,17.0,85
+"V3  Struktur-Stop, Ziel gegenüberliegendes 3.5-Level, 4 Touches",halbe Kante,B,0.3,50.3,48.6,1.0,9.9,23.2,65
+"V3  Struktur-Stop, Ziel gegenüberliegendes 3.5-Level, 4 Touches",halbe Kante,B,0.4,47.0,53.0,0.0,18.4,34.0,39
+"V3  Struktur-Stop, Ziel gegenüberliegendes 3.5-Level, 4 Touches",halbe Kante,B,0.5,44.3,55.7,0.0,25.2,39.0,26
+"V3  Struktur-Stop, Ziel gegenüberliegendes 3.5-Level, 4 Touches",halbe Kante,B,0.75,40.1,59.9,0.0,33.8,39.6,14
+"V3  Struktur-Stop, Ziel gegenüberliegendes 3.5-Level, 4 Touches",keine Kante,A,0.1,6.3,29.1,64.6,0.0,0.2,183
+"V3  Struktur-Stop, Ziel gegenüberliegendes 3.5-Level, 4 Touches",keine Kante,A,0.15,16.2,58.6,25.2,0.3,1.6,139
+"V3  Struktur-Stop, Ziel gegenüberliegendes 3.5-Level, 4 Touches",keine Kante,A,0.2,20.1,71.4,8.5,0.8,3.7,115
+"V3  Struktur-Stop, Ziel gegenüberliegendes 3.5-Level, 4 Touches",keine Kante,A,0.25,19.3,76.9,3.8,1.7,5.8,90
+"V3  Struktur-Stop, Ziel gegenüberliegendes 3.5-Level, 4 Touches",keine Kante,A,0.3,19.1,78.3,2.6,2.3,7.1,74
+"V3  Struktur-Stop, Ziel gegenüberliegendes 3.5-Level, 4 Touches",keine Kante,A,0.4,17.4,80.8,1.8,3.9,9.3,57
+"V3  Struktur-Stop, Ziel gegenüberliegendes 3.5-Level, 4 Touches",keine Kante,A,0.5,15.8,83.1,1.2,4.8,10.0,46
+"V3  Struktur-Stop, Ziel gegenüberliegendes 3.5-Level, 4 Touches",keine Kante,A,0.75,12.6,86.7,0.8,5.5,8.9,35
+"V3  Struktur-Stop, Ziel gegenüberliegendes 3.5-Level, 4 Touches",keine Kante,B,0.1,6.3,14.7,79.0,0.0,0.2,175
+"V3  Struktur-Stop, Ziel gegenüberliegendes 3.5-Level, 4 Touches",keine Kante,B,0.15,19.4,42.2,38.4,0.5,2.2,137
+"V3  Struktur-Stop, Ziel gegenüberliegendes 3.5-Level, 4 Touches",keine Kante,B,0.2,27.6,61.0,11.5,2.0,6.0,108
+"V3  Struktur-Stop, Ziel gegenüberliegendes 3.5-Level, 4 Touches",keine Kante,B,0.25,31.0,66.3,2.7,4.4,11.6,79
+"V3  Struktur-Stop, Ziel gegenüberliegendes 3.5-Level, 4 Touches",keine Kante,B,0.3,31.8,67.7,0.5,8.0,17.1,56
+"V3  Struktur-Stop, Ziel gegenüberliegendes 3.5-Level, 4 Touches",keine Kante,B,0.4,31.8,68.2,0.0,14.0,24.7,35
+"V3  Struktur-Stop, Ziel gegenüberliegendes 3.5-Level, 4 Touches",keine Kante,B,0.5,32.2,67.8,0.0,20.6,29.4,23
+"V3  Struktur-Stop, Ziel gegenüberliegendes 3.5-Level, 4 Touches",keine Kante,B,0.75,31.5,68.5,0.0,28.0,31.4,12
+"V4  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 ATR",wie Backtest,A,0.1,40.7,17.8,41.5,0.6,3.6,145
+"V4  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 ATR",wie Backtest,A,0.15,45.8,38.1,16.1,1.9,8.4,115
+"V4  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 ATR",wie Backtest,A,0.2,41.8,49.8,8.4,3.0,11.0,94
+"V4  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 ATR",wie Backtest,A,0.25,38.8,55.2,6.0,4.4,12.9,84
+"V4  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 ATR",wie Backtest,A,0.3,34.5,60.8,4.7,4.8,12.9,77
+"V4  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 ATR",wie Backtest,A,0.4,29.1,67.4,3.5,5.3,13.1,67
+"V4  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 ATR",wie Backtest,A,0.5,26.1,70.8,3.1,5.7,12.8,62
+"V4  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 ATR",wie Backtest,A,0.75,19.0,78.8,2.3,5.1,10.3,54
+"V4  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 ATR",wie Backtest,B,0.1,46.5,9.0,44.5,1.2,4.9,141
+"V4  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 ATR",wie Backtest,B,0.15,60.1,26.5,13.4,5.7,16.0,99
+"V4  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 ATR",wie Backtest,B,0.2,60.4,37.4,2.1,12.4,26.8,68
+"V4  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 ATR",wie Backtest,B,0.25,57.4,42.4,0.2,18.1,35.2,48
+"V4  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 ATR",wie Backtest,B,0.3,53.8,46.2,0.0,23.1,40.4,36
+"V4  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 ATR",wie Backtest,B,0.4,49.0,51.0,0.0,31.6,44.9,22
+"V4  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 ATR",wie Backtest,B,0.5,46.1,53.9,0.0,36.0,44.9,16
+"V4  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 ATR",wie Backtest,B,0.75,42.6,57.4,0.0,40.6,42.6,9
+"V4  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 ATR",halbe Kante,A,0.1,26.0,38.1,35.9,0.5,2.5,146
+"V4  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 ATR",halbe Kante,A,0.15,29.2,58.6,12.2,1.3,5.6,112
+"V4  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 ATR",halbe Kante,A,0.2,27.0,66.5,6.5,2.4,7.8,92
+"V4  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 ATR",halbe Kante,A,0.25,24.5,70.7,4.8,3.3,9.3,75
+"V4  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 ATR",halbe Kante,A,0.3,22.3,73.9,3.9,4.3,10.1,67
+"V4  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 ATR",halbe Kante,A,0.4,18.0,79.1,2.9,4.0,9.5,57
+"V4  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 ATR",halbe Kante,A,0.5,15.8,81.8,2.3,4.0,8.5,55
+"V4  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 ATR",halbe Kante,A,0.75,13.1,85.2,1.6,3.9,7.6,50
+"V4  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 ATR",halbe Kante,B,0.1,31.8,24.1,44.2,0.8,3.7,142
+"V4  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 ATR",halbe Kante,B,0.15,43.2,47.4,9.4,4.9,12.8,93
+"V4  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 ATR",halbe Kante,B,0.2,44.6,54.2,1.2,10.3,22.0,62
+"V4  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 ATR",halbe Kante,B,0.25,43.8,56.1,0.1,16.6,29.7,41
+"V4  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 ATR",halbe Kante,B,0.3,40.8,59.2,0.0,20.3,33.2,31
+"V4  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 ATR",halbe Kante,B,0.4,39.1,60.9,0.0,27.7,37.0,19
+"V4  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 ATR",halbe Kante,B,0.5,36.0,64.0,0.0,30.1,35.6,13
+"V4  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 ATR",halbe Kante,B,0.75,35.2,64.8,0.0,33.9,35.2,8
+"V4  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 ATR",keine Kante,A,0.1,15.8,58.8,25.4,0.4,1.8,138
+"V4  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 ATR",keine Kante,A,0.15,17.2,75.4,7.4,1.1,3.9,101
+"V4  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 ATR",keine Kante,A,0.2,15.4,79.9,4.7,1.7,5.4,82
+"V4  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 ATR",keine Kante,A,0.25,14.2,82.6,3.3,2.2,6.0,70
+"V4  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 ATR",keine Kante,A,0.3,12.9,84.4,2.7,2.6,6.1,64
+"V4  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 ATR",keine Kante,A,0.4,11.2,86.9,2.0,3.0,6.1,55
+"V4  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 ATR",keine Kante,A,0.5,10.2,88.1,1.6,3.2,6.1,48
+"V4  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 ATR",keine Kante,A,0.75,7.8,90.8,1.3,2.7,5.0,45
+"V4  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 ATR",keine Kante,B,0.1,20.7,44.6,34.8,0.8,2.8,133
+"V4  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 ATR",keine Kante,B,0.15,29.8,65.3,4.9,4.2,10.5,85
+"V4  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 ATR",keine Kante,B,0.2,32.1,67.5,0.4,8.9,18.0,54
+"V4  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 ATR",keine Kante,B,0.25,31.6,68.4,0.0,13.7,23.6,35
+"V4  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 ATR",keine Kante,B,0.3,32.3,67.7,0.0,19.0,28.2,25
+"V4  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 ATR",keine Kante,B,0.4,30.9,69.1,0.0,24.2,30.0,17
+"V4  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 ATR",keine Kante,B,0.5,29.7,70.3,0.0,26.3,29.5,12
+"V4  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 ATR",keine Kante,B,0.75,28.9,71.1,0.0,28.2,28.9,7
+"V5  Stop fix 0,03 ATR, Ziel 2.0 gegenüber, nach 09:57",wie Backtest,A,0.1,38.1,16.5,45.4,0.5,2.9,155
+"V5  Stop fix 0,03 ATR, Ziel 2.0 gegenüber, nach 09:57",wie Backtest,A,0.15,46.9,36.9,16.1,1.9,8.4,118
+"V5  Stop fix 0,03 ATR, Ziel 2.0 gegenüber, nach 09:57",wie Backtest,A,0.2,43.5,49.3,7.2,3.4,12.1,93
+"V5  Stop fix 0,03 ATR, Ziel 2.0 gegenüber, nach 09:57",wie Backtest,A,0.25,38.8,56.9,4.4,4.1,13.4,83
+"V5  Stop fix 0,03 ATR, Ziel 2.0 gegenüber, nach 09:57",wie Backtest,A,0.3,36.0,60.7,3.3,4.5,14.3,74
+"V5  Stop fix 0,03 ATR, Ziel 2.0 gegenüber, nach 09:57",wie Backtest,A,0.4,29.1,68.2,2.7,4.9,13.2,65
+"V5  Stop fix 0,03 ATR, Ziel 2.0 gegenüber, nach 09:57",wie Backtest,A,0.5,25.9,72.0,2.1,5.6,13.0,60
+"V5  Stop fix 0,03 ATR, Ziel 2.0 gegenüber, nach 09:57",wie Backtest,A,0.75,20.2,78.6,1.2,5.7,11.4,52
+"V5  Stop fix 0,03 ATR, Ziel 2.0 gegenüber, nach 09:57",wie Backtest,B,0.1,40.0,7.8,52.2,0.5,3.0,150
+"V5  Stop fix 0,03 ATR, Ziel 2.0 gegenüber, nach 09:57",wie Backtest,B,0.15,57.2,25.7,17.1,3.6,12.5,110
+"V5  Stop fix 0,03 ATR, Ziel 2.0 gegenüber, nach 09:57",wie Backtest,B,0.2,59.4,37.8,2.8,9.5,23.1,77
+"V5  Stop fix 0,03 ATR, Ziel 2.0 gegenüber, nach 09:57",wie Backtest,B,0.25,55.8,43.7,0.5,15.1,31.3,53
+"V5  Stop fix 0,03 ATR, Ziel 2.0 gegenüber, nach 09:57",wie Backtest,B,0.3,53.4,46.6,0.0,21.6,38.5,39
+"V5  Stop fix 0,03 ATR, Ziel 2.0 gegenüber, nach 09:57",wie Backtest,B,0.4,49.2,50.8,0.0,30.3,44.4,23
+"V5  Stop fix 0,03 ATR, Ziel 2.0 gegenüber, nach 09:57",wie Backtest,B,0.5,46.2,53.8,0.0,35.4,44.8,17
+"V5  Stop fix 0,03 ATR, Ziel 2.0 gegenüber, nach 09:57",wie Backtest,B,0.75,41.3,58.7,0.0,38.7,41.2,10
+"V5  Stop fix 0,03 ATR, Ziel 2.0 gegenüber, nach 09:57",halbe Kante,A,0.1,25.4,34.5,40.1,0.3,2.1,150
+"V5  Stop fix 0,03 ATR, Ziel 2.0 gegenüber, nach 09:57",halbe Kante,A,0.15,31.6,57.2,11.3,1.5,6.1,113
+"V5  Stop fix 0,03 ATR, Ziel 2.0 gegenüber, nach 09:57",halbe Kante,A,0.2,29.4,65.6,5.1,2.7,9.0,87
+"V5  Stop fix 0,03 ATR, Ziel 2.0 gegenüber, nach 09:57",halbe Kante,A,0.25,25.5,71.2,3.3,3.4,9.9,75
+"V5  Stop fix 0,03 ATR, Ziel 2.0 gegenüber, nach 09:57",halbe Kante,A,0.3,23.0,74.2,2.8,3.7,10.4,66
+"V5  Stop fix 0,03 ATR, Ziel 2.0 gegenüber, nach 09:57",halbe Kante,A,0.4,19.3,78.9,1.8,4.0,9.6,60
+"V5  Stop fix 0,03 ATR, Ziel 2.0 gegenüber, nach 09:57",halbe Kante,A,0.5,17.0,81.2,1.8,4.0,9.4,54
+"V5  Stop fix 0,03 ATR, Ziel 2.0 gegenüber, nach 09:57",halbe Kante,A,0.75,13.8,85.1,1.1,4.1,8.4,49
+"V5  Stop fix 0,03 ATR, Ziel 2.0 gegenüber, nach 09:57",halbe Kante,B,0.1,27.2,19.3,53.5,0.5,2.6,149
+"V5  Stop fix 0,03 ATR, Ziel 2.0 gegenüber, nach 09:57",halbe Kante,B,0.15,42.1,43.8,14.2,3.5,10.0,106
+"V5  Stop fix 0,03 ATR, Ziel 2.0 gegenüber, nach 09:57",halbe Kante,B,0.2,44.0,54.0,2.1,7.9,18.7,70
+"V5  Stop fix 0,03 ATR, Ziel 2.0 gegenüber, nach 09:57",halbe Kante,B,0.25,41.8,58.1,0.2,12.9,25.5,48
+"V5  Stop fix 0,03 ATR, Ziel 2.0 gegenüber, nach 09:57",halbe Kante,B,0.3,40.9,59.1,0.0,18.4,31.2,34
+"V5  Stop fix 0,03 ATR, Ziel 2.0 gegenüber, nach 09:57",halbe Kante,B,0.4,38.9,61.1,0.0,26.3,36.2,20
+"V5  Stop fix 0,03 ATR, Ziel 2.0 gegenüber, nach 09:57",halbe Kante,B,0.5,37.8,62.2,0.0,31.6,37.4,14
+"V5  Stop fix 0,03 ATR, Ziel 2.0 gegenüber, nach 09:57",halbe Kante,B,0.75,36.5,63.5,0.0,35.1,36.5,8
+"V5  Stop fix 0,03 ATR, Ziel 2.0 gegenüber, nach 09:57",keine Kante,A,0.1,15.0,53.8,31.2,0.3,1.3,145
+"V5  Stop fix 0,03 ATR, Ziel 2.0 gegenüber, nach 09:57",keine Kante,A,0.15,19.9,72.9,7.2,1.0,4.8,102
+"V5  Stop fix 0,03 ATR, Ziel 2.0 gegenüber, nach 09:57",keine Kante,A,0.2,19.1,77.5,3.4,2.1,6.6,81
+"V5  Stop fix 0,03 ATR, Ziel 2.0 gegenüber, nach 09:57",keine Kante,A,0.25,17.3,80.5,2.2,2.7,7.6,67
+"V5  Stop fix 0,03 ATR, Ziel 2.0 gegenüber, nach 09:57",keine Kante,A,0.3,15.5,82.8,1.7,3.0,7.5,62
+"V5  Stop fix 0,03 ATR, Ziel 2.0 gegenüber, nach 09:57",keine Kante,A,0.4,14.1,84.6,1.4,3.7,8.0,52
+"V5  Stop fix 0,03 ATR, Ziel 2.0 gegenüber, nach 09:57",keine Kante,A,0.5,11.3,87.7,1.0,3.4,6.6,50
+"V5  Stop fix 0,03 ATR, Ziel 2.0 gegenüber, nach 09:57",keine Kante,A,0.75,8.9,90.4,0.7,3.2,5.8,41
+"V5  Stop fix 0,03 ATR, Ziel 2.0 gegenüber, nach 09:57",keine Kante,B,0.1,16.7,37.2,46.1,0.4,1.6,144
+"V5  Stop fix 0,03 ATR, Ziel 2.0 gegenüber, nach 09:57",keine Kante,B,0.15,28.9,61.8,9.3,2.5,7.5,100
+"V5  Stop fix 0,03 ATR, Ziel 2.0 gegenüber, nach 09:57",keine Kante,B,0.2,32.3,66.9,0.8,7.4,15.6,63
+"V5  Stop fix 0,03 ATR, Ziel 2.0 gegenüber, nach 09:57",keine Kante,B,0.25,31.7,68.3,0.0,11.8,21.8,41
+"V5  Stop fix 0,03 ATR, Ziel 2.0 gegenüber, nach 09:57",keine Kante,B,0.3,32.1,67.9,0.0,16.6,26.9,29
+"V5  Stop fix 0,03 ATR, Ziel 2.0 gegenüber, nach 09:57",keine Kante,B,0.4,31.1,68.9,0.0,22.7,29.9,19
+"V5  Stop fix 0,03 ATR, Ziel 2.0 gegenüber, nach 09:57",keine Kante,B,0.5,33.0,67.0,0.0,28.0,32.6,13
+"V5  Stop fix 0,03 ATR, Ziel 2.0 gegenüber, nach 09:57",keine Kante,B,0.75,30.4,69.6,0.0,29.7,30.4,7
+"V6  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 + Reclaim > 2 Kerzen",wie Backtest,A,0.1,32.5,2.8,64.8,0.1,1.2,172
+"V6  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 + Reclaim > 2 Kerzen",wie Backtest,A,0.15,43.8,14.2,42.0,0.7,4.2,148
+"V6  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 + Reclaim > 2 Kerzen",wie Backtest,A,0.2,47.6,26.2,26.2,1.5,6.9,128
+"V6  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 + Reclaim > 2 Kerzen",wie Backtest,A,0.25,46.3,35.7,18.0,2.5,9.1,115
+"V6  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 + Reclaim > 2 Kerzen",wie Backtest,A,0.3,42.9,42.7,14.4,2.9,9.8,108
+"V6  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 + Reclaim > 2 Kerzen",wie Backtest,A,0.4,38.8,51.1,10.1,3.4,11.5,92
+"V6  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 + Reclaim > 2 Kerzen",wie Backtest,A,0.5,34.0,57.6,8.4,3.6,10.8,89
+"V6  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 + Reclaim > 2 Kerzen",wie Backtest,A,0.75,25.4,69.1,5.4,3.6,9.9,76
+"V6  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 + Reclaim > 2 Kerzen",wie Backtest,B,0.1,39.3,0.5,60.1,0.5,2.9,159
+"V6  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 + Reclaim > 2 Kerzen",wie Backtest,B,0.15,60.3,6.7,33.1,3.8,11.4,124
+"V6  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 + Reclaim > 2 Kerzen",wie Backtest,B,0.2,67.4,16.9,15.8,8.2,19.8,98
+"V6  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 + Reclaim > 2 Kerzen",wie Backtest,B,0.25,67.8,26.4,5.8,11.8,25.8,79
+"V6  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 + Reclaim > 2 Kerzen",wie Backtest,B,0.3,67.2,31.0,1.9,16.2,33.2,61
+"V6  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 + Reclaim > 2 Kerzen",wie Backtest,B,0.4,61.0,38.8,0.2,23.3,41.8,40
+"V6  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 + Reclaim > 2 Kerzen",wie Backtest,B,0.5,56.8,43.2,0.0,28.9,46.0,30
+"V6  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 + Reclaim > 2 Kerzen",wie Backtest,B,0.75,49.8,50.2,0.0,37.8,47.7,17
+"V6  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 + Reclaim > 2 Kerzen",halbe Kante,A,0.1,17.6,16.0,66.5,0.1,0.9,165
+"V6  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 + Reclaim > 2 Kerzen",halbe Kante,A,0.15,25.3,39.1,35.7,0.4,2.5,145
+"V6  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 + Reclaim > 2 Kerzen",halbe Kante,A,0.2,25.8,53.8,20.3,0.9,4.3,124
+"V6  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 + Reclaim > 2 Kerzen",halbe Kante,A,0.25,24.8,62.1,13.2,1.7,5.8,105
+"V6  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 + Reclaim > 2 Kerzen",halbe Kante,A,0.3,22.9,66.3,10.8,2.0,6.1,97
+"V6  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 + Reclaim > 2 Kerzen",halbe Kante,A,0.4,20.9,71.2,7.9,2.6,7.3,83
+"V6  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 + Reclaim > 2 Kerzen",halbe Kante,A,0.5,17.4,76.5,6.1,2.7,6.9,77
+"V6  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 + Reclaim > 2 Kerzen",halbe Kante,A,0.75,14.2,81.5,4.3,3.0,6.6,66
+"V6  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 + Reclaim > 2 Kerzen",halbe Kante,B,0.1,23.1,6.6,70.3,0.4,1.9,158
+"V6  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 + Reclaim > 2 Kerzen",halbe Kante,B,0.15,40.3,26.6,33.1,3.1,8.1,125
+"V6  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 + Reclaim > 2 Kerzen",halbe Kante,B,0.2,47.5,41.7,10.8,6.9,15.7,91
+"V6  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 + Reclaim > 2 Kerzen",halbe Kante,B,0.25,47.7,49.3,3.0,10.3,21.8,66
+"V6  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 + Reclaim > 2 Kerzen",halbe Kante,B,0.3,46.1,53.3,0.6,13.4,26.5,52
+"V6  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 + Reclaim > 2 Kerzen",halbe Kante,B,0.4,43.0,56.9,0.0,20.2,33.8,33
+"V6  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 + Reclaim > 2 Kerzen",halbe Kante,B,0.5,41.4,58.6,0.0,25.3,36.6,24
+"V6  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 + Reclaim > 2 Kerzen",halbe Kante,B,0.75,36.7,63.3,0.0,31.3,36.2,13
+"V6  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 + Reclaim > 2 Kerzen",keine Kante,A,0.1,9.2,40.5,50.4,0.1,0.5,159
+"V6  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 + Reclaim > 2 Kerzen",keine Kante,A,0.15,12.2,66.6,21.3,0.2,1.6,135
+"V6  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 + Reclaim > 2 Kerzen",keine Kante,A,0.2,12.9,74.9,12.3,0.6,2.6,113
+"V6  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 + Reclaim > 2 Kerzen",keine Kante,A,0.25,12.5,79.5,8.0,1.2,3.8,94
+"V6  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 + Reclaim > 2 Kerzen",keine Kante,A,0.3,11.6,81.7,6.6,1.5,4.3,79
+"V6  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 + Reclaim > 2 Kerzen",keine Kante,A,0.4,9.5,85.7,4.8,1.6,4.0,71
+"V6  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 + Reclaim > 2 Kerzen",keine Kante,A,0.5,8.7,87.3,4.0,1.9,4.1,63
+"V6  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 + Reclaim > 2 Kerzen",keine Kante,A,0.75,7.9,89.0,3.1,1.8,4.0,60
+"V6  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 + Reclaim > 2 Kerzen",keine Kante,B,0.1,13.1,24.9,62.0,0.4,1.4,147
+"V6  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 + Reclaim > 2 Kerzen",keine Kante,B,0.15,25.7,53.4,20.9,2.6,6.4,109
+"V6  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 + Reclaim > 2 Kerzen",keine Kante,B,0.2,29.7,65.7,4.6,5.7,12.1,75
+"V6  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 + Reclaim > 2 Kerzen",keine Kante,B,0.25,30.9,68.3,0.8,8.5,16.9,55
+"V6  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 + Reclaim > 2 Kerzen",keine Kante,B,0.3,30.7,69.2,0.1,11.5,21.1,41
+"V6  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 + Reclaim > 2 Kerzen",keine Kante,B,0.4,31.4,68.6,0.0,17.7,26.6,26
+"V6  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 + Reclaim > 2 Kerzen",keine Kante,B,0.5,28.8,71.2,0.0,20.5,27.4,20
+"V6  halber Struktur-Stop, Ziel 2.0 gegenüber, Box > 0,073 + Reclaim > 2 Kerzen",keine Kante,B,0.75,29.0,71.0,0.0,26.3,28.8,11
