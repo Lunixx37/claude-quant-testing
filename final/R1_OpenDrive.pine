@@ -18,6 +18,8 @@
 //   "Nur Runner" (Trend): kein Ziel, nur Stop und 15:59. Mit Stop 0,08·ATR ≈ 20–23 % Treffer,
 //        +0,30 bis +0,37 R je Trade, aber Verlustserien von 18–24 Trades.
 // Kosten im Backtest: 1 Punkt je Kontrakt und Trade.
+// Achtung: 'Teilverkauf + Runner' und 'Festes Ziel' waren auf NQ von Juli 2024 bis Dezember 2025
+//          (244 Trades) nur bei null; 'Nur Runner' lag im selben Zeitraum bei +64 R.
 // ─────────────────────────────────────────────────────────────────────────────────────────────
 strategy("NQ Open-Drive R1/V2a", overlay = true, process_orders_on_close = true, initial_capital = 50000,
      default_qty_type = strategy.fixed, default_qty_value = 1,

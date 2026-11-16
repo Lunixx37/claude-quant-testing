@@ -32,7 +32,7 @@ Der Einstieg bleibt, wie er war. Verbessert hat sich nur der Ausstieg: einen Tei
 
 ### Wichtigste Einschränkung
 
-**Die Modi mit hoher Trefferquote haben seit Juli 2024 nichts mehr verdient.** Über die letzten 244 Trades auf NQ: R1 +1,3 R, V2a −1,2 R, V2a-75 +1,1 R, bei 68 % Treffern (nötig sind 67,8 %). Der Trend-Modus kam im selben Zeitraum auf +64 R; sein zweites Halbjahr 2025 war mit −2,7 R ebenfalls flach.
+**Die Modi mit hoher Trefferquote haben seit Juli 2024 nichts mehr verdient.** Über die letzten 244 Trades auf NQ: R1 +1,3 R, V2a −1,2 R, V2a-75 +1,1 R. R1 und V2a trafen dabei 68 %; nötig sind 67,8 %. Der Trend-Modus kam im selben Zeitraum auf +64 R; sein zweites Halbjahr 2025 war mit −2,7 R ebenfalls flach.
 
 Der Vorteil sitzt also in den wenigen Tagen, an denen der Kurs nach dem Ausbruch bis zum Schluss weiterläuft, nicht in den ersten 20 bis 25 Punkten.
 
@@ -62,11 +62,11 @@ Vorgehen: Alles wurde nur auf CFD 2016–2022 ausgewählt (Stufe A 2016–2020, 
 ### Ausstiege
 
 - **Teil laufen lassen** ist die einzige bestätigte Verbesserung. Gegenüber R1 bringt V2a je Trade +0,071 R (CFD A), +0,061 R (CFD B) und +0,023 R (NQ); über alle 1.434 Trades +0,052 R (t = 2,8). Die Trefferquote bleibt gleich.
-- **Engere Stops** bringen bei kleinem Ziel nichts: Ein Viertel der späteren Gewinner läuft vorher mehr als 0,10 ATR gegen den Einstieg. Stops unter 0,10 ATR sind mit Zielen bis 1 × Stop auf CFD A negativ.
+- **Engere Stops** bringen bei kleinem Ziel nichts: Ein Viertel der späteren Gewinner läuft vorher mehr als 0,10 ATR gegen den Einstieg. Stops unter 0,10 ATR sind mit Zielen bis 1 × Stop auf CFD A negativ oder praktisch null.
 - **Zeit-Stops** (Ausstieg nach 10 bis 180 Minuten) verschlechtern das Ergebnis.
 - **Nachgezogene Stops** (Trailing, VWAP-Nachzug) sind schlechter als der Rest ohne Ziel mit Stop auf Einstand.
 - **Struktur-Stops** (hinter Signalkerze, hinter dem Tief der letzten 5 bis 20 Kerzen, hinter dem Ausbruchs-Level) sind schlechter als der feste Stop.
-- Alle 27 geprüften Nachbarn von V2a (Stop 0,10 bis 0,22 ATR, Teilverkauf 33 bis 67 %, Teilziel 0,4 bis 1,0 × Stop, Signal 0,25 und 0,35 ATR, mit und ohne Spannen-Filter) sind in allen drei Datensätzen positiv.
+- Alle 22 geprüften Abwandlungen von V2a (Stop 0,10 bis 0,22 ATR, Teilverkauf 33 bis 67 %, Teilziel 0,4 bis 1,0 × Stop, Signal 0,25 und 0,35 ATR, mit und ohne Spannen-Filter) sind in allen drei Datensätzen positiv.
 
 ### Einstiege (CFD, E je Trade mit V2a-Ausstieg: Stufe A / Stufe B)
 
@@ -78,7 +78,7 @@ Vorgehen: Alles wurde nur auf CFD 2016–2022 ausgewählt (Stufe A 2016–2020, 
 | Bestätigung: Stop-Order über der Signalkerze | +0,155 / +0,203, aber 10 % weniger Trades; Gesamtertrag in A niedriger |
 | Rücksetzer-Limit am Level (15 bis 120 Minuten gültig) | +0,04 / +0,09 |
 | tageszeitabhängige Schwelle (mittlere Bewegung der letzten 14 Tage zur selben Uhrzeit) | gleichwertig, nicht besser |
-| andere feste Schwellen (0,15 bis 0,5 ATR) | 0,3 ATR bleibt die beste |
+| andere feste Schwellen (0,15 bis 0,5 ATR) | keine ist in beiden Stufen besser als 0,3 ATR |
 
 Keine Variante ist in beiden Stufen besser.
 
