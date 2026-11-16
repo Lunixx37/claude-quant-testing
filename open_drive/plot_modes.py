@@ -1,6 +1,6 @@
 """Kapitalkurven der Ausstiegs-Modi (kumulierte R), CFD 2016-2022 und NQ 2023-2025 aneinandergehaengt.
 
-Aufruf:  python final/plot_modes.py
+Aufruf:  python open_drive/plot_modes.py
 """
 from pathlib import Path
 

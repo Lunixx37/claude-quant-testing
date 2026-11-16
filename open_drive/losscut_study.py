@@ -12,7 +12,7 @@ Regeln (alles in Vielfachen des Stops, Ausstieg jeweils zum Schlusskurs der Minu
   einstand x   Stop auf Einstand, sobald der Trade x im Gewinn lag
   stop s       anderer Anfangs-Stop (s x ATR); R bezieht sich dann auf diesen Stop
 
-Aufruf:  python final/losscut_study.py <cache-ordner>
+Aufruf:  python open_drive/losscut_study.py <cache-ordner>
 """
 import sys
 

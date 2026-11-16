@@ -12,7 +12,7 @@ Nullhypothese "Random Walk ohne Trend" geteilt -> t-Wert. Gehandelt wird
   z=0/1/2 : nur wenn |t| > z (sonst flat)
   prob    : Positionsgroesse = Wahrscheinlichkeit, dass der Trend positiv ist
 
-Aufruf:  python smoothing_strategy.py
+Aufruf:  python funktions_studien/smoothing_strategy.py
 """
 from math import erf, sqrt
 

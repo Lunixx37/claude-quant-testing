@@ -12,7 +12,7 @@ Teil 1  Vorab festgelegte Reversal-Ereignisse (beide Richtungen gespiegelt zusam
 Teil 2  Modell mit allen Bedingungen: trainiert auf einem Datensatz, getestet auf dem anderen
 Teil 3  Tagesbasis: Reversal nach Ueberdehnung (naechste 1 / 5 Handelstage)
 
-Aufruf:  python reversal_events.py
+Aufruf:  python funktions_studien/reversal_events.py
 """
 import numpy as np
 import pandas as pd

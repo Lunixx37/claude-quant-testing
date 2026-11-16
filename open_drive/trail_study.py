@@ -12,7 +12,7 @@ Grundmodi:
   Trend  Stop 0,08 ATR, kein Ziel, bis 15:59
   Run15  Stop 0,15 ATR, kein Ziel, bis 15:59
 
-Aufruf:  python final/trail_study.py <cache-ordner>
+Aufruf:  python open_drive/trail_study.py <cache-ordner>
 """
 import sys
 

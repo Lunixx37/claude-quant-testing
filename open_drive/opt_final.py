@@ -3,7 +3,7 @@ Gegenprobe der eingefrorenen Optimierungs-Kandidaten (opt_selection.json).
 
 Segmente: A = CFD 2016-2020, B = CFD 2021-2022 (dort gewaehlt), N = NQ 2023-2025 (Gegenprobe).
 
-Aufruf:  python final/opt_final.py <cache-ordner>
+Aufruf:  python open_drive/opt_final.py <cache-ordner>
 """
 import sys
 from pathlib import Path

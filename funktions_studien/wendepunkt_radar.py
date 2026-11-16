@@ -18,9 +18,10 @@ Teile:
   4  Integral der Abweichung vom Trend als Ueberdehnungs-Indikator
   5  Einfache Handelsregeln aus der Ampel
 
-Aufruf:  python wendepunkt_radar.py [--plot]         (eigene Kurse: --csv datei.csv, Spalten date,close)
+Aufruf:  python funktions_studien/wendepunkt_radar.py [--plot]         (eigene Kurse: --csv datei.csv, Spalten date,close)
 """
 import sys
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -238,7 +239,7 @@ def plot(lp, D, w=11, last=120):
     ax.set_xlabel("Handelstag")
     ax.legend(frameon=False, loc="upper left")
     fig.tight_layout()
-    fig.savefig("wendepunkt_radar.png", dpi=200, facecolor=surf)
+    fig.savefig(Path(__file__).resolve().parent / "wendepunkt_radar.png", dpi=200, facecolor=surf)
     print("Grafik gespeichert: wendepunkt_radar.png")
 
 

@@ -18,7 +18,7 @@ Ausstiegs-Modi:
 Kosten = 1 NQ-Punkt je Kontrakt und Trade (CFD: 0.0032 ATR). Liegen Stop und Ziel in derselben Kerze, zaehlt der
 Stop. Geaenderte Stops (Einstand, Nachzug) gelten ab der naechsten Kerze.
 
-Aufruf:  python final/r1_strategy.py
+Aufruf:  python open_drive/r1_strategy.py
 """
 from pathlib import Path
 

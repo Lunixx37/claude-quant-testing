@@ -13,17 +13,20 @@ D  Haelt ein Extrem, das an einem Stdv-Level entstanden ist, oefter als M1 erwar
 E  K2-Trades (aus dem Branch claude/hopeful-hamilton-gxoy9x) nach M1-Wahrscheinlichkeit,
    EMA-100-Richtung und Uhrzeit aufgeteilt
 
-Aufruf:  python stdv_box_extrema.py
+Aufruf:  python funktions_studien/stdv_box_extrema.py
 """
 import io
 import subprocess
 import zipfile
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
 from sklearn.ensemble import HistGradientBoostingClassifier
 from sklearn.metrics import brier_score_loss, roc_auc_score
 
+ROOT = Path(__file__).resolve().parent.parent          # Daten liegen im Wurzelverzeichnis des Repositories
+HERE = Path(__file__).resolve().parent
 LEVELS = np.array([2.0, 2.25, 2.5, 3.5, 4.0, 4.25, 4.5])
 FAKES = np.array([2.125, 2.375, 2.75, 3.25, 3.75, 4.125, 4.375])   # zwischen den echten Leveln
 M = 390
@@ -33,7 +36,7 @@ pd.set_option("display.width", 200)
 
 # ------------------------------------------------------------------ Daten
 def load_nq():
-    df = pd.read_csv("Dataset_NQ_1min_2022_2025.csv", usecols=["timestamp ET", "open", "high", "low", "close"])
+    df = pd.read_csv(ROOT / "Dataset_NQ_1min_2022_2025.csv", usecols=["timestamp ET", "open", "high", "low", "close"])
     df.index = pd.to_datetime(df.pop("timestamp ET"), format="%m/%d/%Y %H:%M") - pd.Timedelta("1min")
     df = df[~df.index.duplicated()].sort_index()
     return df[df.index >= "2023-01-01"]
@@ -42,7 +45,7 @@ def load_nq():
 def load_cfd():
     parts = []
     for i in (1, 2):
-        with zipfile.ZipFile(f"1m_data_part{i}.zip") as z:
+        with zipfile.ZipFile(ROOT / f"1m_data_part{i}.zip") as z:
             parts.append(pd.read_csv(z.open(f"1m_data_part{i}.csv"), sep="\t"))
     df = pd.concat(parts)
     broker = pd.to_datetime(df["DateTime"], format="%Y.%m.%d %H:%M:%S")
@@ -213,8 +216,12 @@ def part_e(sets, raw, models):
     print("== E: K2-Trades aufgeteilt nach unseren Merkmalen zum Einstieg (R je Trade) ==")
     allrows = []
     for kind in ("CFD", "NQ"):
-        txt = subprocess.run(["git", "show", f"{K2_BRANCH}:nq_stdv_box/results/search/trades_K2_{kind}.csv"],
-                             capture_output=True, text=True).stdout
+        local = ROOT / "nq_stdv_box" / "results" / "search" / f"trades_K2_{kind}.csv"
+        if local.exists():                              # nach dem Zusammenfuehren liegt die Liste im Repository
+            txt = local.read_text()
+        else:                                           # sonst aus dem Stdv-Box-Branch lesen
+            txt = subprocess.run(["git", "show", f"{K2_BRANCH}:nq_stdv_box/results/search/trades_K2_{kind}.csv"],
+                                 capture_output=True, text=True).stdout
         if not txt:
             print("K2-Tradeliste nicht gefunden (Branch nicht geholt)"); return
         tr = pd.read_csv(io.StringIO(txt), parse_dates=["day"])

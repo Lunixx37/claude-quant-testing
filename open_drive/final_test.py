@@ -3,7 +3,7 @@ Endtest der eingefrorenen Kandidaten (selection.json) auf CFD Stufe A / B und NQ
 
 Exakte Abfolge: immer nur eine Position, hoechstens max_pro_tag Trades pro Tag, Einstiege 09:30-15:30.
 
-Aufruf:  python final/final_test.py <ereignis-ordner>
+Aufruf:  python open_drive/final_test.py <ereignis-ordner>
 """
 import json
 import sys

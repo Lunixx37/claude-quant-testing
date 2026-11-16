@@ -6,7 +6,7 @@ Je gueltigem Handelstag (09:30-Kerze vorhanden, >= 350 RTH-Minuten):
   dazu alles, was VOR dem Signal bekannt ist: ATR, Overnight-Spanne, 00:00- und 08:30-Open,
   Vortageswerte, Mehrtages-Trend, Volumenprofil der letzten 20 Tage.
 
-Aufruf:  python final/opt_data.py <cache-ordner>
+Aufruf:  python open_drive/opt_data.py <cache-ordner>
 """
 import pickle
 import sys

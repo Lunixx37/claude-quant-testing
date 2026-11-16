@@ -17,15 +17,18 @@ Scans:
   4  Uhrzeit-Filter: Einstiege 09:30-10:00 auslassen
   6  Feines Raster um k = 3.5
 
-Aufruf:  python k2_level_scan.py [--plot]
+Aufruf:  python funktions_studien/k2_level_scan.py [--plot]
 """
 import sys
 import zipfile
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
 from numba import njit
 
+ROOT = Path(__file__).resolve().parent.parent          # Daten liegen im Wurzelverzeichnis des Repositories
+HERE = Path(__file__).resolve().parent
 ORIG = [2.0, 2.25, 2.5, 3.5, 4.0, 4.25, 4.5]
 TICK, REARM, NREC, MAXEV = 0.25, 0.02, 10, 3
 pd.set_option("display.width", 220)
@@ -34,12 +37,12 @@ pd.set_option("display.width", 220)
 # ------------------------------------------------------------------ Daten
 def load(kind, fixed7h=False):
     if kind == "NQ":
-        df = pd.read_csv("Dataset_NQ_1min_2022_2025.csv", usecols=["timestamp ET", "open", "high", "low", "close"])
+        df = pd.read_csv(ROOT / "Dataset_NQ_1min_2022_2025.csv", usecols=["timestamp ET", "open", "high", "low", "close"])
         df.index = pd.to_datetime(df.pop("timestamp ET"), format="%m/%d/%Y %H:%M") - pd.Timedelta("1min")
         return df[~df.index.duplicated()].sort_index()
     parts = []
     for i in (1, 2):
-        with zipfile.ZipFile(f"1m_data_part{i}.zip") as z:
+        with zipfile.ZipFile(ROOT / f"1m_data_part{i}.zip") as z:
             parts.append(pd.read_csv(z.open(f"1m_data_part{i}.csv"), sep="\t"))
     df = pd.concat(parts)
     broker = pd.DatetimeIndex(pd.to_datetime(df["DateTime"], format="%Y.%m.%d %H:%M:%S"))
@@ -277,7 +280,7 @@ def plot(ks, dk, dks):
         a.legend(frameon=False, loc="upper right", ncols=2)
     ax[1].set_xlabel("Level k (Vielfaches der halben Boxhöhe; gestrichelt = bisherige Level)")
     fig.tight_layout()
-    fig.savefig("k2_level_scan.png", dpi=200, facecolor=surf)
+    fig.savefig(HERE / "k2_level_scan.png", dpi=200, facecolor=surf)
     print("Grafik gespeichert: k2_level_scan.png")
 
 

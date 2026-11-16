@@ -11,7 +11,7 @@ Je Kombination zaehlt nur das erste passende Ereignis des Tages (hoechstens 1 Tr
 Kriterien A: >= 2 Trades/Woche, Trefferquote >= 60 %, Erwartungswert > 0 mit t >= 2.5
 Kriterien B: >= 2 Trades/Woche, Trefferquote >= 58 %, Erwartungswert > 0 mit t >= 1.0
 
-Aufruf:  python final/search.py <ereignis-ordner>
+Aufruf:  python open_drive/search.py <ereignis-ordner>
 """
 import itertools
 import sys

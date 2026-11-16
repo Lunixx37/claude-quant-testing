@@ -263,6 +263,6 @@ Fast alle 371 Treffer folgen einem Prinzip: mit der Bewegung handeln, wenn der K
 | `results/` | Trade-Listen |
 
 ```bash
-python final/r1_strategy.py && python final/plot_modes.py
-python final/opt_data.py /tmp/opt && python final/opt_final.py /tmp/opt
+python open_drive/r1_strategy.py && python open_drive/plot_modes.py
+python open_drive/opt_data.py /tmp/opt && python open_drive/opt_final.py /tmp/opt
 ```

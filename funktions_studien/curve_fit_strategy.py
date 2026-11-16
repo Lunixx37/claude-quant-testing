@@ -11,13 +11,16 @@ Gehandelt wird nur mit Information, die am Tag t bekannt ist (Fit ueber
 Zum Vergleich wird dieselbe Regel mit einem zentrierten Fenster gerechnet
 (nutzt Zukunftsdaten, NICHT handelbar) - das zeigt, wie stark der Rueckblick taeuscht.
 
-Aufruf:  python curve_fit_strategy.py [--plot]
+Aufruf:  python funktions_studien/curve_fit_strategy.py [--plot]
 """
 import sys
+from pathlib import Path
 import numpy as np
 import pandas as pd
 
-CSV = "Dataset_NQ_1min_2022_2025.csv"
+ROOT = Path(__file__).resolve().parent.parent          # Daten liegen im Wurzelverzeichnis des Repositories
+HERE = Path(__file__).resolve().parent
+CSV = ROOT / "Dataset_NQ_1min_2022_2025.csv"
 WINDOWS = (10, 50, 100)
 DEGREES = (2, 3)
 COST = 0.0001          # 1 bp pro Positionswechsel-Einheit (Spread + Gebuehren, grob)
@@ -155,7 +158,7 @@ def plot(px, logp, n=100, deg=3):
     ax[2].plot(xs, p.deriv(2)(xs), color="#1f6feb"); ax[2].axhline(0, color="k", lw=.6)
     ax[2].set_ylabel("f''  (Kruemmung)"); ax[2].set_xlabel("Tag im Fenster")
     fig.tight_layout()
-    fig.savefig("curve_fit_example.png", dpi=140)
+    fig.savefig(HERE / "curve_fit_example.png", dpi=140)
     print("Grafik gespeichert: curve_fit_example.png")
 
 

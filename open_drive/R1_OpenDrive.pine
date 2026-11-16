@@ -3,7 +3,7 @@
 // NQ Open-Drive – Fortsetzung nach starkem Weglaufen von der Eröffnung
 // Nur auf dem 1-MINUTEN-Chart verwenden (NQ / MNQ, Zeiten in New Yorker Zeit, volle Handelszeit).
 //
-// Einstieg (identisch zum Python-Backtest final/r1_strategy.py):
+// Einstieg (identisch zum Python-Backtest open_drive/r1_strategy.py):
 //   ATR    : Durchschnitt der Tagesspanne (Hoch − Tief) der letzten 14 abgeschlossenen Handelstage
 //   O      : Eröffnungskurs der 09:30-Kerze
 //   Signal : erste 1-Min-Kerze ab 09:31, die ≥ O + 0,3·ATR schließt (Long) oder ≤ O − 0,3·ATR (Short)

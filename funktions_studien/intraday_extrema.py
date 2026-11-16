@@ -9,9 +9,10 @@ Teil 3  Glaetter als Extremstellen-Detektor: Steigung dreht ins Plus (Minus)
         -> lag das Tagestief (-hoch) in den N Minuten davor?
 Teil 4  Handel: Position = Vorzeichen der Glaetter-Steigung, nur RTH, flat zum Schluss.
 
-Aufruf:  python intraday_extrema.py [--plot]
+Aufruf:  python funktions_studien/intraday_extrema.py [--plot]
 """
 import sys
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -20,7 +21,9 @@ from sklearn.metrics import brier_score_loss, roc_auc_score
 
 from smoothing_strategy import filter_t, gauss_kernel, gauss_loclin
 
-CSV = "Dataset_NQ_1min_2022_2025.csv"
+ROOT = Path(__file__).resolve().parent.parent          # Daten liegen im Wurzelverzeichnis des Repositories
+HERE = Path(__file__).resolve().parent
+CSV = ROOT / "Dataset_NQ_1min_2022_2025.csv"
 WINDOWS = (10, 50, 100)        # Minuten
 SPLIT = 0.6
 COST_PTS = 0.5                 # Punkte je Positionswechsel-Einheit (1 Tick Slippage + Gebuehr)
@@ -219,7 +222,7 @@ def plot(tab, ndays):
                     loc="left", fontsize=11)
     ax[1].legend(frameon=False)
     fig.tight_layout()
-    fig.savefig("intraday_extrema_timing.png", dpi=200, facecolor=surf)
+    fig.savefig(HERE / "intraday_extrema_timing.png", dpi=200, facecolor=surf)
     print("Grafik gespeichert: intraday_extrema_timing.png")
 
 

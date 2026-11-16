@@ -17,7 +17,7 @@ Konfluenz-Flags am Einstiegskurs und das Ergebnis in R fuer 4 feste Stops x 5 Zi
 Einstieg zum Schluss der Signalkerze, Stop zuerst wenn Stop und Ziel in derselben Kerze, 15:59 flat.
 Kosten: NQ 1 Punkt je Trade, CFD derselbe Anteil der ATR (0.0032 ATR).
 
-Aufruf:  python final/build_events.py <ausgabe-ordner>
+Aufruf:  python open_drive/build_events.py <ausgabe-ordner>
 """
 import sys
 import zipfile
