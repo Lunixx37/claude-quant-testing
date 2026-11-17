@@ -206,6 +206,39 @@ Keine Variante ist in beiden Stufen besser.
 - Kontrolle: CFD und NQ liefern im gemeinsamen Zeitraum 2023–2025 praktisch dieselben Trades (gleiche Richtung 100 %, gleicher Ausgang 97 %). Der Unterschied liegt also am Zeitraum, nicht an der Datenquelle.
 - Kreuzvalidiert über alle neun Jahre (Modell auf acht Jahren trainiert, auf dem neunten getestet) trennt eine Kombination aller Merkmale die Trades kaum: obere gegen untere Hälfte +0,04 R (t = 0,8).
 
+### Richtung des Tages (`direction_study.py`)
+
+Idee: Ist der Tag beim Signal schon weit ins Minus gelaufen, keinen Short mehr nehmen, eher Longs (und umgekehrt). Gemessen wird die Tagesbewegung bis zum Einstieg in Trade-Richtung, ab Vortagesschluss, ab 18:00 oder ab 00:00, in ATR (auf NQ 2023–25 ist 1 ATR im Median 276 Punkte).
+
+**Ergebnis je Tagesbewegung ab Vortagesschluss** (Trades, Trefferquote, E je Trade im Trend-Modus):
+
+| Tag schon gelaufen (in Trade-Richtung) | CFD 2016–20 | CFD 2021–22 | NQ 2023–25 |
+|---|---|---|---|
+| unter −0,5 ATR (klar gegen den Tag) | 20, 0 %, −1,04 | 9, 0 %, −1,04 | 13, 23 %, +0,06 |
+| −0,5 bis 0 | 113, 17 %, +0,25 | 47, 21 %, −0,22 | 81, 16 %, +0,61 |
+| 0 bis 0,25 | 146, 20 %, +0,20 | 92, 22 %, +0,40 | 114, 14 %, −0,01 |
+| 0,25 bis 0,5 | 164, 18 %, +0,07 | 76, 22 %, +0,07 | 139, 22 %, +0,06 |
+| 0,5 bis 0,75 | 111, 32 %, +1,10 | 58, 34 %, +1,19 | 71, 30 %, +1,01 |
+| 0,75 bis 1,0 | 52, 31 %, +0,60 | 30, 40 %, +1,04 | 34, 18 %, −0,39 |
+| 1,0 bis 1,5 | 19, 32 %, +0,58 | 8, 25 %, +0,28 | 31, 23 %, +0,72 |
+
+**Regeln im Trend-Modus** (R pro Jahr; in Klammern der Unterschied zu ohne Filter):
+
+| Regel | CFD 2016–20 | CFD 2021–22 | NQ 2023–25 |
+|---|---|---|---|
+| ohne Richtungs-Filter | +59 | +61 | +50 |
+| auslassen, wenn der Tag schon > 0,5 ATR in Trade-Richtung gelaufen ist | +12 (−46) | +11 (−51) | +20 (−30) |
+| … dafür das spätere Gegen-Signal nehmen | +6 (−53) | +10 (−51) | +27 (−23) |
+| … stattdessen sofort in die Gegenrichtung handeln | 0 (−59) | −7 (−69) | +21 (−29) |
+| auslassen ab 0,75 ATR | +43 (−15) | +46 (−16) | +45 (−6) |
+| auslassen ab 1,0 ATR | +51 (−7) | +61 (0) | +40 (−10) |
+| Gegenprobe: nur mit der Tagesrichtung (auslassen, wenn > 0,5 ATR gegen den Tag) | +64 (+5) | +66 (+5) | +50 (0) |
+
+- **Die Idee verschlechtert das Ergebnis**, in allen drei Datensätzen, mit allen drei Messpunkten (Vortagesschluss, 18:00, 00:00) und auch im Ausstieg R1. Die Trefferquote steigt dabei nicht.
+- Der Grund: Die Strategie ist eine Fortsetzungs-Strategie. Tage, die schon in eine Richtung laufen und dann noch einmal 0,3 ATR von der Eröffnung weglaufen, sind die starken Trendtage. Trades mit mehr als 0,5 ATR Tagesbewegung sind 30 % (CFD) bzw. 28 % (NQ) der Trades, liefern aber 80 % bzw. 60 % des Gesamtgewinns.
+- Die Gegenprobe (nur mit der Tagesrichtung handeln) hilft auf dem CFD leicht und ist auf NQ neutral. Das reicht nicht für eine neue Regel.
+- Ein Mehrtages-Trend (5 oder 20 Tage) zeigt ebenfalls nichts: Die Vorzeichen wechseln zwischen den Datensätzen.
+
 ### Wochentage (E je Trade mit V2a-Ausstieg)
 
 | Tag | CFD 2016–20 | CFD 2021–22 | NQ 2023–25 |
@@ -259,6 +292,7 @@ Fast alle 371 Treffer folgen einem Prinzip: mit der Bewegung handeln, wenn der K
 | `opt_selection.json`, `opt_final.py` | eingefrorene Kandidaten und Gegenprobe |
 | `trail_study.py` | Test nachgezogener Stops für offene Positionen |
 | `losscut_study.py` | Test früher Verlustbegrenzung im Trend-Modus |
+| `direction_study.py` | Test eines Richtungs-Filters nach der bisherigen Tagesbewegung |
 | `build_events.py`, `search.py`, `selection.json`, `final_test.py` | erste Suche |
 | `results/` | Trade-Listen |
 
