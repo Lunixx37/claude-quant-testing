@@ -239,6 +239,24 @@ Idee: Ist der Tag beim Signal schon weit ins Minus gelaufen, keinen Short mehr n
 - Die Gegenprobe (nur mit der Tagesrichtung handeln) hilft auf dem CFD leicht und ist auf NQ neutral. Das reicht nicht für eine neue Regel.
 - Ein Mehrtages-Trend (5 oder 20 Tage) zeigt ebenfalls nichts: Die Vorzeichen wechseln zwischen den Datensätzen.
 
+### Trendtage früher erwischen (`early_entry_study.py`)
+
+Bei den großen Gewinnern (mindestens +3 R) läuft der Tag von der Eröffnung bis zum Schluss im Schnitt 0,9 ATR; das bisherige Signal steigt erst nach 0,33 ATR ein, im Schnitt 40 bis 55 Minuten nach 09:30. Getestet wurden 42 frühere Einstiege im Trend-Modus:
+
+| Einstieg | Unterschied zu bisher, R pro Jahr (CFD 2016–20 / CFD 2021–22 / NQ 2023–25) |
+|---|---|
+| niedrigere Schwelle 0,15 / 0,2 / 0,25 ATR für alle Tage | +16 / +26 / −4; 0 / +31 / +29; −8 / −12 / +10 |
+| niedrigere Schwelle nur in Lückenrichtung (Lücke ≥ 0,1 bis 0,3 ATR, Schwelle 0,1 bis 0,25) | gemischt, 9 von 12 Varianten auf NQ schlechter oder gleich |
+| Schwelle ab Vortagesschluss (0,4 bis 0,8 ATR) | meist schlechter, weil zu wenige Trades |
+| Einstieg nach 5, 15 oder 30 Minuten, wenn der Kurs dann ≥ 0,1 bis 0,25 ATR weg ist | nach 5 Minuten leicht besser (+5 bis +10 / +14 bis +23 / 0 bis +8), sonst gemischt |
+| **Gap-and-Go: Einstieg 09:31 in Lückenrichtung bei Lücke ≥ 0,3 ATR, wenn die 09:31-Kerze in Lückenrichtung schließt** | **+8 / +23 / +27** |
+| früher Teil-Einstieg plus Nachkauf beim bisherigen Signal (zwei Positionen) | mehr R pro Jahr, aber mit doppeltem Risiko; Ertrag je Drawdown auf NQ meist schlechter |
+
+- **Die CFD-Auswahl sagt hier nichts über NQ voraus:** Von den 20 Varianten, die auf beiden CFD-Stufen besser waren, waren 11 auch auf NQ besser (55 %); von den übrigen 22 ebenfalls 12 (55 %). Die meisten Unterschiede sind Rauschen.
+- **Gap-and-Go ist die einzige Variante, die überall hält** und deren Nachbarn mit Lücke 0,2 bis 0,4 ATR ebenfalls besser sind (über alle Daten t = 1,9 bis 2,5). Sie ist aber fragil: Ohne Bestätigung durch die 09:31-Kerze oder mit Einstieg eine Minute später (09:32) oder um 09:35 verschwindet der Vorteil. Rund die Hälfte des Zusatzgewinns stammt aus 2022 und 2024.
+- **Kennzahlen Trend-Modus mit Gap-and-Go** (CFD / NQ): 3,5 / 3,6 Trades pro Woche, 22,0 % / 20,0 % Treffer, +0,411 / +0,420 R je Trade, +72,7 / +77,2 R pro Jahr, größter Drawdown −32,0 / −22,4 R, längste Verlustserie 20 / 19, alle 10 Jahre positiv. Auf NQ mit 3 Punkten Kosten +0,332 R je Trade.
+- Im Pine-Skript ist Gap-and-Go ein Schalter unter „Einstieg“, standardmäßig aus. Der Einstieg in der ersten Minute ist am stärksten von Spread und Slippage betroffen; das sollte der Forward-Test zeigen, bevor die Option fest übernommen wird.
+
 ### Wochentage (E je Trade mit V2a-Ausstieg)
 
 | Tag | CFD 2016–20 | CFD 2021–22 | NQ 2023–25 |
@@ -278,7 +296,7 @@ Fast alle 371 Treffer folgen einem Prinzip: mit der Bewegung handeln, wenn der K
 
 1. `R1_OpenDrive.pine` auf dem 1-Minuten-Chart von NQ oder MNQ laden, Chart mit vollständiger Handelszeit (sonst stimmt die ATR nicht). Die Standard-Einstellung ist der Trend-Modus.
 2. Zum Vergleich eine zweite Instanz mit eingeschaltetem Kerzen-Nachzug oder im Modus „Teilverkauf + Runner“ laufen lassen. Der Einstieg ist derselbe; so zeigt sich, welcher Ausstieg trägt.
-3. Im Strategy Tester die letzten Wochen mit den Trade-Listen in `results/` vergleichen: `trend_trades_NQ.csv`, `trend_nachzug_trades_NQ.csv`, `trend_halb_nachzug_trades_NQ.csv`, `trend_zeitregel_trades_NQ.csv`, `v2a_trades_NQ.csv`, `r1_trades_NQ.csv`.
+3. Im Strategy Tester die letzten Wochen mit den Trade-Listen in `results/` vergleichen: `trend_trades_NQ.csv`, `trend_nachzug_trades_NQ.csv`, `trend_halb_nachzug_trades_NQ.csv`, `trend_zeitregel_trades_NQ.csv`, `trend_gapgo_trades_NQ.csv`, `v2a_trades_NQ.csv`, `r1_trades_NQ.csv`.
 4. „Nur ab Startdatum handeln“ einschalten. Im Trend-Modus sagt die Trefferquote wenig; entscheidend ist die Summe in R über mindestens 150 Trades (etwa ein Jahr). Eine Verlustserie von 20 Trades ist dabei kein Zeichen, dass die Strategie nicht mehr funktioniert.
 
 ## Dateien
@@ -293,6 +311,7 @@ Fast alle 371 Treffer folgen einem Prinzip: mit der Bewegung handeln, wenn der K
 | `trail_study.py` | Test nachgezogener Stops für offene Positionen |
 | `losscut_study.py` | Test früher Verlustbegrenzung im Trend-Modus |
 | `direction_study.py` | Test eines Richtungs-Filters nach der bisherigen Tagesbewegung |
+| `early_entry_study.py` | Test früherer Einstiege an Trendtagen (u. a. Gap-and-Go) |
 | `build_events.py`, `search.py`, `selection.json`, `final_test.py` | erste Suche |
 | `results/` | Trade-Listen |
 

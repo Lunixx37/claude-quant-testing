@@ -9,6 +9,11 @@
 //   Signal : erste 1-Min-Kerze ab 09:31, die ≥ O + 0,3·ATR schließt (Long) oder ≤ O − 0,3·ATR (Short)
 //   Filter : Tagesspanne seit 09:30 (Hoch − Tief inkl. Signalkerze) ≤ 0,5·ATR; Signal spätestens 15:29
 //   Entry  : Schlusskurs der Signalkerze, höchstens 1 Trade pro Tag
+//   Option Gap-and-Go (Schalter, standardmäßig aus): liegt die Eröffnung ≥ 0,3·ATR jenseits des Vortages-
+//            schlusses und schließt die 09:31-Kerze in Lückenrichtung jenseits der Eröffnung, Einstieg zu
+//            diesem Schlusskurs in Lückenrichtung (ohne Spannen-Filter); sonst das normale Signal.
+//            Backtest Trend-Modus: +0,41 / +0,42 R je Trade statt +0,37 / +0,30 (CFD / NQ), ≈ 3,6 Trades/Woche.
+//            Wirkt nur mit Einstieg in genau dieser Minute; ab 09:32 ist der Vorteil weg.
 //
 // Auf dem Chart: blaue Linie = Entry, rot gestrichelt = Anfangs-Stop, rote Linie = aktueller Stop
 // (Einstand / Nachzug), grün gestrichelt = Ziel 1, Beschriftung "Exit … R" an jedem Ausstieg.
@@ -49,6 +54,8 @@ string grpS = "Einstieg"
 float trigMult = input.float(0.30, "Signal: Abstand zur Eröffnung (× ATR)", minval = 0.05, step = 0.05, group = grpS)
 bool useRange  = input.bool(true, "Filter: Tagesspanne begrenzen", group = grpS)
 float rngMax   = input.float(0.50, "Max. Tagesspanne beim Signal (× ATR)", minval = 0.1, step = 0.05, group = grpS)
+bool useGap    = input.bool(false, "Gap-and-Go: bei Lücke in Lückenrichtung einsteigen, wenn die 09:31-Kerze in Lückenrichtung schließt", group = grpS)
+float gapMin   = input.float(0.30, "Gap-and-Go: Mindest-Lücke zum Vortagesschluss (× ATR)", minval = 0.05, step = 0.05, group = grpS)
 string sideSel = input.string("Beide", "Richtung", options = ["Beide", "Nur Long", "Nur Short"], group = grpS)
 
 string grpX = "Ausstieg"
@@ -115,6 +122,8 @@ var float dayHi  = na
 var float dayLo  = na
 var float atrDay = na
 var bool  done   = true
+var float rthClose = na                            // Schlusskurs der 15:59-Kerze (= 16:00)
+var float pdcDay   = na                            // Vortagesschluss für die Lücke
 // ───────────── Trade-Zustand
 var float entryPx = na
 var float curStop = na
@@ -138,7 +147,10 @@ var line tpLn    = na
 if newDay
     o := na
     done := true
+if mins == 15 * 60 + 59
+    rthClose := close
 if isOpenBar
+    pdcDay := rthClose
     o := open
     dayHi := high
     dayLo := low
@@ -203,12 +215,14 @@ if openQty > 0 and dirSign != 0
 // ───────────── Signal
 bool canTrade = not fwdOnly or time >= fwdStart
 bool window   = inSession and mins > openMin and mins <= lastMin
-bool upSig    = window and not done and not na(o) and not na(atrDay) and close >= upLvl
-bool dnSig    = window and not done and not na(o) and not na(atrDay) and close <= dnLvl
+float gapSz   = na(pdcDay) or na(o) ? na : o - pdcDay
+bool gapSig   = useGap and not done and not na(gapSz) and not na(atrDay) and mins == openMin + 1 and math.abs(gapSz) >= gapMin * atrDay and (close - o) * math.sign(gapSz) > 0
+bool upSig    = (window and not done and not na(o) and not na(atrDay) and close >= upLvl) or (gapSig and gapSz > 0)
+bool dnSig    = (window and not done and not na(o) and not na(atrDay) and close <= dnLvl) or (gapSig and gapSz < 0)
 
 if upSig or dnSig
     done := true                                   // nur das erste Signal des Tages zählt
-    bool rangeOk = not useRange or (dayHi - dayLo) <= rngMax * atrDay
+    bool rangeOk = gapSig or not useRange or (dayHi - dayLo) <= rngMax * atrDay
     bool sideOk  = sideSel == "Beide" or (upSig and sideSel == "Nur Long") or (dnSig and sideSel == "Nur Short")
     if rangeOk and sideOk and canTrade and strategy.position_size == 0
         float dist = stopMult * atrDay
@@ -243,7 +257,7 @@ if upSig or dnSig
             strategy.exit(id + " Ziel", id, qty = q1Qty, stop = curStop, limit = tpPx)
             strategy.exit(id + " Rest", id, qty = qty - q1Qty, stop = curStop, limit = runLimit0)
         alert("Open-Drive " + (upSig ? "LONG" : "SHORT") + "  Entry " + str.tostring(close, format.mintick) + "  Stop " + str.tostring(curStop, format.mintick), alert.freq_once_per_bar_close)
-        label.new(time, close, upSig ? "Long" : "Short", xloc = xloc.bar_time,
+        label.new(time, close, (gapSig ? "Gap " : "") + (upSig ? "Long" : "Short"), xloc = xloc.bar_time,
              style = upSig ? label.style_label_up : label.style_label_down,
              yloc = upSig ? yloc.belowbar : yloc.abovebar, color = upSig ? color.green : color.red,
              textcolor = color.white, size = size.small)

@@ -39,30 +39,35 @@ def _days(kind):
         first = pd.Timestamp("2016-11-16" if kind == "CFD" else "2023-01-01")
         clock = b.index.hour * 60 + b.index.minute
         rth = b[(clock >= 570) & (clock < 960)]
-        out = []
+        out, prev_day, prev_close = [], None, np.nan
         for day, s in rth.groupby(rth.index.normalize()):
-            if day < first or day.dayofweek > 4 or len(s) < 350 or day not in atr.index or np.isnan(atr.loc[day]):
+            if day.dayofweek > 4 or len(s) < 350 or s.index[0].minute != 30 or s.index[0].hour != 9:
                 continue
-            if s.index[0].minute != 30 or s.index[0].hour != 9:
+            pc = prev_close if prev_day is not None and (day - prev_day).days <= 5 else np.nan
+            prev_day, prev_close = day, s.close.values[-1]
+            if day < first or day not in atr.index or np.isnan(atr.loc[day]):
                 continue
             out.append((day, float(atr.loc[day]), s.index, s.open.values, s.high.values, s.low.values, s.close.values,
-                        (s.index.hour * 60 + s.index.minute).values))
+                        (s.index.hour * 60 + s.index.minute).values, pc))
         _DATA[kind] = out
     return _DATA[kind]
 
 
 def run(kind, trig=TRIG, rng_max=RNG_MAX, stop=0.15, rr=0.5, cost_pts=1.0, part=0.0, runner_rr=None,
-        no_target=False, trail_act=None, trail_k=1, trail_part=1.0, cut=None):
+        no_target=False, trail_act=None, trail_k=1, trail_part=1.0, cut=None, gapgo=None):
     """part = 0 und no_target = False: alles bei rr x Stop (R1).
     part > 0: Anteil `part` bei rr x Stop, Rest bis runner_rr x Stop (None = Tagesende), Stop danach auf Einstand.
     no_target: kein Ziel, nur Stop und Tagesende (Trend).
     trail_act: Kerzen-Nachzug ab trail_act x Stop Gewinn (Schlusskurs); trail_k = Kerzen in Folge;
                trail_part < 1: nur dieser Anteil der Position folgt dem Nachzug, der Rest behaelt den Stop.
+    gapgo = g: Gap-and-Go - liegt die Eroeffnung >= g x ATR jenseits des Vortagesschlusses und schliesst die
+               09:31-Kerze in Lueckenrichtung jenseits der Eroeffnung, Einstieg zu diesem Schlusskurs in
+               Lueckenrichtung (ohne Spannen-Filter); sonst das normale Signal.
     cut = (n, x): Zeit-Regel - Ausstieg zum Schlusskurs, wenn der Trade n Minuten nach dem Einstieg mehr als
                x x Stop im Minus schliesst."""
     if trail_act is not None and 0 < trail_part < 1:                       # zwei Teilpositionen, gleicher Einstieg
         kw = dict(trig=trig, rng_max=rng_max, stop=stop, rr=rr, cost_pts=cost_pts, part=part, runner_rr=runner_rr,
-                  no_target=no_target, cut=cut)
+                  no_target=no_target, cut=cut, gapgo=gapgo)
         a, nd = run(kind, trail_act=trail_act, trail_k=trail_k, **kw)
         h, _ = run(kind, **kw)
         m = h.copy()
@@ -72,15 +77,19 @@ def run(kind, trig=TRIG, rng_max=RNG_MAX, stop=0.15, rr=0.5, cost_pts=1.0, part=
         return m, nd
     rows = []
     days = _days(kind)
-    for day, a, idx, O, H, L, C, mins in days:
+    for day, a, idx, O, H, L, C, mins, pc in days:
         o = O[0]
-        hit = np.flatnonzero((np.abs(C - o) >= trig * a) & (mins >= 571))
-        if not len(hit):
-            continue
-        r = hit[0]
-        if mins[r] > 15 * 60 + 29 or H[:r + 1].max() - L[:r + 1].min() > rng_max * a:
-            continue
-        side = 1 if C[r] > o else -1
+        g = (o - pc) / a
+        if gapgo is not None and abs(g) >= gapgo and mins[1] == 571 and (C[1] - o) * np.sign(g) > 0:
+            r, side, src = 1, int(np.sign(g)), "Gap-and-Go"
+        else:
+            hit = np.flatnonzero((np.abs(C - o) >= trig * a) & (mins >= 571))
+            if not len(hit):
+                continue
+            r = hit[0]
+            if mins[r] > 15 * 60 + 29 or H[:r + 1].max() - L[:r + 1].min() > rng_max * a:
+                continue
+            side, src = (1 if C[r] > o else -1), "Signal 0,3"
         entry, d = C[r], stop * a
         sl = entry - side * d
         tp = None if no_target else entry + side * d * rr
@@ -127,7 +136,8 @@ def run(kind, trig=TRIG, rng_max=RNG_MAX, stop=0.15, rr=0.5, cost_pts=1.0, part=
         if rem > 0:
             real += rem * (C[-1] - entry) * side
         c = cost_pts if kind == "NQ" else cost_pts * 0.0032 * a
-        rows.append(dict(tag=day.date(), einstieg=idx[r] + pd.Timedelta("1min"), seite="Long" if side == 1 else "Short",
+        rows.append(dict(tag=day.date(), einstieg=idx[r] + pd.Timedelta("1min"), art=src,
+                         seite="Long" if side == 1 else "Short",
                          entry=entry, stop=sl, ziel1=tp, teilziel_erreicht=tp1 or why == "Ziel",
                          ausstieg=idx[x] + pd.Timedelta("1min"), exit=px, grund=why, atr=a, stop_punkte=d,
                          minuten=int((idx[x] - idx[r]).total_seconds() // 60), punkte=real - c, R=(real - c) / d))
@@ -188,11 +198,13 @@ MODES = {"Trend: Stop 0,08 ATR, kein Ziel": dict(stop=0.08, no_target=True),
          "Trend + Nachzug: 1-Min-Kerzen ab 1 R": dict(stop=0.08, no_target=True, trail_act=1.0),
          "Trend, halbe Position mit Nachzug": dict(stop=0.08, no_target=True, trail_act=1.0, trail_part=0.5),
          "Trend + Zeit-Regel 30 Min / 0,25 R": dict(stop=0.08, no_target=True, cut=(30, 0.25)),
+         "Trend + Gap-and-Go 0,3": dict(stop=0.08, no_target=True, gapgo=0.3),
          "V2a: 50 % bei 0,5 R, Rest bis Tagesende": dict(part=0.5),
          "V2a-75: 50 % bei 0,75 R, Rest bis Tagesende": dict(part=0.5, rr=0.75),
          "R1: alles bei 0,5 R": dict()}
 FILES = {"Trend:": "trend_trades_NQ.csv", "Trend + Nachzug": "trend_nachzug_trades_NQ.csv",
-         "Trend, halbe": "trend_halb_nachzug_trades_NQ.csv", "Trend + Zeit": "trend_zeitregel_trades_NQ.csv", "V2a:": "v2a_trades_NQ.csv",
+         "Trend, halbe": "trend_halb_nachzug_trades_NQ.csv", "Trend + Zeit": "trend_zeitregel_trades_NQ.csv",
+         "Trend + Gap": "trend_gapgo_trades_NQ.csv", "V2a:": "v2a_trades_NQ.csv",
          "R1:": "r1_trades_NQ.csv"}
 
 if __name__ == "__main__":
