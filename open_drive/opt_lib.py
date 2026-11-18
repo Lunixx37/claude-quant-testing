@@ -35,7 +35,7 @@ def load_cache(path):
     cv = np.cumsum(S["V"], axis=1)
     S["vwr"] = np.where(cv > 0, np.cumsum(tp * S["V"], axis=1) / np.maximum(cv, 1e-9), np.nan)
     S["cumv"] = cv
-    for k in ("ema", "z30", "vwe", "vwr"):
+    for k in ("ema", "z30", "vwe", "vwe_sd", "vwr"):
         S[k] = pd.DataFrame(S[k]).ffill(axis=1).values
     S["Cf"] = pd.DataFrame(S["C"]).ffill(axis=1).values
     S["ndays"] = D[D.tradable].groupby("seg").size().to_dict()

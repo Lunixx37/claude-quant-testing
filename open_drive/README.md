@@ -239,6 +239,35 @@ Idee: Ist der Tag beim Signal schon weit ins Minus gelaufen, keinen Short mehr n
 - Die Gegenprobe (nur mit der Tagesrichtung handeln) hilft auf dem CFD leicht und ist auf NQ neutral. Das reicht nicht für eine neue Regel.
 - Ein Mehrtages-Trend (5 oder 20 Tage) zeigt ebenfalls nichts: Die Vorzeichen wechseln zwischen den Datensätzen.
 
+### VWAP-Filter (`vwap_study.py`)
+
+Idee wie beim Richtungs-Filter: nicht „unten“ shorten (unter der VWAP bzw. unter ihren unteren Bändern) und nicht „oben“ kaufen, weil dort eine Reaktion wahrscheinlicher ist. VWAP mit Anker 18:00 New York (Beginn der Futures-Sitzung am Vortag), Bänder = VWAP ± 1, 2, 3 × volumengewichtete Standardabweichung (σ). Ein σ entspricht beim Signal im Median 0,13 ATR (NQ 2023–25: 40 Punkte). Beim CFD beruht die VWAP auf Tick-Volumen.
+
+**Lage zur VWAP beim Signal** (z = Abstand in σ, positiv = Short unter bzw. Long über der VWAP; Trades, Trefferquote, E je Trade im Trend-Modus):
+
+| Lage | CFD 2016–20 | CFD 2021–22 | NQ 2023–25 |
+|---|---|---|---|
+| gegen die VWAP-Seite (z < 0) | 19, 5 %, −0,79 | 21, 14 %, +0,03 | 6, 17 %, +0,51 |
+| 0 bis 1 σ | 81, 16 %, +0,19 | 36, 31 %, +0,36 | 49, 8 %, −0,07 |
+| 1 bis 2 σ | 163, 26 %, +0,31 | 67, 27 %, +0,14 | 193, 26 %, +0,54 |
+| 2 bis 3 σ | 263, 19 %, +0,32 | 129, 25 %, +0,33 | 212, 18 %, +0,20 |
+| über 3 σ (Short weit unten / Long weit oben) | 101, 28 %, +0,96 | 69, 25 %, +0,85 | 25, 16 %, −0,09 |
+
+**Regeln im Trend-Modus** (R pro Jahr; in Klammern der Unterschied zu ohne Filter):
+
+| Regel | CFD 2016–20 | CFD 2021–22 | NQ 2023–25 |
+|---|---|---|---|
+| ohne VWAP-Filter | +59 | +61 | +50 |
+| auslassen über 1 σ | 0 (−59) | +6 (−56) | 0 (−51) |
+| auslassen über 2 σ | +13 (−46) | +10 (−51) | +36 (−14) |
+| auslassen über 3 σ | +34 (−25) | +32 (−30) | +51 (+1) |
+| auslassen, wenn das nächste Band in Trade-Richtung näher als 0,02 / 0,05 / 0,1 ATR liegt | +1 / +4 / −20 | −3 / −25 / −30 | −4 / −19 / −16 |
+| Gegenprobe: nur mit der VWAP-Seite handeln | +63 (+4) | +62 (+1) | +49 (−1) |
+
+- **Der Filter verschlechtert das Ergebnis**, im Trend-Modus und im Modus R1. Fast jedes Signal liegt schon 1 bis 3 σ jenseits der VWAP, weil der Kurs dafür 0,3 ATR von der Eröffnung weglaufen muss. Ein Filter ab 1 oder 2 σ streicht deshalb den Großteil der Trades, darunter die besten.
+- **Bänder als Reaktionszone:** Ob das nächste Band kurz vor oder weit vom Einstieg liegt, macht keinen verlässlichen Unterschied; die Richtung wechselt zwischen den Datensätzen.
+- Trades gegen die VWAP-Seite gibt es kaum (49 von 1.434). Sie wegzulassen ist neutral.
+
 ### Trendtage früher erwischen (`early_entry_study.py`)
 
 Bei den großen Gewinnern (mindestens +3 R) läuft der Tag von der Eröffnung bis zum Schluss im Schnitt 0,9 ATR; das bisherige Signal steigt erst nach 0,33 ATR ein, im Schnitt 40 bis 55 Minuten nach 09:30. Getestet wurden 42 frühere Einstiege im Trend-Modus:
@@ -312,6 +341,7 @@ Fast alle 371 Treffer folgen einem Prinzip: mit der Bewegung handeln, wenn der K
 | `losscut_study.py` | Test früher Verlustbegrenzung im Trend-Modus |
 | `direction_study.py` | Test eines Richtungs-Filters nach der bisherigen Tagesbewegung |
 | `early_entry_study.py` | Test früherer Einstiege an Trendtagen (u. a. Gap-and-Go) |
+| `vwap_study.py` | Test eines VWAP-Filters (Anker 18:00) mit σ-Bändern |
 | `build_events.py`, `search.py`, `selection.json`, `final_test.py` | erste Suche |
 | `results/` | Trade-Listen |
 

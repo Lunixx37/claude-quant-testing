@@ -43,10 +43,12 @@ def build(kind):
     cv = pd.Series(V).groupby(sk).cumsum().values
     cpv = pd.Series(tp * V).groupby(sk).cumsum().values
     vwe = np.where(cv > 0, cpv / np.maximum(cv, 1e-9), np.nan)
+    cpv2 = pd.Series(tp * tp * V).groupby(sk).cumsum().values
+    vwe_sd = np.sqrt(np.clip(np.where(cv > 0, cpv2 / np.maximum(cv, 1e-9), np.nan) - vwe ** 2, 0, None))
 
     dnum = t.normalize().values
     first = pd.Timestamp("2016-11-16" if kind == "CFD" else "2023-01-01")
-    recs, grids, hist = [], {k: [] for k in ("O", "H", "L", "C", "V", "ema", "z30", "vwe", "cumv_avg")}, []
+    recs, grids, hist = [], {k: [] for k in ("O", "H", "L", "C", "V", "ema", "z30", "vwe", "vwe_sd", "cumv_avg")}, []
     prev = prev2 = None
     for d in np.unique(dnum):
         day = pd.Timestamp(d)
@@ -58,7 +60,7 @@ def build(kind):
         pos = np.arange(i0, i1)[m]
         idx = ck[m] - 570
         gr = {}
-        for nm, arr in (("O", O), ("H", H), ("L", L), ("C", C), ("ema", ema), ("z30", z30), ("vwe", vwe)):
+        for nm, arr in (("O", O), ("H", H), ("L", L), ("C", C), ("ema", ema), ("z30", z30), ("vwe", vwe), ("vwe_sd", vwe_sd)):
             x = np.full(NB, np.nan)
             x[idx] = arr[pos]
             gr[nm] = x
